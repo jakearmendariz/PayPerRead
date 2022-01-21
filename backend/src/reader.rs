@@ -1,33 +1,67 @@
+/// reader.rs
+/// create, read, scan and delete users.
+/// TODO: Update users account balance
+use crate::common::{ApiError, mongo_error, Balance};
 use crate::mongo::MongoDB;
+use mongodb::bson::doc;
+use mongodb::sync::Collection;
 use rocket::State;
+use rocket::http::Status;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
-
-/// Better to keep balance as two separate unsigned values
-/// than a float to avoid floating point math and errors.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Balance {
-    dollars: u32,
-    cents: u32,
-}
 
 /// Reader represents a user on the site.
 /// Going to leave the credit card and other private information in another struct.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Reader {
-    email: String,
+    pub email: String,
     name: String,
     balance: Balance,
 }
 
 /// Scan of entire readers table.
 #[get("/readers")]
-pub fn get_readers(mongo_db: State<MongoDB>) -> Json<Vec<Reader>> {
+pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
     let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
     // find with no parameters is just a scan.
     let cursor = readers
         .find(None, None)
-        .expect("Error scanning readers table.");
+        .or_else(mongo_error)?;
     let readers_vec = cursor.map(|item| item.unwrap()).collect::<Vec<Reader>>();
-    Json(readers_vec)
+    Ok(Json(readers_vec))
+}
+
+#[get("/reader/<email>")]
+pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
+    let readers: Collection<Reader> = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    let result = readers
+        .find_one(doc! {"email": email.as_str()}, None)
+        .or_else(mongo_error)?;
+    match result {
+        Some(reader) => Ok(Json(reader)),
+        None => Err(ApiError::NotFound)
+    }
+}
+
+#[post("/new-reader", data = "<reader>")]
+pub fn add_reader(mongo_db: State<MongoDB>, reader: Json<Reader>) -> Result<Status, ApiError> {
+    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    match readers.find_one(doc! {"email": reader.email.as_str()}, None).or_else(mongo_error)? {
+        Some(_) => return Err(ApiError::UserAlreadyExists),
+        None => (),
+    };
+    match readers.insert_one(reader.into_inner(), None) {
+        Ok(_) => Ok(Status::Created),
+        Err(_) => Err(ApiError::MongoDBError),
+    }
+}
+
+#[delete("/reader/<email>")]
+pub fn delete_reader(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    let result = readers.find_one_and_delete(doc! {"email": email.as_str()}, None);
+    match result {
+        Ok(_) => Ok(Status::Ok),
+        Err(_) => Err(ApiError::MongoDBError),
+    }
 }

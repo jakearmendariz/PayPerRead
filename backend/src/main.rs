@@ -4,6 +4,7 @@ extern crate rocket;
 #[macro_use]
 extern crate dotenv_codegen;
 mod mongo;
+mod common;
 mod reader;
 
 #[get("/")]
@@ -16,6 +17,15 @@ fn main() {
         .expect("Could not connect to mongoDB, try adding your IP address to allowlist.");
     rocket::ignite()
         .manage(mongo_db)
-        .mount("/", routes![index, reader::get_readers])
+        .mount(
+            "/",
+            routes![
+                index,
+                reader::scan_readers,
+                reader::add_reader,
+                reader::get_reader,
+                reader::delete_reader
+            ],
+        )
         .launch();
 }
