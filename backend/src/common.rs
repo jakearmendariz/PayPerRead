@@ -70,7 +70,7 @@ pub fn mongo_error<T>(e:mongodb::error::Error) -> Result<T, ApiError> {
 
 /// Better to keep balance as two separate unsigned values
 /// than a float to avoid floating point math and errors.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Balance {
     dollars: u32,
     cents: u32,

@@ -19,6 +19,22 @@ pub struct Reader {
     balance: Balance,
 }
 
+impl From<NewReader> for Reader {
+    fn from(reader: NewReader) -> Self {
+        Reader {
+            email: reader.email,
+            name: reader.name,
+            balance: Balance::default(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct NewReader {
+    email: String,
+    name: String,
+}
+
 /// Scan of entire readers table.
 #[get("/readers")]
 pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
@@ -44,13 +60,13 @@ pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader
 }
 
 #[post("/new-reader", data = "<reader>")]
-pub fn add_reader(mongo_db: State<MongoDB>, reader: Json<Reader>) -> Result<Status, ApiError> {
+pub fn add_reader(mongo_db: State<MongoDB>, reader: Json<NewReader>) -> Result<Status, ApiError> {
     let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
     match readers.find_one(doc! {"email": reader.email.as_str()}, None).or_else(mongo_error)? {
         Some(_) => return Err(ApiError::UserAlreadyExists),
         None => (),
     };
-    match readers.insert_one(reader.into_inner(), None) {
+    match readers.insert_one(Reader::from(reader.into_inner()), None) {
         Ok(_) => Ok(Status::Created),
         Err(_) => Err(ApiError::MongoDBError),
     }

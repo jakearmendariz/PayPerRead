@@ -10,13 +10,14 @@ import unittest
 
 ADDRESS = "http://localhost:8000"
 TEST_EMAIL = 'test@gmail.com'
+NEW_USER = {'email': TEST_EMAIL, 'name':'Test User'}
 TEST_USER = {'email': TEST_EMAIL, 'name':'Test User', 'balance': {'dollars': 0, 'cents': 0}}
 
 def get_readers():
     return requests.get(f"{ADDRESS}/readers")
 
 def add_reader():
-    return requests.post(f"{ADDRESS}/new-reader", json=TEST_USER)
+    return requests.post(f"{ADDRESS}/new-reader", json=NEW_USER)
 
 def get_reader():
     return requests.get(f"{ADDRESS}/reader/{TEST_EMAIL}")
