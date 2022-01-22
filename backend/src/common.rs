@@ -6,6 +6,8 @@ use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
 use std::error::Error as StdError;
 use std::fmt;
+use std::ops::Add;
+use std::ops::Sub;
 
 /// Primary error for api.
 /// Feel free to add enum arms!
@@ -70,8 +72,31 @@ pub fn mongo_error<T>(e:mongodb::error::Error) -> Result<T, ApiError> {
 
 /// Better to keep balance as two separate unsigned values
 /// than a float to avoid floating point math and errors.
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Copy, Clone)]
 pub struct Balance {
     dollars: u32,
     cents: u32,
+}
+
+impl Add for Balance {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Self {
+            dollars: self.dollars + other.dollars + ((self.cents + other.cents) / 100),
+            cents: (self.cents + other.cents) % 100,
+        }
+    }
+}
+
+impl Sub for Balance {
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
+        let self_total = self.dollars * 100 + self.cents;
+        let other_total = other.dollars * 100 + other.cents;
+        let self_rem = self_total - other_total;
+        Self {
+            dollars: self_rem / 100,
+            cents: self_rem % 100,
+        }
+    }
 }
