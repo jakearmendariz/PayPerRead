@@ -14,7 +14,7 @@ const FetchNames = () => {
 	useEffect(() => {
 		
 		// the endpoint we are fetching from/the database (use a temporary one for now)
-		const url = "";
+		const url = "http://localhost:8000/readers";
 		fetch(url)
 			.then(data => data.json())
 			.then(resp => {

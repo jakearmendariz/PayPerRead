@@ -16,7 +16,7 @@ fn index() -> String {
 }
 
 fn main() {
-    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:5000/"]);
+    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000/"]);
 
     // You can also deserialize this
     let cors = rocket_cors::CorsOptions {
