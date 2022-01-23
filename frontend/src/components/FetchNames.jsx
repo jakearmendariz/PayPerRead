@@ -1,35 +1,35 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+
+const defaultState = {
+	names: [],
+};
+
 
 /* Uses Fetch API to grab content from MongoDB */
-class FetchNames extends React.Component {
-    state = {
-        loading: true,
-        names: null,
-    }
-    async componentDidMount() {   //This function will fetch data
-        const url = "api"; //put link to database here
-        const response = await fetch(url);
-        const data = await response.json();
-        this.setState({names: data.results, loading: false})
-        console.log(data.results); //I like to keep this here to check what kind of data I'm dealing with
-    }
-    render() {
-        if(this.state.loading ) {   //check for nulls
-            return <br />;
-        }
+const FetchNames = () => {
 
-        if(!this.state.names){ //check for nulls
-            return <br />;
-        }
+	const [ state, setState ] = useState(defaultState);
+	
+	// fetch the data and add it to the state when ready
+	useEffect(() => {
+		
+		// the endpoint we are fetching from/the database (use a temporary one for now)
+		const url = "";
+		fetch(url)
+			.then(data => data.json())
+			.then(resp => {
+				console.log(resp);
+				setState({ names: resp });
+			});
 
-        /*Print data here */
-        return <div style={{fontWeight: "bold"}}>
-            <br />
-             <div>
-                 <p>Welcome</p>
-            </div> 
-        </div>
-    }
-}
+	}, [ setState ]);
 
-export default FetchNames
+	return (
+		<div>
+			<p>Welcome</p>
+		</div>
+	);
+
+};
+
+export default FetchNames;
