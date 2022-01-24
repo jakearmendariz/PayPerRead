@@ -3,12 +3,12 @@
 extern crate rocket;
 #[macro_use]
 extern crate dotenv_codegen;
-mod mongo;
 mod common;
+mod mongo;
 mod reader;
-use rocket_cors::{AllowedHeaders, AllowedOrigins};
 use rocket::http::Method;
 use rocket::{get, routes};
+use rocket_cors::{AllowedHeaders, AllowedOrigins};
 
 #[get("/")]
 fn index() -> String {
@@ -26,7 +26,8 @@ fn main() {
         allow_credentials: true,
         ..Default::default()
     }
-    .to_cors().expect("CORS failure");
+    .to_cors()
+    .expect("CORS failure");
 
     let mongo_db = mongo::connect_to_mongo()
         .expect("Could not connect to mongoDB, try adding your IP address to allowlist.");

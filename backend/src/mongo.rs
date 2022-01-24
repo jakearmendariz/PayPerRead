@@ -4,7 +4,7 @@ use mongodb::bson::doc;
 use mongodb::sync::{Client, Collection, Database};
 
 /// Primary struct for maintaining connection to MongoDB
-/// 
+///
 /// Note: Considering changing this to a series of collections.
 /// That would avoid making a request for the collection each time we try to interact with data.
 /// Slower startup time, but I think its worth it as long as we don't run on a a lambda.

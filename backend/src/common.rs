@@ -1,9 +1,10 @@
-/// common.rs
-/// Contains commonly used structs and features
-use serde::{Deserialize, Serialize};
 use rocket::http::Status;
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
+/// common.rs
+/// Contains commonly used structs and features
+use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::error::Error as StdError;
 use std::fmt;
 use std::ops::Add;
@@ -51,9 +52,9 @@ impl<'r> Responder<'r> for ApiError {
         match self {
             ApiError::NotFound => Err(Status::NotFound),
             ApiError::InternalServerError => Err(Status::InternalServerError),
-            ApiError::MongoDBError => {
-                Ok(Response::build().raw_status(424, MONGO_DB_ERROR_MSG).finalize())
-            }
+            ApiError::MongoDBError => Ok(Response::build()
+                .raw_status(424, MONGO_DB_ERROR_MSG)
+                .finalize()),
             ApiError::UserAlreadyExists => Ok(Response::build()
                 .raw_status(403, USER_ALREADY_EXISTS_MSG)
                 .finalize()),
@@ -62,20 +63,36 @@ impl<'r> Responder<'r> for ApiError {
 }
 
 /// Converts mongo's error struct to ours, printing information.
-/// Why not return the mongo error? 
+/// Why not return the mongo error?
 /// If mongo errors out, its not the clients fault, its a mongo problem,
 /// and we neeed to investigate database via the mongo console.
-pub fn mongo_error<T>(e:mongodb::error::Error) -> Result<T, ApiError> {
+pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
     println!("Unexpected MongoDB Error {}", e);
-    return Err(ApiError::MongoDBError)
+    return Err(ApiError::MongoDBError);
 }
 
 /// Better to keep balance as two separate unsigned values
 /// than a float to avoid floating point math and errors.
-#[derive(Debug, Default, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub struct Balance {
     dollars: u32,
     cents: u32,
+}
+
+impl Ord for Balance {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.dollars == other.dollars {
+            self.cents.cmp(&other.cents)
+        } else {
+            self.dollars.cmp(&other.dollars)
+        }
+    }
+}
+
+impl PartialOrd for Balance {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl Add for Balance {
@@ -98,5 +115,36 @@ impl Sub for Balance {
             dollars: self_rem / 100,
             cents: self_rem % 100,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn new_balance(dollars: u32, cents: u32) -> Balance {
+        Balance { dollars, cents }
+    }
+
+    #[test]
+    fn add_balance() {
+        let c = new_balance(5, 99) + new_balance(1, 10);
+        assert_eq!(c.dollars, 7);
+        assert_eq!(c.cents, 9);
+    }
+
+    #[test]
+    fn sub_balance() {
+        let c = new_balance(5, 9) - new_balance(1, 10);
+        assert_eq!(c.dollars, 3);
+        assert_eq!(c.cents, 99);
+    }
+
+    #[test]
+    fn ord_balance() {
+        let a = new_balance(5, 0);
+        let b = new_balance(4, 9);
+        assert!(a > b);
+        assert!(b < a);
     }
 }
