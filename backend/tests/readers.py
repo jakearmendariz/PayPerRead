@@ -20,13 +20,16 @@ def get_readers():
     return requests.get(f"{ADDRESS}/readers")
 
 def add_reader():
-    return requests.post(f"{ADDRESS}/new-reader", json=NEW_USER)
+    return requests.post(f"{ADDRESS}/reader/new-reader", json=NEW_USER)
 
 def get_reader():
     return requests.get(f"{ADDRESS}/reader/{TEST_EMAIL}")
 
 def update_reader_balance():
-    return requests.post(f"{ADDRESS}/add-balance/{TEST_EMAIL}", json=MONEY)
+    return requests.post(f"{ADDRESS}/reader/add-balance/{TEST_EMAIL}", json=MONEY)
+
+def sub_reader_balance():
+    return requests.post(f"{ADDRESS}/reader/sub-balance/{TEST_EMAIL}", json=MONEY)
 
 def delete_reader():
     return requests.delete(f"{ADDRESS}/reader/{TEST_EMAIL}")
@@ -71,6 +74,13 @@ class ReaderTests(unittest.TestCase):
         get_reader_success = get_reader()
         self.assertEqual(get_reader_success.status_code, 200)
         self.assertEqual(get_reader_success.json(), TEST_USER_WITH_MONEY)
+        # Take money
+        sub_reader_balance_success = sub_reader_balance()
+        self.assertEqual(sub_reader_balance_success.status_code, 201)
+        # Verify
+        get_reader_success = get_reader()
+        self.assertEqual(get_reader_success.status_code, 200)
+        self.assertEqual(get_reader_success.json(), TEST_USER)
         # Clean up
         delete_reader_success = delete_reader()
         self.assertEqual(delete_reader_success.status_code, 200)
@@ -79,4 +89,5 @@ class ReaderTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    # print(add_reader().status_code)
     # delete_reader()

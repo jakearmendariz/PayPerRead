@@ -40,7 +40,7 @@ pub struct NewReader {
 /// Scan of entire readers table.
 #[get("/readers")]
 pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
-    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    let readers = mongo_db.get_readers_collection();
     // find with no parameters is just a scan.
     let cursor = readers.find(None, None).or_else(mongo_error)?;
     let readers_vec = cursor.map(|item| item.unwrap()).collect::<Vec<Reader>>();
@@ -49,7 +49,7 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
 
 #[get("/reader/<email>")]
 pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
-    let readers: Collection<Reader> = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    let readers: Collection<Reader> = mongo_db.get_readers_collection();
     let result = readers
         .find_one(email_filter(email), None)
         .or_else(mongo_error)?;
@@ -59,27 +59,26 @@ pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader
     }
 }
 
-#[post("/add-balance/<email>", data = "<amount>")]
+#[post("/reader/add-balance/<email>", data = "<amount>")]
 pub fn add_to_balance(
     mongo_db: State<MongoDB>,
     email: String,
     amount: Json<Balance>,
 ) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
-    // Find reader
+    let readers = mongo_db.get_readers_collection();
     let reader = get_reader(mongo_db, email.clone())?;
     // Add the new balance
     let updated_balance = amount.into_inner() + reader.balance;
     common::update_balance(readers, updated_balance, email)
 }
 
-#[post("/sub-balance/<email>", data = "<amount>")]
+#[post("/reader/sub-balance/<email>", data = "<amount>")]
 pub fn sub_from_balance(
     mongo_db: State<MongoDB>,
     email: String,
     amount: Json<Balance>,
 ) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    let readers = mongo_db.get_readers_collection();
     let reader = get_reader(mongo_db, email.clone())?;
     // Verify user has enough balance to pay.
     let amount_to_subtract = amount.into_inner();
@@ -90,25 +89,26 @@ pub fn sub_from_balance(
     common::update_balance(readers, updated_balance, email)
 }
 
-#[post("/new-reader", data = "<reader>")]
+#[post("/reader/new-reader", data = "<reader>")]
 pub fn add_reader(mongo_db: State<MongoDB>, reader: Json<NewReader>) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
-    match readers
-        .find_one(email_filter(reader.email.clone()), None)
-        .or_else(mongo_error)?
-    {
-        Some(_) => return Err(ApiError::UserAlreadyExists),
-        None => (),
-    };
+    let readers = mongo_db.get_readers_collection();
     match readers.insert_one(Reader::from(reader.into_inner()), None) {
         Ok(_) => Ok(Status::Created),
-        Err(_) => Err(ApiError::MongoDBError),
+        Err(e) => {
+            use mongodb::error::ErrorKind;
+            match *e.kind {
+                // Reader collection has a unique email index.
+                // Will error on duplicate email address.
+                ErrorKind::Write(_) => Err(ApiError::UserAlreadyExists),
+                _ => Err(ApiError::MongoDBError),
+            }
+        }
     }
 }
 
 #[delete("/reader/<email>")]
 pub fn delete_reader(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_collection_from_user_db::<Reader>("Readers");
+    let readers = mongo_db.get_readers_collection();
     let result = readers.find_one_and_delete(email_filter(email), None);
     match result {
         Ok(_) => Ok(Status::Ok),

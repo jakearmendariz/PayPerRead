@@ -1,8 +1,8 @@
+use crate::reader::Reader;
 /// mongo.rs
 /// Connection to mongoDB
 use mongodb::bson::doc;
 use mongodb::sync::{Client, Collection, Database};
-
 /// Primary struct for maintaining connection to MongoDB
 ///
 /// Note: Considering changing this to a series of collections.
@@ -17,9 +17,14 @@ pub struct MongoDB {
 }
 
 impl MongoDB {
-    // FYI (reason for this function) its best practice to keep attributes private.
+    // General use
     pub fn get_collection_from_user_db<T>(&self, name: &str) -> Collection<T> {
         self.user_db.collection(name)
+    }
+
+    /// Readers collection is used often enough for its own function
+    pub fn get_readers_collection(&self) -> Collection<Reader> {
+        self.user_db.collection("Readers")
     }
 }
 
