@@ -1,8 +1,9 @@
+/// common.rs
+/// Contains commonly used structs and features
+use mongodb::bson::{doc, to_bson, Bson, Document};
 use rocket::http::Status;
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
-/// common.rs
-/// Contains commonly used structs and features
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::error::Error as StdError;
@@ -18,12 +19,14 @@ pub enum ApiError {
     NotFound,
     InternalServerError,
     UserAlreadyExists,
+    NotEnoughFunds,
 }
 
 static USER_ALREADY_EXISTS_MSG: &str = "User Already exists";
 static MONGO_DB_ERROR_MSG: &str = "MongoDB Error";
 static NOT_FOUND_MSG: &str = "Record Not Found";
 static INTERAL_SERVER_ERROR_MSG: &str = "Internal Server Error";
+static NOT_ENOUGH_FUNDS_MSG: &str = "Not Enough Funds";
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -32,6 +35,7 @@ impl fmt::Display for ApiError {
             ApiError::MongoDBError => f.write_str(MONGO_DB_ERROR_MSG),
             ApiError::InternalServerError => f.write_str(INTERAL_SERVER_ERROR_MSG),
             ApiError::UserAlreadyExists => f.write_str(USER_ALREADY_EXISTS_MSG),
+            ApiError::NotEnoughFunds => f.write_str(NOT_ENOUGH_FUNDS_MSG),
         }
     }
 }
@@ -43,6 +47,7 @@ impl StdError for ApiError {
             ApiError::InternalServerError => INTERAL_SERVER_ERROR_MSG,
             ApiError::MongoDBError => MONGO_DB_ERROR_MSG,
             ApiError::UserAlreadyExists => USER_ALREADY_EXISTS_MSG,
+            ApiError::NotEnoughFunds => NOT_ENOUGH_FUNDS_MSG,
         }
     }
 }
@@ -58,8 +63,16 @@ impl<'r> Responder<'r> for ApiError {
             ApiError::UserAlreadyExists => Ok(Response::build()
                 .raw_status(403, USER_ALREADY_EXISTS_MSG)
                 .finalize()),
+            ApiError::NotEnoughFunds => {
+                Ok(Response::build().raw_status(400, NOT_FOUND_MSG).finalize())
+            }
         }
     }
+}
+
+/// Commonly used as a filter for searching mongodb
+pub fn email_filter(email: String) -> Document {
+    doc! {"email": email.as_str()}
 }
 
 /// Converts mongo's error struct to ours, printing information.
@@ -71,12 +84,35 @@ pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
     return Err(ApiError::MongoDBError);
 }
 
+/// Updates balance for a given email.
+/// Takes collection as a parameter so it can be expanded to
+/// both the reader and publsher table.
+pub fn update_balance<T>(
+    collection: mongodb::sync::Collection<T>,
+    updated_balance: Balance,
+    email: String,
+) -> Result<Status, ApiError> {
+    let update = doc! {"$set": {"balance": updated_balance.to_bson()}};
+    match collection.update_one(email_filter(email), update, None) {
+        Ok(_) => Ok(Status::Created),
+        Err(_) => Err(ApiError::MongoDBError),
+    }
+}
+
 /// Better to keep balance as two separate unsigned values
 /// than a float to avoid floating point math and errors.
 #[derive(Debug, Default, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub struct Balance {
     dollars: u32,
     cents: u32,
+}
+
+impl Balance {
+    /// Converts to bson, doesn't handle error for now.
+    fn to_bson(self) -> Bson {
+        // Should never panic...
+        to_bson(&self).expect("Couldn't serialize balance")
+    }
 }
 
 impl Ord for Balance {

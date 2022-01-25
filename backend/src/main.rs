@@ -18,7 +18,6 @@ fn index() -> String {
 fn main() {
     let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000/"]);
 
-    // You can also deserialize this
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get].into_iter().map(From::from).collect(),
@@ -41,7 +40,9 @@ fn main() {
                 reader::scan_readers,
                 reader::add_reader,
                 reader::get_reader,
-                reader::delete_reader
+                reader::delete_reader,
+                reader::add_to_balance,
+                reader::sub_from_balance,
             ],
         )
         .launch();

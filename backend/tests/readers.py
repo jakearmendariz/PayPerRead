@@ -10,8 +10,11 @@ import unittest
 
 ADDRESS = "http://localhost:8000"
 TEST_EMAIL = 'test@gmail.com'
+NO_MONEY = {'dollars': 0, 'cents': 0}
+MONEY = {'dollars': 5, 'cents': 0}
 NEW_USER = {'email': TEST_EMAIL, 'name':'Test User'}
-TEST_USER = {'email': TEST_EMAIL, 'name':'Test User', 'balance': {'dollars': 0, 'cents': 0}}
+TEST_USER = {'email': TEST_EMAIL, 'name':'Test User', 'balance': NO_MONEY}
+TEST_USER_WITH_MONEY = {'email': TEST_EMAIL, 'name':'Test User', 'balance': MONEY}
 
 def get_readers():
     return requests.get(f"{ADDRESS}/readers")
@@ -21,6 +24,9 @@ def add_reader():
 
 def get_reader():
     return requests.get(f"{ADDRESS}/reader/{TEST_EMAIL}")
+
+def update_reader_balance():
+    return requests.post(f"{ADDRESS}/add-balance/{TEST_EMAIL}", json=MONEY)
 
 def delete_reader():
     return requests.delete(f"{ADDRESS}/reader/{TEST_EMAIL}")
@@ -55,6 +61,22 @@ class ReaderTests(unittest.TestCase):
         delete_reader_success = delete_reader()
         self.assertEqual(delete_reader_success.status_code, 200)
 
+    def test_update_reader_balance(self):
+        add_reader_success = add_reader()
+        self.assertEqual(add_reader_success.status_code, 201)
+        # Update reader
+        update_reader_balance_success = update_reader_balance()
+        self.assertEqual(update_reader_balance_success.status_code, 201)
+        # Verify
+        get_reader_success = get_reader()
+        self.assertEqual(get_reader_success.status_code, 200)
+        self.assertEqual(get_reader_success.json(), TEST_USER_WITH_MONEY)
+        # Clean up
+        delete_reader_success = delete_reader()
+        self.assertEqual(delete_reader_success.status_code, 200)
+
+
 
 if __name__ == '__main__':
     unittest.main()
+    # delete_reader()
