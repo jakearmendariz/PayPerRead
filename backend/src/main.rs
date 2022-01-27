@@ -3,9 +3,11 @@
 extern crate rocket;
 #[macro_use]
 extern crate dotenv_codegen;
+extern crate lazy_static;
 mod common;
 mod mongo;
 mod reader;
+mod session;
 use rocket::http::Method;
 use rocket::{get, routes};
 use rocket_cors::{AllowedHeaders, AllowedOrigins};
@@ -40,6 +42,8 @@ fn rocket(mongo_db: mongo::MongoDB, cors: rocket_cors::Cors) -> rocket::Rocket {
             reader::delete_reader,
             reader::add_to_balance,
             reader::sub_from_balance,
+            session::login,
+            session::check_cookies,
         ],
     )
 }

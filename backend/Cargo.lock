@@ -1379,7 +1379,9 @@ name = "pay_per_read"
 version = "0.1.0"
 dependencies = [
  "dotenv_codegen",
+ "lazy_static",
  "mongodb",
+ "rand",
  "rocket",
  "rocket_contrib",
  "rocket_cors",

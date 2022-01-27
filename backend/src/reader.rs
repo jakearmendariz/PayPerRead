@@ -4,6 +4,7 @@
 use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
+use crate::session::Session;
 use mongodb::bson::doc;
 use mongodb::sync::Collection;
 use rocket::http::Status;
@@ -57,6 +58,11 @@ pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader
         Some(reader) => Ok(Json(reader)),
         None => Err(ApiError::NotFound),
     }
+}
+
+#[get("/reader")]
+pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
+    get_reader(mongo_db, session.email)
 }
 
 #[post("/reader/add-balance/<email>", data = "<amount>")]
