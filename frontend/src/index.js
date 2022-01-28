@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import App from './App';
 import UserLandingPage from './pages/UserLandingPage'
 import PublisherLandingPage from './pages/PublisherLandingPage'
+import SignInPage from './pages/SignInPage';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -15,6 +16,7 @@ ReactDOM.render(
         <Route path="/" element={<App />} />
         <Route path="user" element={<UserLandingPage />} />
         <Route path="publisher" element={<PublisherLandingPage />} />
+	<Route path="signin/:user" element={<SignInPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
