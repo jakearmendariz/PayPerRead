@@ -8,6 +8,8 @@ import UserLandingPage from './pages/UserLandingPage'
 import PublisherLandingPage from './pages/PublisherLandingPage'
 import SignInPage from './pages/SignInPage';
 
+import './global.css';
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>

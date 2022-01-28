@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 const SignInComponent = ({ subtitle, description }) => (
-	<div>
+	<div className="container">
 
 		<h1>PayPerRead</h1>
 		<h2>{subtitle}</h2>
