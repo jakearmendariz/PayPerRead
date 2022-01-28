@@ -1,7 +1,7 @@
 import './App.css';
-import Welcome from "./components/Welcome"
 import { Link } from 'react-router-dom'
 
+import Welcome from "../components/Welcome"
 
 function App() {
 

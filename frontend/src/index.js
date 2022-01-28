@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
-import App from './App';
+import App from './pages/App';
 import UserLandingPage from './pages/UserLandingPage'
 import PublisherLandingPage from './pages/PublisherLandingPage'
 import SignInPage from './pages/SignInPage';
