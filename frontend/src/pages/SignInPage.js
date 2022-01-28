@@ -2,17 +2,21 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 const SignInComponent = ({ subtitle, description }) => (
-	<div className="container">
+	<div className="center-content">
 
-		<h1>PayPerRead</h1>
-		<h2>{subtitle}</h2>
+		{/* set the width to be the size of 2 columns, and have a breakpoint at the predefined lg */}
+		<div className="col-lg-2">
 
-		<p>{description}</p>
+			{/* Use the fonts and colors defined in global.css */}
+			<h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>
+			<h2 className="primary-font primary-color">{subtitle}</h2>
 
-		<p>Learn more about how we work <a>here</a>.</p>
+			<p className="mt-3 secondary-font secondary-color">{description}</p>
 
-		<button>Sign in</button>
+			<p className="secondary-font secondary-color">Learn more about how we work <a>here</a>.</p>
 
+			<button className="styled-button secondary-font primary-color">Sign in</button>
+		</div>
 	</div>
 );
 

@@ -1,4 +1,37 @@
 
+.center-content {
+
+	height: 65vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+}
+
+.primary-font {
+	font-family: 'Roboto Slab', serif;
+}
+
+.secondary-font {
+	font-family: 'Roboto', sans-serif;
+}
+
+.primary-color: {
+	color: #333;
+}
+
+.secondary-color {
+	color: #555;
+}
+
 .styled-button {
 
+	width: 100%;
+	padding-top: .25rem;
+	padding-bottom: .25rem;
+
+	border: 3px solid #333;
+	border-radius: 10px;
+	
+	background-color: #fff;
 }
