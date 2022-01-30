@@ -17,21 +17,21 @@
 }
 
 .primary-color: {
-	color: #333;
+	color: #333 !important;
 }
 
 .secondary-color {
-	color: #555;
+	color: #555 !important;
 }
 
 .styled-button {
 
-	width: 100%;
-	padding-top: .25rem;
-	padding-bottom: .25rem;
+	width: 100% !important;
+	padding-top: .25rem !important;
+	padding-bottom: .25rem !important;
 
-	border: 3px solid #333;
-	border-radius: 10px;
+	border: 3px solid #333 !important;
+	border-radius: 10px !important;
 	
-	background-color: #fff;
+	background-color: #fff !important;
 }

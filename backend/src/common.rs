@@ -81,7 +81,7 @@ pub fn email_filter(email: String) -> Document {
 /// and we neeed to investigate database via the mongo console.
 pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
     println!("Unexpected MongoDB Error {}", e);
-    return Err(ApiError::MongoDBError);
+    Err(ApiError::MongoDBError)
 }
 
 /// Updates balance for a given email.
