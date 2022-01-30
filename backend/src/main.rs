@@ -7,6 +7,7 @@ extern crate lazy_static;
 mod common;
 mod mongo;
 mod reader;
+mod publisher;
 mod session;
 use rocket::http::Method;
 use rocket::{get, routes};
@@ -42,6 +43,14 @@ fn rocket(mongo_db: mongo::MongoDB, cors: rocket_cors::Cors) -> rocket::Rocket {
             reader::delete_reader,
             reader::add_to_balance,
             reader::sub_from_balance,
+
+            publisher::scan_publishers,
+            publisher::add_publisher,
+            publisher::get_publisher,
+            publisher::delete_publisher,
+            publisher::add_to_balance,
+            publisher::clear_balance,
+
             session::login,
             session::check_cookies,
         ],
