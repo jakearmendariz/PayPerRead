@@ -36,21 +36,14 @@ const SignInPage = () => {
         const navigate = useNavigate();    
     
         const success = (response) => {    
-                console.log(response);    
-                console.log(response.profileObj.email);    
-    
-                const url = "http://localhost:8000/";    
-                fetch(url)    
-                        .then(data => data.json())    
-                        .then(resp => {    
-                                console.log(resp);    
-                        });    
-    
-                navigate("/")    
+                const url = `http://localhost:8000/login/${response.profileObj.email}`;    
+		fetch(url).then(resp => {
+			if(resp.status === 200)
+				navigate("/");
+		})
         };    
     
         const failure = (response) => {                                                                                               
-                console.log(response);
         };
 
         // check if the signup is valid
