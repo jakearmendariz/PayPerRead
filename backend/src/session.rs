@@ -33,7 +33,7 @@ pub struct Session {
 }
 
 impl Session {
-    /// Builds a new session obh for a user.
+    /// Builds a new session obj for a user.
     fn new(email: String) -> Self {
         let token: String = rand::thread_rng()
             .sample_iter(&Alphanumeric)
@@ -60,11 +60,9 @@ impl<'r, 'a> FromRequest<'r, 'a> for Session {
         match MONGO_SESSIONS.find_one(doc! {"token": token}, None) {
             Ok(result) => match result {
                 Some(session) => Outcome::Success(session),
-                None => return Outcome::Failure((Status::NotFound, ApiError::NotFound)),
+                None => Outcome::Failure((Status::NotFound, ApiError::NotFound)),
             },
-            Err(_) => {
-                return Outcome::Failure((Status::InternalServerError, ApiError::MongoDBError))
-            }
+            Err(_) => Outcome::Failure((Status::InternalServerError, ApiError::MongoDBError)),
         }
     }
 }
@@ -72,7 +70,7 @@ impl<'r, 'a> FromRequest<'r, 'a> for Session {
 /// Creates a session token for the provided email
 /// inside of the session collection in mongodb. Returns
 /// a cookie with the email and session cookie.
-fn create_session<'a>(email: String) -> Result<Cookie<'a>, ApiError> {
+pub fn create_session<'a>(email: String) -> Result<Cookie<'a>, ApiError> {
     let session = Session::new(email);
     MONGO_SESSIONS
         .insert_one(session.clone(), None)

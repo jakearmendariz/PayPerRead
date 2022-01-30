@@ -4,10 +4,11 @@
 use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
+use crate::session;
 use crate::session::Session;
 use mongodb::bson::doc;
 use mongodb::sync::Collection;
-use rocket::http::Status;
+use rocket::http::{Cookies, Status};
 use rocket::State;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
@@ -95,11 +96,20 @@ pub fn sub_from_balance(
     common::update_balance(readers, updated_balance, email)
 }
 
-#[post("/reader/new-reader", data = "<reader>")]
-pub fn add_reader(mongo_db: State<MongoDB>, reader: Json<NewReader>) -> Result<Status, ApiError> {
+#[post("/reader/new-reader", data = "<new_reader>")]
+pub fn add_reader(
+    mongo_db: State<MongoDB>,
+    new_reader: Json<NewReader>,
+    mut cookies: Cookies,
+) -> Result<Status, ApiError> {
     let readers = mongo_db.get_readers_collection();
-    match readers.insert_one(Reader::from(reader.into_inner()), None) {
-        Ok(_) => Ok(Status::Created),
+    let reader = new_reader.into_inner();
+    let email = reader.email.clone();
+    match readers.insert_one(Reader::from(reader), None) {
+        Ok(_) => {
+            cookies.add(session::create_session(email)?);
+            Ok(Status::Created)
+        }
         Err(e) => {
             use mongodb::error::ErrorKind;
             match *e.kind {
