@@ -18,14 +18,17 @@ const SignInComponent = ({ subtitle, description, success, failure }) => (
                         <p className="secondary-font secondary-color">Learn more about how we work <a>here</a>.</p>    
     
     
+			{/* TODO: fix styling because the library's implementation of styling is a bitch */}
                         <GoogleLogin    
                                 clientId="395326925781-gs6ubj69r0egkkeifimohrktr2h3an6p.apps.googleusercontent.com"    
-                                buttonText="Login"    
+                                buttonText="Sign in"    
+				icon={false}
                                 onSuccess={success}    
                                 onFailure={failure}    
                                 cookiePolicy={'single_host_origin'}    
+				className="styled-button secondary-font primary-color justify-content-center"
+				style={{ color: "#f00" }}
                         />    
-                        {/* <button className="styled-button secondary-font primary-color">Sign in</button> */}    
                 </div>    
         </div>    
 );    
@@ -43,8 +46,9 @@ const SignInPage = () => {
 		})
         };    
     
-        const failure = (response) => {                                                                                               
-        };
+        const failure = (response) => {
+		
+	};
 
         // check if the signup is valid
         if(user !== 'reader' && user !== 'publisher') 
@@ -66,3 +70,4 @@ const SignInPage = () => {
 };
 
 export default SignInPage;
+
