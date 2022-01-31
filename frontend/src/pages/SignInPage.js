@@ -73,7 +73,7 @@ const login = (response, navigate) => {
 	*/
 
 const SignInPage = () => {    
-    
+        
         const navigate = useNavigate();    
         const { user } = useParams(); // get the slug    
         // check if the signup is valid

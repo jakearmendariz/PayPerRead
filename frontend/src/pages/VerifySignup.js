@@ -16,7 +16,7 @@ const create_new_user = (details, navigate) => () => {
 	// A post with no-cors has less options for content-type
 	fetch(url, {
 		method: 'POST',
-		mode: 'cors',
+		mode: 'no-cors',
 		credentials:'same-origin',
 		redirect: 'follow',
 		referrerPolicy: 'no-referrer',

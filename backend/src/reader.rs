@@ -13,6 +13,8 @@ use rocket::State;
 use rocket::Data;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
+use rocket::request::{self, FromRequest, Outcome, Request};
+use reqwest;
 
 /// Reader represents a user on the site.
 /// Going to leave the credit card and other private information in another struct.
@@ -30,6 +32,29 @@ impl From<NewReader> for Reader {
             name: reader.name,
             balance: Balance::default(),
         }
+    }
+}
+
+impl<'r, 'a> FromRequest<'r, 'a> for NewReader {
+    type Error = ApiError;
+    /// Request guard for sessions, returning a 404 if session isn't there or expired.
+    fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+        let headers = request.headers();
+        let jwt = headers.get("JWT").next().unwrap();
+        let google_response = reqwest::blocking::get(format!("https://oauth2.googleapis.com/tokeninfo?id_token={}", jwt)).expect("google token errro");
+        let reader:NewReader = google_response.json().expect("json decode error");
+        Outcome::Success(reader)
+        // let token = match  {
+        //     Some(cookie) => cookie.value(),
+        //     None => return Outcome::Failure((Status::NotFound, ApiError::NotFound)),
+        // };
+        // match MONGO_SESSIONS.find_one(doc! {"token": token}, None) {
+        //     Ok(result) => match result {
+        //         Some(session) => ,
+        //         None => Outcome::Failure((Status::NotFound, ApiError::NotFound)),
+        //     },
+        //     Err(_) => Outcome::Failure((Status::InternalServerError, ApiError::MongoDBError)),
+        // }
     }
 }
 
@@ -99,10 +124,10 @@ pub fn sub_from_balance(
 
 use rocket::response::status::NoContent;
 
-#[options("/reader/new-reader")]
-pub fn new_reader_preflight() -> NoContent {
-    NoContent
-}
+// #[options("/reader/new-reader")]
+// pub fn new_reader_preflight() -> NoContent {
+//     NoContent
+// }
 
 #[post("/reader/new-reader", data = "<new_reader>")]
 pub fn add_reader(
