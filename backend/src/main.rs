@@ -22,8 +22,8 @@ fn create_cors() -> rocket_cors::Cors {
 
     rocket_cors::CorsOptions {
         allowed_origins,
-        allowed_methods: vec![Method::Get].into_iter().map(From::from).collect(),
-        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept"]),
+        allowed_methods: vec![Method::Get, Method::Post, Method::Options].into_iter().map(From::from).collect(),
+        allowed_headers: AllowedHeaders::some(&["*"]),
         allow_credentials: true,
         ..Default::default()
     }
@@ -31,13 +31,36 @@ fn create_cors() -> rocket_cors::Cors {
     .expect("cors failure")
 }
 
+use rocket::http::Header;
+use rocket::{Request, Response};
+use rocket::fairing::{Fairing, Info, Kind};
+
+pub struct CORS;
+
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
+        }
+    }
+
+    fn on_response(&self, request: &Request, response: &mut Response) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
+}
+
 fn rocket(mongo_db: mongo::MongoDB, cors: rocket_cors::Cors) -> rocket::Rocket {
-    rocket::ignite().manage(mongo_db).attach(cors).mount(
+    rocket::ignite().manage(mongo_db).attach(CORS).mount(
         "/",
         routes![
             index,
             reader::scan_readers,
             reader::add_reader,
+            reader::new_reader_preflight,
             reader::get_reader,
             reader::delete_reader,
             reader::add_to_balance,

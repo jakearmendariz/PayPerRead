@@ -10,6 +10,7 @@ use mongodb::bson::doc;
 use mongodb::sync::Collection;
 use rocket::http::{Cookies, Status};
 use rocket::State;
+use rocket::Data;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
@@ -94,6 +95,13 @@ pub fn sub_from_balance(
     }
     let updated_balance = reader.balance - amount_to_subtract;
     common::update_balance(readers, updated_balance, email)
+}
+
+use rocket::response::status::NoContent;
+
+#[options("/reader/new-reader")]
+pub fn new_reader_preflight() -> NoContent {
+    NoContent
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]
