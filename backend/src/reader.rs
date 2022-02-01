@@ -5,16 +5,14 @@ use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
-use crate::session::Session;
-use mongodb::bson::doc;
-use mongodb::sync::Collection;
-use rocket::http::{Cookies, Status};
-use rocket::State;
-use rocket::Data;
+use crate::session::{JwtAuth, Session};
+use mongodb::{bson::doc, sync::Collection};
+use rocket::{
+    http::{Cookies, Status},
+    State,
+};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
-use rocket::request::{self, FromRequest, Outcome, Request};
-use reqwest;
 
 /// Reader represents a user on the site.
 /// Going to leave the credit card and other private information in another struct.
@@ -35,33 +33,10 @@ impl From<NewReader> for Reader {
     }
 }
 
-impl<'r, 'a> FromRequest<'r, 'a> for NewReader {
-    type Error = ApiError;
-    /// Request guard for sessions, returning a 404 if session isn't there or expired.
-    fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        let headers = request.headers();
-        let jwt = headers.get("JWT").next().unwrap();
-        let google_response = reqwest::blocking::get(format!("https://oauth2.googleapis.com/tokeninfo?id_token={}", jwt)).expect("google token errro");
-        let reader:NewReader = google_response.json().expect("json decode error");
-        Outcome::Success(reader)
-        // let token = match  {
-        //     Some(cookie) => cookie.value(),
-        //     None => return Outcome::Failure((Status::NotFound, ApiError::NotFound)),
-        // };
-        // match MONGO_SESSIONS.find_one(doc! {"token": token}, None) {
-        //     Ok(result) => match result {
-        //         Some(session) => ,
-        //         None => Outcome::Failure((Status::NotFound, ApiError::NotFound)),
-        //     },
-        //     Err(_) => Outcome::Failure((Status::InternalServerError, ApiError::MongoDBError)),
-        // }
-    }
-}
-
 /// NewReader for adding readers
 #[derive(Debug, Deserialize)]
 pub struct NewReader {
-    email: String,
+    pub email: String,
     name: String,
 }
 
@@ -122,21 +97,19 @@ pub fn sub_from_balance(
     common::update_balance(readers, updated_balance, email)
 }
 
-use rocket::response::status::NoContent;
-
-// #[options("/reader/new-reader")]
-// pub fn new_reader_preflight() -> NoContent {
-//     NoContent
-// }
-
 #[post("/reader/new-reader", data = "<new_reader>")]
 pub fn add_reader(
     mongo_db: State<MongoDB>,
     new_reader: Json<NewReader>,
+    reader_auth: JwtAuth,
     mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
     let readers = mongo_db.get_readers_collection();
     let reader = new_reader.into_inner();
+    if reader_auth.email != reader.email {
+        // Tried to create a user that didn't match authorization.
+        return Err(ApiError::AuthorizationError);
+    }
     let email = reader.email.clone();
     match readers.insert_one(Reader::from(reader), None) {
         Ok(_) => {

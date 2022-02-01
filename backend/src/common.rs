@@ -20,6 +20,7 @@ pub enum ApiError {
     InternalServerError,
     UserAlreadyExists,
     NotEnoughFunds,
+    AuthorizationError,
 }
 
 static USER_ALREADY_EXISTS_MSG: &str = "User Already exists";
@@ -27,6 +28,7 @@ static MONGO_DB_ERROR_MSG: &str = "MongoDB Error";
 static NOT_FOUND_MSG: &str = "Record Not Found";
 static INTERAL_SERVER_ERROR_MSG: &str = "Internal Server Error";
 static NOT_ENOUGH_FUNDS_MSG: &str = "Not Enough Funds";
+static AUTHORIZATION_ERROR: &str = "Unauthorized error";
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -36,6 +38,7 @@ impl fmt::Display for ApiError {
             ApiError::InternalServerError => f.write_str(INTERAL_SERVER_ERROR_MSG),
             ApiError::UserAlreadyExists => f.write_str(USER_ALREADY_EXISTS_MSG),
             ApiError::NotEnoughFunds => f.write_str(NOT_ENOUGH_FUNDS_MSG),
+            ApiError::AuthorizationError => f.write_str(AUTHORIZATION_ERROR),
         }
     }
 }
@@ -48,6 +51,7 @@ impl StdError for ApiError {
             ApiError::MongoDBError => MONGO_DB_ERROR_MSG,
             ApiError::UserAlreadyExists => USER_ALREADY_EXISTS_MSG,
             ApiError::NotEnoughFunds => NOT_ENOUGH_FUNDS_MSG,
+            ApiError::AuthorizationError => AUTHORIZATION_ERROR,
         }
     }
 }
@@ -66,6 +70,7 @@ impl<'r> Responder<'r> for ApiError {
             ApiError::NotEnoughFunds => {
                 Ok(Response::build().raw_status(400, NOT_FOUND_MSG).finalize())
             }
+            ApiError::AuthorizationError => Err(Status::Unauthorized),
         }
     }
 }
