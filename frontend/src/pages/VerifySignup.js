@@ -16,17 +16,18 @@ const create_new_user = (details, navigate) => () => {
 	// A post with no-cors has less options for content-type
 	fetch(url, {
 		method: 'POST',
-		mode: 'no-cors',
 		credentials:'same-origin',
 		redirect: 'follow',
 		referrerPolicy: 'no-referrer',
 		headers: {
-			'Content-type': 'application/json'
+			'Authorization': details.state.tokenId,
+			'Content-type': 'application/json',
+
 		},
 		body: JSON.stringify(payload)
 	}).then(resp => {
 		console.log(resp);
-		if(resp.status === 200)
+		if(resp.status === 201)
 			navigate("/");
 	});
 

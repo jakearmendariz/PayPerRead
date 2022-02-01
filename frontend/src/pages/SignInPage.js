@@ -49,20 +49,20 @@ const doesUserExist = (response, navigate) => (exists, doesnt) => {
 
 const create_new = (response, navigate) => {
 
-	navigate("/verify-signup", { state: { name: response.profileObj.name, email: response.profileObj.email } });
+	navigate("/verify-signup", { state: { tokenId: response.tokenId, name: response.profileObj.name, email: response.profileObj.email } });
 
 }
 
 const login = (response, navigate) => {
 
-	const url = `http://localhost:8000/login/${response.profileObj.email}`;    
+	const url = `http://localhost:8000/login`;    
 	fetch(url, {
 		method: 'GET',
-		headers: {
-			'Content-type': 'application/json'	
-		},
-		body: JSON.stringify({ token: response.tokenId })
-
+		headers: new Headers({
+                        'Authorization': `${response.tokenId}`,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                }
+        )
 	}).then(resp => {
 		if(resp.status === 200)
 			navigate("/");
