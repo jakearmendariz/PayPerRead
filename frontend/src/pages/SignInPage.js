@@ -33,28 +33,64 @@ const SignInComponent = ({ subtitle, description, success, failure }) => (
         </div>    
 );    
     
+const doesUserExist = (response, navigate) => (exists, doesnt) => {
+	console.log(response);
+  	const email = response.profileObj.email;
+	fetch(`http://localhost:8000/reader/${email}`).then((resp) => {
+		
+		if(resp.status === 200)
+			exists(response, navigate);
+		else
+			doesnt(response, navigate);
+
+	})
+
+}
+
+const create_new = (response, navigate) => {
+
+	navigate("/verify-signup", { state: { name: response.profileObj.name, email: response.profileObj.email } });
+
+}
+
+const login = (response, navigate) => {
+
+	const url = `http://localhost:8000/login/${response.profileObj.email}`;    
+	fetch(url, {
+		method: 'GET',
+		headers: {
+			'Content-type': 'application/json'	
+		},
+		body: JSON.stringify({ token: response.tokenId })
+
+	}).then(resp => {
+		if(resp.status === 200)
+			navigate("/");
+	});
+}
+
+/*
+	*/
+
 const SignInPage = () => {    
-    
-        const { user } = useParams(); // get the slug    
+        
         const navigate = useNavigate();    
+        const { user } = useParams(); // get the slug    
+        // check if the signup is valid
+        if(user !== 'reader' && user !== 'publisher') 
+                return (<div />); // redirect to a 404 page
+
+        const isPublisher = (user === 'publisher');
+
     
-        const success = (response) => {    
-                const url = `http://localhost:8000/login/${response.profileObj.email}`;    
-		fetch(url).then(resp => {
-			if(resp.status === 200)
-				navigate("/");
-		})
+        const success = (response) => {  
+		doesUserExist(response, navigate)(login, create_new);
         };    
     
         const failure = (response) => {
 		
 	};
 
-        // check if the signup is valid
-        if(user !== 'reader' && user !== 'publisher') 
-                return (<div />); // redirect to a 404 page
-
-        const isPublisher = (user === 'publisher');
 
         return (
                 <SignInComponent 

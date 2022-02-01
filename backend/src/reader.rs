@@ -5,11 +5,12 @@ use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
-use crate::session::Session;
-use mongodb::bson::doc;
-use mongodb::sync::Collection;
-use rocket::http::{Cookies, Status};
-use rocket::State;
+use crate::session::{JwtAuth, Session};
+use mongodb::{bson::doc, sync::Collection};
+use rocket::{
+    http::{Cookies, Status},
+    State,
+};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +36,7 @@ impl From<NewReader> for Reader {
 /// NewReader for adding readers
 #[derive(Debug, Deserialize)]
 pub struct NewReader {
-    email: String,
+    pub email: String,
     name: String,
 }
 
@@ -100,10 +101,15 @@ pub fn sub_from_balance(
 pub fn add_reader(
     mongo_db: State<MongoDB>,
     new_reader: Json<NewReader>,
+    reader_auth: JwtAuth,
     mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
     let readers = mongo_db.get_readers_collection();
     let reader = new_reader.into_inner();
+    if reader_auth.email != reader.email {
+        // Tried to create a user that didn't match authorization.
+        return Err(ApiError::AuthorizationError);
+    }
     let email = reader.email.clone();
     match readers.insert_one(Reader::from(reader), None) {
         Ok(_) => {

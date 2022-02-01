@@ -67,6 +67,31 @@ impl<'r, 'a> FromRequest<'r, 'a> for Session {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JwtAuth {
+    pub email: String,
+}
+
+pub static GOOGLE_TOKEN_AUTH: &str = "https://oauth2.googleapis.com/tokeninfo?id_token=";
+
+impl<'r, 'a> FromRequest<'r, 'a> for JwtAuth {
+    type Error = ApiError;
+    /// Request guard for JWT authorization, verifies JWT with google.
+    fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+        let headers = request.headers();
+        let jwt = match headers.get("Authorization").next() {
+            Some(jwt) => jwt,
+            None => return Outcome::Failure((Status::BadRequest, ApiError::AuthorizationError)),
+        };
+        let google_response = reqwest::blocking::get(format!("{}{}", GOOGLE_TOKEN_AUTH, jwt))
+            .map_err(|_| (Status::Unauthorized, ApiError::AuthorizationError))?;
+        let reader: JwtAuth = google_response
+            .json()
+            .map_err(|_| (Status::InternalServerError, ApiError::InternalServerError))?;
+        Outcome::Success(reader)
+    }
+}
+
 /// Creates a session token for the provided email
 /// inside of the session collection in mongodb. Returns
 /// a cookie with the email and session cookie.
@@ -82,16 +107,16 @@ pub fn create_session<'a>(email: String) -> Result<Cookie<'a>, ApiError> {
 }
 
 /// Logs you in and creates a session for the user
-#[get("/login/<email>")]
+#[get("/login")]
 pub fn login(
     mongo_db: State<MongoDB>,
-    email: String,
+    reader: JwtAuth,
     mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
-    get_reader(mongo_db, email.clone())?;
+    get_reader(mongo_db, reader.email.clone())?;
     // Create cookie, save and return.
-    let cookie = create_session(email)?;
+    let cookie = create_session(reader.email)?;
     cookies.add(cookie);
     Ok(Status::Ok)
 }
