@@ -1,5 +1,5 @@
-use crate::reader::Reader;
 use crate::publisher::Publisher;
+use crate::reader::Reader;
 /// mongo.rs
 /// Connection to mongoDB
 use mongodb::bson::doc;
@@ -22,13 +22,13 @@ impl MongoDB {
     pub fn get_collection_from_user_db<T>(&self, name: &str) -> Collection<T> {
         self.user_db.collection(name)
     }
-    
+
     /// Readers collection is used often enough for its own function
     pub fn get_readers_collection(&self) -> Collection<Reader> {
         self.user_db.collection("Readers")
     }
-    
-    pub fn get_publishers_collection(&self) -> Collection<Publisher>{
+
+    pub fn get_publishers_collection(&self) -> Collection<Publisher> {
         self.user_db.collection("Publishers")
     }
 }

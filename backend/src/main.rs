@@ -7,8 +7,8 @@ extern crate lazy_static;
 extern crate time;
 mod common;
 mod mongo;
-mod reader;
 mod publisher;
+mod reader;
 mod session;
 use rocket::http::Method;
 use rocket::{get, routes};
@@ -34,13 +34,19 @@ impl Fairing for CORS {
     }
 
     fn on_response(&self, request: &Request, response: &mut Response) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "http://localhost:3000"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Origin",
+            "http://localhost:3000",
+        ));
         response.set_header(Header::new(
             "Access-Control-Allow-Methods",
             "POST, GET, PATCH, OPTIONS",
         ));
         // response.set_header(Header::new("Access-Control-Allow-Headers", ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "authorization, session"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Headers",
+            "authorization, session",
+        ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
         if request.method() == Method::Options {
             response.set_header(ContentType::Plain);
@@ -61,14 +67,12 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             reader::delete_reader,
             reader::add_to_balance,
             reader::sub_from_balance,
-
             publisher::scan_publishers,
             publisher::add_publisher,
             publisher::get_publisher,
             publisher::delete_publisher,
             publisher::add_to_balance,
             publisher::clear_balance,
-
             session::login,
             session::check_cookies,
         ],

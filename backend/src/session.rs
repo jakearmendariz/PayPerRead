@@ -13,11 +13,7 @@ use rocket::{
     request::{self, FromRequest, Outcome, Request},
     State,
 };
-use time::{Duration, Tm};
 
-
-// use std::time::Duration;
-use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
 lazy_static::lazy_static! {
@@ -134,8 +130,8 @@ pub fn login(
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
     get_reader(mongo_db, reader.email.clone())?; // TODO check email matches jwt
-    // Create cookie, save and return.
-    let cookie = create_session(reader.email.clone())?;
+                                                 // Create cookie, save and return.
+    let cookie = create_session(reader.email)?;
     cookies.add(cookie);
     Ok(Status::Ok)
 }

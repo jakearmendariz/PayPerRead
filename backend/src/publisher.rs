@@ -9,7 +9,6 @@ use rocket::State;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
-
 /// Publisher provides the contents viewed by readers
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Publisher {
@@ -48,8 +47,6 @@ pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>,
     Ok(Json(publishers_vec))
 }
 
-
-
 #[get("/publisher/<email>")]
 pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
     let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
@@ -62,9 +59,11 @@ pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Pub
     }
 }
 
-
 #[get("/publisher")]
-pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Publisher>, ApiError> {
+pub fn get_account(
+    mongo_db: State<MongoDB>,
+    session: Session,
+) -> Result<Json<Publisher>, ApiError> {
     get_publisher(mongo_db, session.email)
 }
 
@@ -81,17 +80,17 @@ pub fn add_to_balance(
 }
 
 #[post("/publisher/clear-balance/<email>")]
-pub fn clear_balance(
-    mongo_db: State<MongoDB>,
-    email: String,
-) -> Result<Status, ApiError> {
+pub fn clear_balance(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
     let publishers = mongo_db.get_publishers_collection();
     let updated_balance = Balance::default();
     common::update_balance(publishers, updated_balance, email)
 }
 
 #[post("/publisher/new-publisher", data = "<publisher>")]
-pub fn add_publisher(mongo_db: State<MongoDB>, publisher: Json<NewPublisher>) -> Result<Status, ApiError> {
+pub fn add_publisher(
+    mongo_db: State<MongoDB>,
+    publisher: Json<NewPublisher>,
+) -> Result<Status, ApiError> {
     let publishers = mongo_db.get_publishers_collection();
     match publishers.insert_one(Publisher::from(publisher.into_inner()), None) {
         Ok(_) => Ok(Status::Created),
