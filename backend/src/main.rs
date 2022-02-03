@@ -4,6 +4,7 @@ extern crate rocket;
 #[macro_use]
 extern crate dotenv_codegen;
 extern crate lazy_static;
+extern crate time;
 mod common;
 mod mongo;
 mod reader;
@@ -33,12 +34,13 @@ impl Fairing for CORS {
     }
 
     fn on_response(&self, request: &Request, response: &mut Response) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Origin", "http://localhost:3000"));
         response.set_header(Header::new(
             "Access-Control-Allow-Methods",
             "POST, GET, PATCH, OPTIONS",
         ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        // response.set_header(Header::new("Access-Control-Allow-Headers", ));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "authorization, session"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
         if request.method() == Method::Options {
             response.set_header(ContentType::Plain);

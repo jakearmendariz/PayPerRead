@@ -1,7 +1,7 @@
 import React, { useState } from 'react';    
 import { useParams, useNavigate } from 'react-router-dom';    
 import GoogleLogin from 'react-google-login';    
-    
+import Cookies from 'universal-cookie';
     
 const SignInComponent = ({ subtitle, description, success, failure }) => (    
         <div className="center-content">    
@@ -54,18 +54,23 @@ const create_new = (response, navigate) => {
 }
 
 const login = (response, navigate) => {
-
-	const url = `http://localhost:8000/login`;    
+        // const [cookies, setCookie] = useCookies(['session']);
+        // const cookies = new Cookies();
+	const url = `http://localhost:8000/login`;
 	fetch(url, {
 		method: 'GET',
+                credentials: 'include',
 		headers: new Headers({
                         'Authorization': `${response.tokenId}`,
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
                 }
         )
 	}).then(resp => {
-		if(resp.status === 200)
+		if(resp.status === 200) {
 			navigate("/");
+                } else {
+                        console.log(resp.status);
+                }
 	});
 }
 

@@ -13,6 +13,11 @@ use rocket::{
     request::{self, FromRequest, Outcome, Request},
     State,
 };
+use time::{Duration, Tm};
+
+
+// use std::time::Duration;
+use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
 lazy_static::lazy_static! {
@@ -100,10 +105,24 @@ pub fn create_session<'a>(email: String) -> Result<Cookie<'a>, ApiError> {
     MONGO_SESSIONS
         .insert_one(session.clone(), None)
         .or_else(mongo_error)?;
+    // use std::time::Duration;
+    // use time::Duration
     Ok(Cookie::build("Session", session.token)
         .http_only(true)
+        .max_age(time::Duration::hours(1))
         .path("/")
         .finish())
+}
+
+/// Creates a session token for the provided email
+/// inside of the session collection in mongodb. Returns
+/// a cookie with the email and session cookie.
+pub fn build_session(email: String) -> Result<String, ApiError> {
+    let session = Session::new(email);
+    MONGO_SESSIONS
+        .insert_one(session.clone(), None)
+        .or_else(mongo_error)?;
+    Ok(session.token)
 }
 
 /// Logs you in and creates a session for the user
@@ -114,9 +133,9 @@ pub fn login(
     mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
-    get_reader(mongo_db, reader.email.clone())?;
+    get_reader(mongo_db, reader.email.clone())?; // TODO check email matches jwt
     // Create cookie, save and return.
-    let cookie = create_session(reader.email)?;
+    let cookie = create_session(reader.email.clone())?;
     cookies.add(cookie);
     Ok(Status::Ok)
 }
