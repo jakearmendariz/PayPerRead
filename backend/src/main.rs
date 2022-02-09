@@ -74,6 +74,7 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             publisher::add_to_balance,
             publisher::clear_balance,
             session::login,
+            session::login_publisher,
             session::check_cookies,
         ],
     )
