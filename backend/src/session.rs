@@ -2,6 +2,7 @@
 /// Maintains sessions on the backend.
 use crate::common::{mongo_error, ApiError};
 use crate::mongo::MongoDB;
+use crate::publisher::get_publisher;
 use crate::reader::get_reader;
 use mongodb::{
     bson::{doc, DateTime},
@@ -122,16 +123,35 @@ pub fn build_session(email: String) -> Result<String, ApiError> {
 }
 
 /// Logs you in and creates a session for the user
-#[get("/login")]
+#[get("/login/reader")]
 pub fn login(
     mongo_db: State<MongoDB>,
     reader: JwtAuth,
-    mut cookies: Cookies,
+    cookies: Cookies,
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
-    get_reader(mongo_db, reader.email.clone())?; // TODO check email matches jwt
-                                                 // Create cookie, save and return.
-    let cookie = create_session(reader.email)?;
+    get_reader(mongo_db, reader.email.clone())?;
+    // Create cookie, save and return.
+    start_session(reader.email, cookies)
+    // let cookie = create_session(reader.email)?;
+    // cookies.add(cookie);
+    // Ok(Status::Ok)
+}
+
+#[get("/login/publisher")]
+pub fn login_publisher(
+    mongo_db: State<MongoDB>,
+    publisher_auth: JwtAuth,
+    cookies: Cookies,
+) -> Result<Status, ApiError> {
+    // Verify that the user we are looking up exists.
+    get_publisher(mongo_db, publisher_auth.email.clone())?;
+    // Create cookie, save and return.
+    start_session(publisher_auth.email, cookies)
+}
+
+fn start_session(email: String, mut cookies: Cookies) -> Result<Status, ApiError> {
+    let cookie = create_session(email)?;
     cookies.add(cookie);
     Ok(Status::Ok)
 }

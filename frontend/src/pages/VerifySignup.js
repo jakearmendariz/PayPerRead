@@ -7,11 +7,15 @@ const create_new_user = (details, navigate) => () => {
 		email: details.state.email,
 		name: details.state.name
 	};
+	const isPublisher = details.state.userType == 'publisher';
+	if (isPublisher) {
+		payload.domain = "abc.com";
+	}
 	const p = JSON.stringify(payload);
 	console.log(p);
 
 	// TODO: publisher endpoint yet to be implemeneted
-	const url = details.state.publisher ? '' : 'http://localhost:8000/reader/new-reader';
+	const url = isPublisher ? 'http://localhost:8000/publisher/new-publisher' : 'http://localhost:8000/reader/new-reader';
 
 	// A post with no-cors has less options for content-type
 	fetch(url, {
