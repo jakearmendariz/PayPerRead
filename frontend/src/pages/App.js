@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom'
 
 import Welcome from "../components/Welcome"
 import Navbar from '../components/Navbar';
-import { CookiesProvider } from 'react-cookie';
 
 function App() {
 
   return (
-    <CookiesProvider>
     <div>
       {/* <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>  */}
       <Navbar/>
@@ -25,7 +23,7 @@ function App() {
                 User
               </button>
             </Link>
-            <div class="divider"/>
+            <div className="divider"/>
             <Link to="signin/publisher" style={{ width: 100 }}>
               <button className = "styled-button">
                 Publisher
@@ -36,7 +34,6 @@ function App() {
       </div>
 
     </div>
-    </CookiesProvider>
   );
 }
 

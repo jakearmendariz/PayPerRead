@@ -33,30 +33,28 @@ const SignInComponent = ({ subtitle, description, success, failure }) => (
         </div>    
 );    
     
-const doesUserExist = (response, navigate) => (exists, doesnt) => {
+const doesUserExist = (response, navigate, userType) => (exists, doesnt) => {
 	console.log(response);
   	const email = response.profileObj.email;
-	fetch(`http://localhost:8000/reader/${email}`).then((resp) => {
+	fetch(`http://localhost:8000/${userType}/${email}`).then((resp) => {
 		
 		if(resp.status === 200)
-			exists(response, navigate);
+			exists(response, navigate, userType);
 		else
-			doesnt(response, navigate);
+			doesnt(response, navigate, userType);
 
 	})
 
 }
 
-const create_new = (response, navigate) => {
-
-	navigate("/verify-signup", { state: { tokenId: response.tokenId, name: response.profileObj.name, email: response.profileObj.email } });
+const create_new = (response, navigate, userType) => {
+	navigate("/verify-signup", { state: { tokenId: response.tokenId, name: response.profileObj.name, email: response.profileObj.email, userType: userType } });
 
 }
 
-const login = (response, navigate) => {
-        // const [cookies, setCookie] = useCookies(['session']);
-        // const cookies = new Cookies();
-	const url = `http://localhost:8000/login`;
+const login = (response, navigate, userType) => {
+	const url = `http://localhost:8000/login/${userType}`;
+        console.log(userType);
 	fetch(url, {
 		method: 'GET',
                 credentials: 'include',
@@ -80,7 +78,8 @@ const login = (response, navigate) => {
 const SignInPage = () => {    
         
         const navigate = useNavigate();    
-        const { user } = useParams(); // get the slug    
+        const { user } = useParams(); // get the slug
+        console.log(user);   
         // check if the signup is valid
         if(user !== 'reader' && user !== 'publisher') 
                 return (<div />); // redirect to a 404 page
@@ -89,7 +88,7 @@ const SignInPage = () => {
 
     
         const success = (response) => {  
-		doesUserExist(response, navigate)(login, create_new);
+		doesUserExist(response, navigate, user)(login, create_new);
         };    
     
         const failure = (response) => {

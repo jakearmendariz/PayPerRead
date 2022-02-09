@@ -11,7 +11,7 @@ const create_new_user = (details, navigate) => () => {
 	console.log(p);
 
 	// TODO: publisher endpoint yet to be implemeneted
-	const url = details.state.publisher ? '' : 'http://localhost:8000/reader/new-reader';
+	const url = details.state.userType == 'publisher' ? 'http://localhost:8000/publisher/new-publisher' : 'http://localhost:8000/reader/new-reader';
 
 	// A post with no-cors has less options for content-type
 	fetch(url, {
