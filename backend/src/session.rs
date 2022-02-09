@@ -2,8 +2,8 @@
 /// Maintains sessions on the backend.
 use crate::common::{mongo_error, ApiError};
 use crate::mongo::MongoDB;
-use crate::reader::get_reader;
 use crate::publisher::get_publisher;
+use crate::reader::get_reader;
 use mongodb::{
     bson::{doc, DateTime},
     sync::{Client, Collection},

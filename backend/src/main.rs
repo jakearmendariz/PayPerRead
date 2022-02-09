@@ -19,7 +19,7 @@ fn index() -> String {
 }
 
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::{ContentType, Header, Status};
+use rocket::http::{Header, Status};
 use rocket::{Request, Response};
 use std::io::Cursor;
 
@@ -42,12 +42,10 @@ impl Fairing for CORS {
             "Access-Control-Allow-Methods",
             "POST, GET, PATCH, OPTIONS",
         ));
-        // response.set_header(Header::new("Access-Control-Allow-Headers", ));
         response.set_header(Header::new(
             "Access-Control-Allow-Headers",
             "authorization, session, Content-Type",
         ));
-        // response.set_header(Header::new("Access-Control-Allow-Headers", ""));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
         if request.method() == Method::Options {
             response.set_sized_body(Cursor::new(""));
@@ -55,10 +53,6 @@ impl Fairing for CORS {
         }
     }
 }
-// #[options("/")  options("/reader/new-reader")]
-// pub fn pls() {
-
-// }
 
 fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
     rocket::ignite().manage(mongo_db).attach(CORS).mount(
