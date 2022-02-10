@@ -113,7 +113,10 @@ pub fn add_reader(
     let email = reader.email.clone();
     match readers.insert_one(Reader::from(reader), None) {
         Ok(_) => {
-            cookies.add(session::create_session(email)?);
+            cookies.add(session::create_session(
+                mongo_db.get_session_collection(),
+                email,
+            )?);
             Ok(Status::Created)
         }
         Err(e) => {

@@ -1,5 +1,6 @@
 use crate::publisher::Publisher;
 use crate::reader::Reader;
+use crate::session::Session;
 /// mongo.rs
 /// Connection to mongoDB
 use mongodb::bson::doc;
@@ -26,6 +27,10 @@ impl MongoDB {
     /// Readers collection is used often enough for its own function
     pub fn get_readers_collection(&self) -> Collection<Reader> {
         self.user_db.collection("Readers")
+    }
+
+    pub fn get_session_collection(&self) -> Collection<Session> {
+        self.user_db.collection("Sessions")
     }
 
     pub fn get_publishers_collection(&self) -> Collection<Publisher> {

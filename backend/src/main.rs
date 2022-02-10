@@ -3,7 +3,6 @@
 extern crate rocket;
 #[macro_use]
 extern crate dotenv_codegen;
-extern crate lazy_static;
 extern crate time;
 mod common;
 mod mongo;

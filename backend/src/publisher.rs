@@ -1,10 +1,10 @@
 use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
-use crate::session::Session;
+use crate::session;
 use mongodb::bson::doc;
 use mongodb::sync::Collection;
-use rocket::http::Status;
+use rocket::http::{Cookies, Status};
 use rocket::State;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
@@ -62,7 +62,7 @@ pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Pub
 #[get("/publisher")]
 pub fn get_account(
     mongo_db: State<MongoDB>,
-    session: Session,
+    session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
     get_publisher(mongo_db, session.email)
 }
@@ -90,10 +90,18 @@ pub fn clear_balance(mongo_db: State<MongoDB>, email: String) -> Result<Status, 
 pub fn add_publisher(
     mongo_db: State<MongoDB>,
     publisher: Json<NewPublisher>,
+    mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
     let publishers = mongo_db.get_publishers_collection();
+    let email = publisher.email.clone();
     match publishers.insert_one(Publisher::from(publisher.into_inner()), None) {
-        Ok(_) => Ok(Status::Created),
+        Ok(_) => {
+            cookies.add(session::create_session(
+                mongo_db.get_session_collection(),
+                email,
+            )?);
+            Ok(Status::Created)
+        }
         Err(e) => {
             use mongodb::error::ErrorKind;
             match *e.kind {
