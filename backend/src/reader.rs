@@ -41,6 +41,7 @@ pub struct NewReader {
 }
 
 /// Scan of entire readers table.
+/// Only for debugging/testing purposes
 #[get("/readers")]
 pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
     let readers = mongo_db.get_readers_collection();
@@ -50,6 +51,7 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
     Ok(Json(readers_vec))
 }
 
+/// Debugging and testing purposes
 #[get("/reader/<email>")]
 pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
     let readers: Collection<Reader> = mongo_db.get_readers_collection();

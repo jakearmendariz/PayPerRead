@@ -138,7 +138,7 @@ pub fn login_publisher(
     start_session(sessions, publisher_auth.email, cookies)
 }
 
-fn start_session<'a>(
+fn start_session(
     sessions: Collection<Session>,
     email: String,
     mut cookies: Cookies,
