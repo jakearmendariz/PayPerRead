@@ -1,3 +1,4 @@
+use mongodb::bson::DateTime;
 /// common.rs
 /// Contains commonly used structs and features
 use mongodb::bson::{doc, to_bson, Bson, Document};
@@ -157,6 +158,27 @@ impl Sub for Balance {
             cents: self_rem % 100,
         }
     }
+}
+
+impl Balance {
+    pub fn try_subtracting(self, other: Self) -> Result<Self, ApiError> {
+        if other < self {
+            Err(ApiError::NotEnoughFunds)
+        } else {
+            Ok(self - other)
+        }
+    }
+}
+
+/// Seperate type so we can abstract this later on.
+/// Should probably be a set number of characters and enforce as unique.
+pub type ArticleGuid = String;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Article {
+    article_name: String,
+    created_at: DateTime,
+    price: Balance,
 }
 
 #[cfg(test)]

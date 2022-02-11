@@ -1,5 +1,5 @@
 use crate::common;
-use crate::common::{email_filter, mongo_error, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, ApiError, Article, ArticleGuid, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use mongodb::bson::doc;
@@ -8,6 +8,7 @@ use rocket::http::{Cookies, Status};
 use rocket::State;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Publisher provides the contents viewed by readers
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,6 +17,7 @@ pub struct Publisher {
     name: String,
     domain: String,
     balance: Balance,
+    articles: HashMap<ArticleGuid, Article>,
 }
 
 impl From<NewPublisher> for Publisher {
@@ -25,6 +27,7 @@ impl From<NewPublisher> for Publisher {
             name: publisher.name,
             domain: publisher.domain,
             balance: Balance::default(),
+            articles: HashMap::new(),
         }
     }
 }

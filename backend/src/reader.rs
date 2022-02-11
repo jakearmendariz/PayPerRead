@@ -1,8 +1,7 @@
 /// reader.rs
 /// create, read, scan and delete users.
 /// TODO: Update users account balance
-use crate::common;
-use crate::common::{email_filter, mongo_error, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, ApiError, ArticleGuid, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
@@ -21,6 +20,7 @@ pub struct Reader {
     pub email: String,
     name: String,
     balance: Balance,
+    articles: Vec<ArticleGuid>,
 }
 
 impl From<NewReader> for Reader {
@@ -29,6 +29,7 @@ impl From<NewReader> for Reader {
             email: reader.email,
             name: reader.name,
             balance: Balance::default(),
+            articles: Vec::new(),
         }
     }
 }
@@ -38,6 +39,13 @@ impl From<NewReader> for Reader {
 pub struct NewReader {
     pub email: String,
     name: String,
+}
+
+impl Reader {
+    /// Does the reader own the article
+    pub fn owns_article(self, article_guid: String) -> bool {
+        self.articles.contains(&article_guid)
+    }
 }
 
 /// Scan of entire readers table.
@@ -52,7 +60,6 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
 }
 
 /// Debugging and testing purposes
-#[get("/reader/<email>")]
 pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
     let readers: Collection<Reader> = mongo_db.get_readers_collection();
     let result = readers
@@ -67,36 +74,6 @@ pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader
 #[get("/reader")]
 pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
     get_reader(mongo_db, session.email)
-}
-
-#[post("/reader/add-balance/<email>", data = "<amount>")]
-pub fn add_to_balance(
-    mongo_db: State<MongoDB>,
-    email: String,
-    amount: Json<Balance>,
-) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_readers_collection();
-    let reader = get_reader(mongo_db, email.clone())?;
-    // Add the new balance
-    let updated_balance = amount.into_inner() + reader.balance;
-    common::update_balance(readers, updated_balance, email)
-}
-
-#[post("/reader/sub-balance/<email>", data = "<amount>")]
-pub fn sub_from_balance(
-    mongo_db: State<MongoDB>,
-    email: String,
-    amount: Json<Balance>,
-) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_readers_collection();
-    let reader = get_reader(mongo_db, email.clone())?;
-    // Verify user has enough balance to pay.
-    let amount_to_subtract = amount.into_inner();
-    if amount_to_subtract < reader.balance {
-        return Err(ApiError::NotEnoughFunds);
-    }
-    let updated_balance = reader.balance - amount_to_subtract;
-    common::update_balance(readers, updated_balance, email)
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]
@@ -133,10 +110,10 @@ pub fn add_reader(
     }
 }
 
-#[delete("/reader/<email>")]
-pub fn delete_reader(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+#[delete("/reader")]
+pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
     let readers = mongo_db.get_readers_collection();
-    let result = readers.find_one_and_delete(email_filter(email), None);
+    let result = readers.find_one_and_delete(email_filter(session.email), None);
     match result {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),

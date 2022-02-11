@@ -16,6 +16,7 @@ pub struct MongoDB {
     _client: Client,
     // Preloading user database because it will be used often.
     user_db: Database,
+    pub article_db: Database,
 }
 
 impl MongoDB {
@@ -49,8 +50,10 @@ pub fn connect_to_mongo() -> Result<MongoDB, mongodb::error::Error> {
 
     // Preload the user database
     let user_db = client.database("Users");
+    let article_db = client.database("Articles");
     Ok(MongoDB {
         _client: client,
         user_db,
+        article_db,
     })
 }
