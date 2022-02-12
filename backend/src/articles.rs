@@ -45,21 +45,17 @@ pub fn add_article_to_reader(
 ) -> Result<Status, ApiError> {
 
     let readers = mongo_db.get_readers_collection();
-
     let document = email_filter(session.email);
-    let update = doc!{ "$push":  { "article_guids": [ article_guid ] } };
-    let options = UpdateOptions::builder()
-        .upsert(true) // should create the field if there are no matches
-        .build();
+    let update = doc!{ "$push":  { "articles": [ article_guid ] } };
 
-    let update_query = readers.update_one(document, update, Some(options));
+    let update_query = readers.update_one(document, update, None);
 
     match update_query {
-        Ok(_) => { // parameter is an update result, can check amount modified, although it seems like it returns 1 even with no modification
+        Ok(_) => { 
             Ok(Status::Ok)
         }
         Err(_) => {
-            Ok(Status::NotFound)
+            Ok(Status::new(500, "Error updating database"))
         } 
     }
 }
