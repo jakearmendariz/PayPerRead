@@ -1,4 +1,3 @@
-use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Article, ArticleGuid, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
@@ -70,7 +69,6 @@ pub fn get_account(
 ) -> Result<Json<Publisher>, ApiError> {
     get_publisher(mongo_db, session.email)
 }
-
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]
 pub fn add_publisher(

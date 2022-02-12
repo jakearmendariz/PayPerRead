@@ -4,11 +4,11 @@ extern crate rocket;
 #[macro_use]
 extern crate dotenv_codegen;
 extern crate time;
+mod articles;
 mod common;
 mod mongo;
 mod publisher;
 mod reader;
-mod articles;
 mod session;
 use rocket::http::Method;
 use rocket::{get, routes};
@@ -60,26 +60,18 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
         routes![
             index,
             reader::add_reader,
-            // reader::get_reader,
             reader::delete_reader,
-            // reader::add_to_balance,
-            // reader::sub_from_balance,
             publisher::add_publisher,
-            // publisher::get_publisher,
             publisher::delete_publisher,
-            // publisher::add_to_balance,
-            // publisher::clear_balance,
             session::login,
             session::login_publisher,
             session::check_cookies,
-
             articles::owns_article,
-
             // FOR DEBUGGING
             publisher::scan_publishers,
             publisher::get_account,
             reader::scan_readers,
-            reader::get_account, 
+            reader::get_account,
         ],
     )
 }

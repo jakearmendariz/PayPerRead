@@ -1,9 +1,22 @@
 # PayPerRead
 
+PayPerRead is a website and service that provides an API/iframe that if added to a website will help block access to users until they pay a small fee to "own" access to that page. Enabling microtransactions for any website in exchange for its articles, artwork or hidden material.
+
+## Backend
+Rust & Rocket Rest API.
+- Creates and logs in two different types of users.
+    - Readers
+    - Publishers
+- Allows publishers to dynamically register new articles
+- Accept payments from reader
+
+## Frontend
+ReactJs Client
+
 ## Articles
 
 #### Registering Articles
-First, when asking PayPerRead for an iframe it provides the
+When asking PayPerRead for an iframe each website should provide a post request with the following information.
 ```
 publisher_email: String,
 article_name: String, // For publisher to identify article
@@ -13,7 +26,10 @@ article_price: { dollars: int, cents: int },
 // For now we can assume valid, but this needs to be verified.
 ```
 
-If the publisher exists, either create the article and add to publisher, then display to user. Or display to user.
+If the publisher exists and requests comes from expected domain.
+- If article is Unique
+    - Create the article on our backend.
+- Return iframe with relevant information.
 
 #### Buying
 User wants to buy an article with payload
@@ -22,39 +38,14 @@ publisher_email: String,
 article_guid: String,
 // USER SESSION TOKEN IS MANDATORY FOR SECURITY
 ```
+First check and handle the following cases.
+- Does the reader already own the article?
+- Does the publisher exist? 
+- Is this their domain? 
+- Does the article belong to the publisher?
+- Does the user have enough money?
 
-Does the publisher exist? Is this their domain? Does the article belong to them?
-Does the article exist for the user already? If so, do not buy again. (User obtained from session token)
-Does the user have enough money?
-
-IF ALL CHECKS PASS
-
-Add article to reader
-Subtract balance from reader
-Add balance to publisher.
-
-
-**Article Database**
-Publisher's articles Collection
-```
-publisher_email: String,
-articles: {
-    article_guid: {
-        // guid to article name
-        article_name: String,
-        publisher_email: String,
-        created_at: Datetime,
-        article_price: { dollars: int, cents: int }
-    }
-}
-article_views: {
-    // article_guid: views
-    guid (String): views (uint)
-}
-
-```
-Reader's articles Collection
-```
-reader_email: String,
-article_guids: [String], // User bought articles
-```
+If all checks pass do the following.
+- Add article to reader
+- Subtract balance from reader
+- Add balance to publisher.

@@ -1,15 +1,11 @@
 /// articles.rs
-/// Very incomplete. Just posting for skelaton code.
+/// Very incomplete. Just posting for skeleton code.
 /// Not included in main module so its errors don't break code
-use crate::common::{email_filter, mongo_error, ArticleGuid, Article, ApiError};
+use crate::common::{email_filter, mongo_error, ApiError};
 use crate::mongo::MongoDB;
-use crate::session::{Session};
-use mongodb::{bson::doc, sync::Collection};
-use rocket::{
-    http::{Cookies, Status},
-    State,
-};
-
+use crate::session::Session;
+use mongodb::bson::doc;
+use rocket::{http::Status, State};
 
 // fn get_article(
 //     publishers: Collection<Publisher>,
@@ -42,14 +38,14 @@ pub fn owns_article(
 ) -> Result<Status, ApiError> {
     // Does the current user own the article?
     // If so return 200, otherwise 404
-    
+
     let readers = mongo_db.get_readers_collection();
-    let email = session.email.clone();
+    let email = session.email;
 
     let result = readers
         .find_one(email_filter(email), None)
         .or_else(mongo_error)?;
-    
+
     match result {
         Some(reader) => {
             if reader.owns_article(article_guid) {
@@ -58,6 +54,6 @@ pub fn owns_article(
                 Ok(Status::NotFound)
             }
         }
-        None => Ok(Status::NotFound)
+        None => Ok(Status::NotFound),
     }
-}   
+}
