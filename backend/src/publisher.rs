@@ -2,6 +2,7 @@ use crate::common;
 use crate::common::{email_filter, mongo_error, ApiError, Article, ArticleGuid, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
+use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
 use mongodb::sync::Collection;
 use rocket::http::{Cookies, Status};
@@ -70,15 +71,22 @@ pub fn get_account(
     get_publisher(mongo_db, session.email)
 }
 
-#[post("/publisher/new-publisher", data = "<publisher>")]
+
+#[post("/publisher/new-publisher", data = "<new_publisher>")]
 pub fn add_publisher(
     mongo_db: State<MongoDB>,
-    publisher: Json<NewPublisher>,
+    new_publisher: Json<NewPublisher>,
+    publisher_auth: JwtAuth,
     mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
     let publishers = mongo_db.get_publishers_collection();
+    let publisher = new_publisher.into_inner();
+    if publisher_auth.email != publisher.email {
+        // Didn't match auth.
+        return Err(ApiError::AuthorizationError);
+    }
     let email = publisher.email.clone();
-    match publishers.insert_one(Publisher::from(publisher.into_inner()), None) {
+    match publishers.insert_one(Publisher::from(publisher), None) {
         Ok(_) => {
             cookies.add(session::create_session(
                 mongo_db.get_session_collection(),
@@ -87,6 +95,7 @@ pub fn add_publisher(
             Ok(Status::Created)
         }
         Err(e) => {
+            // Publisher email already in use.
             use mongodb::error::ErrorKind;
             match *e.kind {
                 ErrorKind::Write(_) => Err(ApiError::UserAlreadyExists),
