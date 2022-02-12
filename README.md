@@ -2,18 +2,19 @@
 
 PayPerRead is a website and service that provides an API/iframe that if added to a website will help block access to users until they pay a small fee to "own" access to that page. Enabling microtransactions for any website in exchange for its articles, artwork or hidden material.
 
-## Backend
-Rust & Rocket Rest API.
+## Tech Stack
+- Rust & Rocket backend connected to mongodb
+- React JS
+
+## Provided Services
 - Creates and logs in two different types of users.
     - Readers
     - Publishers
 - Allows publishers to dynamically register new articles
-- Accept payments from reader
+- Checks reader access to articles
+- Allows reader to purchase articles
 
-## Frontend
-ReactJs Client
-
-## Articles
+## Articles API
 
 #### Registering Articles
 When asking PayPerRead for an iframe each website should provide a post request with the following information.
@@ -33,6 +34,23 @@ If the publisher exists and requests comes from expected domain.
 
 #### Buying
 User wants to buy an article with payload
+```
+publisher_email: String,
+article_guid: String,
+// USER SESSION TOKEN IS MANDATORY FOR SECURITY
+```
+First check and handle the following cases.
+- Does the reader already own the article?
+- Does the publisher exist? 
+- Is this their domain? 
+- Does the article belong to the publisher?
+- Does the user have enough money?
+
+If all checks pass do the following.
+- Add article to reader
+- Subtract balance from reader
+- Add balance to publisher.
+
 ```
 publisher_email: String,
 article_guid: String,
