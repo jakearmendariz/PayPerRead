@@ -37,15 +37,16 @@ use mongodb::options::UpdateOptions;
 
 // accepts an article and adds it to the user's collection
 // currently there is a bug where it doesn't do anything
+#[post("/articles/register", data = "<article_guid>")]
 pub fn add_article_to_reader(
     mongo_db: State<MongoDB>,
-    email: String,
+    session: Session,
     article_guid: ArticleGuid,
 ) -> Result<Status, ApiError> {
 
     let readers = mongo_db.get_readers_collection();
 
-    let document = email_filter(email);
+    let document = email_filter(session.email);
     let update = doc!{ "$push":  { "article_guids": [ article_guid ] } };
     let options = UpdateOptions::builder()
         .upsert(true) // should create the field if there are no matches
