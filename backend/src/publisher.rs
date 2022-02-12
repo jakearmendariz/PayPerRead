@@ -51,7 +51,7 @@ pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>,
     Ok(Json(publishers_vec))
 }
 
-#[get("/publisher/<email>")]
+// #[get("/publisher/<email>")]
 pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
     let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
     let result = publishers
@@ -86,6 +86,7 @@ pub fn add_publisher(
         return Err(ApiError::AuthorizationError);
     }
     let email = publisher.email.clone();
+
     match publishers.insert_one(Publisher::from(publisher), None) {
         Ok(_) => {
             cookies.add(session::create_session(
@@ -95,7 +96,6 @@ pub fn add_publisher(
             Ok(Status::Created)
         }
         Err(e) => {
-            // Publisher email already in use.
             use mongodb::error::ErrorKind;
             match *e.kind {
                 ErrorKind::Write(_) => Err(ApiError::UserAlreadyExists),
@@ -105,10 +105,10 @@ pub fn add_publisher(
     }
 }
 
-#[delete("/publisher/<email>")]
-pub fn delete_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+#[delete("/publisher")]
+pub fn delete_publisher(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
     let publishers = mongo_db.get_publishers_collection();
-    let result = publishers.find_one_and_delete(email_filter(email), None);
+    let result = publishers.find_one_and_delete(email_filter(session.email), None);
     match result {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),
