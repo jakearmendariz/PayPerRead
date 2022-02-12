@@ -9,6 +9,7 @@ use rocket::{
     http::{Cookies, Status},
     State,
 };
+use mongodb::options::UpdateOptions;
 
 
 // fn get_article(
@@ -33,6 +34,34 @@ use rocket::{
 // #[post("/articles/register", data = "<article>")]
 /// Add function that accepts an article
 /// Daniel's job. 201 for created, 200 for exists.
+
+// accepts an article and adds it to the user's collection
+// currently there is a bug where it doesn't do anything
+pub fn add_article_to_reader(
+    mongo_db: State<MongoDB>,
+    email: String,
+    article_guid: ArticleGuid,
+) -> Result<Status, ApiError> {
+
+    let readers = mongo_db.get_readers_collection();
+
+    let document = email_filter(email);
+    let update = doc!{ "$push":  { "article_guids": [ article_guid ] } };
+    let options = UpdateOptions::builder()
+        .upsert(true) // should create the field if there are no matches
+        .build();
+
+    let update_query = readers.update_one(document, update, Some(options));
+
+    match update_query {
+        Ok(_) => { // parameter is an update result, can check amount modified, although it seems like it returns 1 even with no modification
+            Ok(Status::Ok)
+        }
+        Err(_) => {
+            Ok(Status::NotFound)
+        } 
+    }
+}
 
 #[get("/articles/own/<article_guid>")]
 pub fn owns_article(
@@ -60,4 +89,4 @@ pub fn owns_article(
         }
         None => Ok(Status::NotFound)
     }
-}   
+} 
