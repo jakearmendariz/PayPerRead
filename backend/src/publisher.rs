@@ -70,25 +70,6 @@ pub fn get_account(
     get_publisher(mongo_db, session.email)
 }
 
-#[post("/publisher/add-balance/<email>", data = "<amount>")]
-pub fn add_to_balance(
-    mongo_db: State<MongoDB>,
-    email: String,
-    amount: Json<Balance>,
-) -> Result<Status, ApiError> {
-    let publishers = mongo_db.get_publishers_collection();
-    let publisher = get_publisher(mongo_db, email.clone())?;
-    let updated_balance = amount.into_inner() + publisher.balance;
-    common::update_balance(publishers, updated_balance, email)
-}
-
-#[post("/publisher/clear-balance/<email>")]
-pub fn clear_balance(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
-    let publishers = mongo_db.get_publishers_collection();
-    let updated_balance = Balance::default();
-    common::update_balance(publishers, updated_balance, email)
-}
-
 #[post("/publisher/new-publisher", data = "<publisher>")]
 pub fn add_publisher(
     mongo_db: State<MongoDB>,
