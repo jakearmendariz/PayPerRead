@@ -174,11 +174,21 @@ impl Balance {
 /// Should probably be a set number of characters and enforce as unique.
 pub type ArticleGuid = String;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Article {
     article_name: String,
     created_at: DateTime,
     price: Balance,
+}
+
+impl Article {
+    pub fn new(article_name: String, price: Balance) -> Self {
+        Article {
+            article_name,
+            created_at: DateTime::now(),
+            price,
+        }
+    }
 }
 
 #[cfg(test)]

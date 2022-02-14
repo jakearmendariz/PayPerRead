@@ -1,11 +1,15 @@
 /// articles.rs
 /// Very incomplete. Just posting for skeleton code.
 /// Not included in main module so its errors don't break code
-use crate::common::{email_filter, mongo_error, ApiError};
+use crate::common::{email_filter, mongo_error, ApiError, Article, ArticleGuid, Balance};
 use crate::mongo::MongoDB;
+use crate::publisher::Publisher;
 use crate::session::Session;
-use mongodb::bson::doc;
+use mongodb::bson::{doc, DateTime};
+use mongodb::sync::Collection;
 use rocket::{http::Status, State};
+use rocket_contrib::json::Json;
+use serde::{Deserialize, Serialize};
 
 // fn get_article(
 //     publishers: Collection<Publisher>,
@@ -26,9 +30,57 @@ use rocket::{http::Status, State};
 //     /// Pay publisher.
 // }
 
-// #[post("/articles/register", data = "<article>")]
-/// Add function that accepts an article
-/// Daniel's job. 201 for created, 200 for exists.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RegisterArticle {
+    pub publisher_email: String,
+    article_name: String,
+    pub article_guid: ArticleGuid,
+    price: Balance,
+}
+
+/// Check if the article exists in the collection
+fn article_exists(
+    publishers: Collection<Publisher>,
+    publisher_email: String,
+    article_guid: ArticleGuid,
+) -> Result<bool, ApiError> {
+    let publisher = publishers
+        .find_one(email_filter(publisher_email), None)
+        .or_else(mongo_error)?
+        .ok_or_else(|| ApiError::NotFound)?;
+    Ok(publisher.lookup_article(article_guid).is_some())
+}
+
+/// Inserts article for a publisher. Only call when article doesn't exist.
+fn insert_article(
+    publishers: Collection<Publisher>,
+    register_article: RegisterArticle,
+) -> Result<Status, ApiError> {
+    let mut publisher = publishers
+        .find_one(email_filter(register_article.publisher_email), None)
+        .or_else(mongo_error)?
+        .ok_or(ApiError::NotFound)?;
+    let article = Article::new(register_article.article_name, register_article.price);
+    publisher.insert_article(register_article.article_guid, article)?;
+    Ok(Status::Ok)
+}
+
+#[post("/articles/register", data = "<article>")]
+pub fn register_article(
+    mongo_db: State<MongoDB>,
+    article: Json<RegisterArticle>,
+) -> Result<Status, ApiError> {
+    let publishers = mongo_db.get_publishers_collection();
+    let article = article.into_inner();
+    let (email, guid) = (
+        article.publisher_email.clone(),
+        article.article_guid.clone(),
+    );
+    if article_exists(publishers, email, guid)? {
+        return Ok(Status::Ok);
+    }
+    insert_article(mongo_db.get_publishers_collection(), article)
+}
 
 #[get("/articles/own/<article_guid>")]
 pub fn owns_article(

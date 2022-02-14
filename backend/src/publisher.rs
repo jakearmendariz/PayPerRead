@@ -20,6 +20,21 @@ pub struct Publisher {
     articles: HashMap<ArticleGuid, Article>,
 }
 
+impl Publisher {
+    pub fn lookup_article(self, article_guid: ArticleGuid) -> Option<Article> {
+        self.articles.get(&article_guid).map(|article| article.clone())
+    }
+
+    /// This will update the value, but only call when the article does not exist.
+    pub fn insert_article(&mut self, guid: ArticleGuid, article: Article) -> Result<(), ApiError> {
+        match self.articles.insert(guid, article) {
+            // Should never overwrite a value, check should be called before hand
+            Some(_) => Err(ApiError::InternalServerError),
+            None => Ok(())
+        } 
+    }
+}
+
 impl From<NewPublisher> for Publisher {
     fn from(publisher: NewPublisher) -> Self {
         Publisher {
