@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 /*
  * Create the user and then redirect to the homepage
  */
-const create_new_user = (details, navigate) => () => {
+const create_new_user = (details, navigate, publisherDetails) => () => {
 
   const isPublisher = details.state.userType === 'publisher';
 
@@ -12,8 +12,13 @@ const create_new_user = (details, navigate) => () => {
     email: details.state.email,
     name: details.state.name
   };
+
+  // some basic checking on their inputed details
+  if(isPublisher && publisherDetails.domain == "")
+    return;
+
   if (isPublisher)
-    payload.domain = "abc.com";
+    payload.domain = publisherDetails.domain;
 
   const p = JSON.stringify(payload);
 
@@ -43,15 +48,27 @@ const VerifySignup = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const [ state, setState ] = useState({ text: "" });
+  const isPublisher = location.state.userType === 'publisher';
+
+  const handleChange = e => {
+    setState({ text: e.currentTarget.value });
+  };
 
   return (
     <div className="center-content">
       <div className="col-lg-2">
-        <h1>Verify</h1>
-        <p>Hi {location.state.name},</p>
-        <p>Click verify to create your account with the following email,</p>
-        <p>{location.state.email}</p>
-        <button className="styled-button" onClick={create_new_user(location, navigate)}>Verify Signup</button>
+        <h1 className="primary-font primary-color">Verify</h1>
+        <p className="secondary-font primary-color">Hi {location.state.name},</p>
+        <p className="secondary-font primary-color my-1">Click verify to create your account with the following email,</p>
+        <p className="secondary-font primary-color">{location.state.email}</p>
+        { isPublisher && 
+            <div className="mt-1 mb-3 secondary-font primary-color">
+              <p className="mb-1">Please specify your targeted domain:</p>
+              <input className="w-100" onChange={handleChange} />
+            </div>
+        }
+        <button className="styled-button primary-color secondary-font" onClick={create_new_user(location, navigate, { domain: state.text })}>Verify Signup</button>
       </div>
     </div>
   );
