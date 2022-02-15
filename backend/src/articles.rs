@@ -90,7 +90,7 @@ fn insert_article(
         find_publisher(publishers.clone(), register_article.publisher_email.clone())?;
     let article = Article::new(register_article.article_name, register_article.price);
     publisher.insert_article(register_article.article_guid, article)?;
-    let update = doc! { "$push":  { "articles": &to_bson(&publisher.articles).unwrap() } };
+    let update = doc! { "$set":  { "articles": &to_bson(&publisher.articles).unwrap() } };
     let options = UpdateOptions::builder()
         .upsert(true) // should create the field if there are no matches
         .build();
