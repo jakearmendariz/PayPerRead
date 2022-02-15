@@ -1,8 +1,12 @@
 import './App.css';
 import { Link } from 'react-router-dom'
 
+import Navbar from '../components/Navbar'
+import Footer from "../components/Footer"
 import Welcome from "../components/Welcome"
-import Navbar from '../components/Navbar';
+import About from '../components/About'
+
+
 
 function App() {
 
@@ -10,8 +14,10 @@ function App() {
     <div>
       {/* <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>  */}
       <Navbar/>
+      <Welcome/>
+      <About />
 
-      <div className="center-content">
+      {/* <div className="center-content">
 
       <div className="col-lg-2">  
         
@@ -31,8 +37,8 @@ function App() {
             </Link>
           </div>
        </div>
-      </div>
-
+      </div> */}
+      <Footer />
     </div>
   );
 }

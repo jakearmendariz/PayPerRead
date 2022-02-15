@@ -13,6 +13,7 @@ function Navbar() {
           <div className="navbar-container">
               <h1 to="/" className="navbar-logo">
                   PayPerRead
+                  <i className="fab fa-pushed"></i>
               </h1>
               <div className="menu-icon" onClick={handleClick}>
                   <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
@@ -26,6 +27,11 @@ function Navbar() {
                   <li className='nav-item'>
                       <Link to='/' className='nav-links'>
                           About Us
+                      </Link>
+                  </li>
+                  <li className='nav-item'>
+                      <Link to='/' className='nav-links'>
+                          Sign Up
                       </Link>
                   </li>
               </ul>
