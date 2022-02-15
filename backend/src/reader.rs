@@ -1,10 +1,11 @@
 /// reader.rs
 /// create, read, scan and delete users.
 /// TODO: Update users account balance
-use crate::common::{email_filter, mongo_error, ApiError, ArticleGuid, Balance};
+use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
+use crate::articles::ArticleGuid;
 use mongodb::{bson::doc, sync::Collection};
 use rocket::{
     http::{Cookies, Status},
@@ -59,21 +60,17 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
     Ok(Json(readers_vec))
 }
 
-/// Debugging and testing purposes
-pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
-    let readers: Collection<Reader> = mongo_db.get_readers_collection();
-    let result = readers
+pub fn find_reader(readers: Collection<Reader>, email: String) -> Result<Reader, ApiError> {
+    readers
         .find_one(email_filter(email), None)
-        .or_else(mongo_error)?;
-    match result {
-        Some(reader) => Ok(Json(reader)),
-        None => Err(ApiError::NotFound),
-    }
+        .or_else(mongo_error)?
+        .ok_or(ApiError::UserNotFound)
 }
 
 #[get("/reader")]
 pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
-    get_reader(mongo_db, session.email)
+    let readers: Collection<Reader> = mongo_db.get_readers_collection();
+    Ok(Json(find_reader(readers, session.email)?))
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]

@@ -22,6 +22,7 @@ pub enum ApiError {
     UserAlreadyExists,
     NotEnoughFunds,
     AuthorizationError,
+    UserNotFound,
 }
 
 static USER_ALREADY_EXISTS_MSG: &str = "User Already exists";
@@ -30,6 +31,7 @@ static NOT_FOUND_MSG: &str = "Record Not Found";
 static INTERAL_SERVER_ERROR_MSG: &str = "Internal Server Error";
 static NOT_ENOUGH_FUNDS_MSG: &str = "Not Enough Funds";
 static AUTHORIZATION_ERROR: &str = "Unauthorized error";
+static USER_NOT_FOUND: &str = "User was not found";
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -40,6 +42,7 @@ impl fmt::Display for ApiError {
             ApiError::UserAlreadyExists => f.write_str(USER_ALREADY_EXISTS_MSG),
             ApiError::NotEnoughFunds => f.write_str(NOT_ENOUGH_FUNDS_MSG),
             ApiError::AuthorizationError => f.write_str(AUTHORIZATION_ERROR),
+            ApiError::UserNotFound => f.write_str(USER_NOT_FOUND),
         }
     }
 }
@@ -53,6 +56,7 @@ impl StdError for ApiError {
             ApiError::UserAlreadyExists => USER_ALREADY_EXISTS_MSG,
             ApiError::NotEnoughFunds => NOT_ENOUGH_FUNDS_MSG,
             ApiError::AuthorizationError => AUTHORIZATION_ERROR,
+            ApiError::UserNotFound => USER_NOT_FOUND,
         }
     }
 }
@@ -68,8 +72,11 @@ impl<'r> Responder<'r> for ApiError {
             ApiError::UserAlreadyExists => Ok(Response::build()
                 .raw_status(403, USER_ALREADY_EXISTS_MSG)
                 .finalize()),
-            ApiError::NotEnoughFunds => {
-                Ok(Response::build().raw_status(400, NOT_FOUND_MSG).finalize())
+            ApiError::NotEnoughFunds => Ok(Response::build()
+                .raw_status(400, NOT_ENOUGH_FUNDS_MSG)
+                .finalize()),
+            ApiError::UserNotFound => {
+                Ok(Response::build().raw_status(404, USER_NOT_FOUND).finalize())
             }
             ApiError::AuthorizationError => Err(Status::Unauthorized),
         }
@@ -168,17 +175,6 @@ impl Balance {
             Ok(self - other)
         }
     }
-}
-
-/// Seperate type so we can abstract this later on.
-/// Should probably be a set number of characters and enforce as unique.
-pub type ArticleGuid = String;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Article {
-    article_name: String,
-    created_at: DateTime,
-    price: Balance,
 }
 
 #[cfg(test)]
