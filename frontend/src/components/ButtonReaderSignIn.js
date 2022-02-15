@@ -6,13 +6,13 @@ const STYLES = ['btn--primary', 'btn--outline', 'btn--test'];
 
 const SIZES = ['btn--medium', 'btn--large'];
 
-export const ButtonReaderSignIn = ({
+export function ButtonReaderSignIn({
   children,
   type,
   onClick,
   buttonStyle,
-  buttonSize
-}) => {
+  buttonSize,
+}) {
   const checkButtonStyle = STYLES.includes(buttonStyle)
     ? buttonStyle
     : STYLES[0];
@@ -20,7 +20,7 @@ export const ButtonReaderSignIn = ({
   const checkButtonSize = SIZES.includes(buttonSize) ? buttonSize : SIZES[0];
 
   return (
-    <Link to='/signin/reader' className='btn-mobile'>
+    <Link to="/signin/reader" className="btn-mobile">
       <button
         className={`btn ${checkButtonStyle} ${checkButtonSize}`}
         onClick={onClick}
@@ -30,4 +30,4 @@ export const ButtonReaderSignIn = ({
       </button>
     </Link>
   );
-};
+}
