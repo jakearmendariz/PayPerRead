@@ -1,3 +1,4 @@
+use crate::articles::ArticleGuid;
 /// reader.rs
 /// create, read, scan and delete users.
 /// TODO: Update users account balance
@@ -5,7 +6,6 @@ use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
-use crate::articles::ArticleGuid;
 use mongodb::{bson::doc, sync::Collection};
 use rocket::{
     http::{Cookies, Status},
@@ -67,7 +67,13 @@ pub fn find_reader(readers: Collection<Reader>, email: String) -> Result<Reader,
         .ok_or(ApiError::UserNotFound)
 }
 
-#[get("/reader")]
+#[get("/reader/<email>")]
+pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
+    let readers: Collection<Reader> = mongo_db.get_readers_collection();
+    Ok(Json(find_reader(readers, email)?))
+}
+
+#[get("/reader/account")]
 pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
     let readers: Collection<Reader> = mongo_db.get_readers_collection();
     Ok(Json(find_reader(readers, session.email)?))

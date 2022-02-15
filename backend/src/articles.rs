@@ -8,8 +8,8 @@ use crate::reader::find_reader;
 use crate::session::Session;
 use mongodb::bson::DateTime;
 use mongodb::bson::{doc, to_bson};
-use mongodb::sync::Collection;
 use mongodb::options::UpdateOptions;
+use mongodb::sync::Collection;
 use rocket::{http::Status, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
@@ -95,7 +95,11 @@ fn insert_article(
         .upsert(true) // should create the field if there are no matches
         .build();
     publishers
-        .update_one(email_filter(register_article.publisher_email), update, Some(options))
+        .update_one(
+            email_filter(register_article.publisher_email),
+            update,
+            Some(options),
+        )
         .or_else(mongo_error)?;
     Ok(Status::Created)
 }
