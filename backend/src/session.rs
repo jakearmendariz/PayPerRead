@@ -2,8 +2,8 @@
 /// Maintains sessions on the backend.
 use crate::common::{mongo_error, ApiError};
 use crate::mongo::MongoDB;
-use crate::publisher::get_publisher;
-use crate::reader::get_reader;
+use crate::publisher::find_publisher;
+use crate::reader::find_reader;
 use mongodb::{
     bson::{doc, DateTime},
     sync::Collection,
@@ -120,7 +120,8 @@ pub fn login(
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
     let sessions = mongo_db.get_session_collection();
-    get_reader(mongo_db, reader.email.clone())?;
+    let readers = mongo_db.get_readers_collection();
+    find_reader(readers, reader.email.clone())?;
     // Create cookie, save and return.
     start_session(sessions, reader.email, cookies)
 }
@@ -133,7 +134,8 @@ pub fn login_publisher(
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
     let sessions = mongo_db.get_session_collection();
-    get_publisher(mongo_db, publisher_auth.email.clone())?;
+    let publishers = mongo_db.get_publishers_collection();
+    find_publisher(publishers, publisher_auth.email.clone())?;
     // Create cookie, save and return.
     start_session(sessions, publisher_auth.email, cookies)
 }

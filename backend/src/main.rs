@@ -67,6 +67,7 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             session::login_publisher,
             session::check_cookies,
             articles::owns_article,
+            articles::register_article,
             // FOR DEBUGGING
             publisher::scan_publishers,
             publisher::get_account,

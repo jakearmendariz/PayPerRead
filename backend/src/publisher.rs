@@ -1,7 +1,8 @@
-use crate::common::{email_filter, mongo_error, ApiError, Article, ArticleGuid, Balance};
+use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
+use crate::articles::{Article, ArticleGuid};
 use mongodb::bson::doc;
 use mongodb::sync::Collection;
 use rocket::http::{Cookies, Status};
@@ -11,18 +12,18 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Publisher provides the contents viewed by readers
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Publisher {
     pub email: String,
     name: String,
     domain: String,
     balance: Balance,
-    articles: HashMap<ArticleGuid, Article>,
+    pub articles: HashMap<ArticleGuid, Article>,
 }
 
 impl Publisher {
     pub fn lookup_article(self, article_guid: ArticleGuid) -> Option<Article> {
-        self.articles.get(&article_guid).map(|article| article.clone())
+        self.articles.get(&article_guid).cloned()
     }
 
     /// This will update the value, but only call when the article does not exist.
@@ -30,8 +31,8 @@ impl Publisher {
         match self.articles.insert(guid, article) {
             // Should never overwrite a value, check should be called before hand
             Some(_) => Err(ApiError::InternalServerError),
-            None => Ok(())
-        } 
+            None => Ok(()),
+        }
     }
 }
 
@@ -65,16 +66,15 @@ pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>,
     Ok(Json(publishers_vec))
 }
 
-// #[get("/publisher/<email>")]
-pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
-    let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
-    let result = publishers
-        .find_one(email_filter(email), None)
-        .or_else(mongo_error)?;
-    match result {
-        Some(publisher) => Ok(Json(publisher)),
-        None => Err(ApiError::NotFound),
-    }
+/// Finds the publisher from the email in the collection table
+pub fn find_publisher(
+    publishers: Collection<Publisher>,
+    publisher_email: String,
+) -> Result<Publisher, ApiError> {
+    publishers
+        .find_one(email_filter(publisher_email), None)
+        .or_else(mongo_error)?
+        .ok_or(ApiError::UserNotFound)
 }
 
 #[get("/publisher")]
@@ -82,7 +82,8 @@ pub fn get_account(
     mongo_db: State<MongoDB>,
     session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
-    get_publisher(mongo_db, session.email)
+    let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
+    Ok(Json(find_publisher(publishers, session.email)?))
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]
