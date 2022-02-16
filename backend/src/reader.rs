@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 pub struct Reader {
     pub email: String,
     name: String,
-    balance: Balance,
+    pub balance: Balance,
     articles: Vec<ArticleGuid>,
 }
 

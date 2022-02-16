@@ -17,7 +17,7 @@ pub struct Publisher {
     pub email: String,
     name: String,
     domain: String,
-    balance: Balance,
+    pub balance: Balance,
     pub articles: HashMap<ArticleGuid, Article>,
 }
 
