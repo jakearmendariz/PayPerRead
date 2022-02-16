@@ -13,7 +13,6 @@ function App() {
       <Navbar />
       <Welcome />
       <About />
-
       {/* <div className="center-content">
 
       <div className="col-lg-2">
