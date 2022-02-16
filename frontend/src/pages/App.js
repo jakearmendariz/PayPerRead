@@ -1,22 +1,25 @@
 import './App.css';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-import Welcome from "../components/Welcome"
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Welcome from '../components/Welcome';
+import About from '../components/About';
 
 function App() {
-
   return (
     <div>
       {/* <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>  */}
-      <Navbar/>
+      <Navbar />
+      <Welcome />
+      <About />
 
-      <div className="center-content">
+      {/* <div className="center-content">
 
-      <div className="col-lg-2">  
-        
+      <div className="col-lg-2">
+
         <h1 style={{paddingRight:"20px"}}>Are you a ...</h1>
-        
+
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between",  }}>
             <Link to="signin/reader" style={{ width: 100 }}>
               <button className = "styled-button" >
@@ -31,8 +34,8 @@ function App() {
             </Link>
           </div>
        </div>
-      </div>
-
+      </div> */}
+      <Footer />
     </div>
   );
 }

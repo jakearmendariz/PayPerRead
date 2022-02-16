@@ -1,4 +1,3 @@
-use mongodb::bson::DateTime;
 /// common.rs
 /// Contains commonly used structs and features
 use mongodb::bson::{doc, to_bson, Bson, Document};

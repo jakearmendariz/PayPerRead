@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import App from './pages/App';
-import UserLandingPage from './pages/UserLandingPage'
-import PublisherLandingPage from './pages/PublisherLandingPage'
+import UserLandingPage from './pages/UserLandingPage';
+import PublisherLandingPage from './pages/PublisherLandingPage';
 import SignInPage from './pages/SignInPage';
 import VerifySignup from './pages/VerifySignup.js';
-
 
 import './global.css';
 
@@ -19,12 +18,12 @@ ReactDOM.render(
         <Route path="/" element={<App />} />
         <Route path="user" element={<UserLandingPage />} />
         <Route path="publisher" element={<PublisherLandingPage />} />
-	<Route path="signin/:user" element={<SignInPage />} />
-	<Route path="verify-signup" element={<VerifySignup />} />
+        <Route path="signin/:user" element={<SignInPage />} />
+        <Route path="verify-signup" element={<VerifySignup />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
 
 // If you want to start measuring performance in your app, pass a function

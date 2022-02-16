@@ -167,6 +167,26 @@ pub fn register_article(
     insert_article(mongo_db.get_publishers_collection(), article)
 }
 
+// Register an article for a reader.
+// might need to modify the slug
+#[post("/articles/register/reader", data = "<article_guid>")]
+pub fn add_article_to_reader(
+    mongo_db: State<MongoDB>,
+    session: Session,
+    article_guid: ArticleGuid,
+) -> Result<Status, ApiError> {
+    let readers = mongo_db.get_readers_collection();
+    let document = email_filter(session.email);
+    let update = doc! { "$push":  { "articles": [ article_guid ] } };
+
+    let update_query = readers.update_one(document, update, None);
+
+    match update_query {
+        Ok(_) => Ok(Status::Ok),
+        Err(_) => Err(ApiError::MongoDBError),
+    }
+}
+
 #[get("/articles/own/<article_guid>")]
 pub fn owns_article(
     mongo_db: State<MongoDB>,
