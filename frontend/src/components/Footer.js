@@ -13,7 +13,7 @@ function Footer() {
               <i className="	fab fa-pushed" />
             </Link>
           </div>
-          <small className="website-rights">PayPerRead © 2020</small>
+          <small className="website-rights">PayPerRead © 2022</small>
           <div className="social-icons">
             <Link
               className="social-icon-link facebook"

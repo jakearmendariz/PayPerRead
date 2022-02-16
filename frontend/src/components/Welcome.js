@@ -1,14 +1,14 @@
 import React from 'react';
 import { ButtonPublisherSignIn } from './ButtonPublisherSignIn';
 import { ButtonReaderSignIn } from './ButtonReaderSignIn';
-import './HeroSection.css';
+import './Welcome.css';
 
 function Welcome() {
   return (
-    <div className="hero-container">
+    <div className="welcome-container">
       <h1>Welcome to PayPerRead!</h1>
-      <p>Built For Writers Making Living</p>
-      <div className="hero-btns">
+      <p>Built For Writers Making A Living</p>
+      <div>
         <ButtonReaderSignIn
           className="btns"
           buttonStyle="btn--outline"
