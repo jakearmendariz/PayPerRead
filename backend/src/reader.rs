@@ -1,3 +1,4 @@
+use crate::articles::ArticleGuid;
 /// reader.rs
 /// create, read, scan and delete users.
 /// TODO: Update users account balance
@@ -5,7 +6,6 @@ use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
-use crate::articles::ArticleGuid;
 use mongodb::{bson::doc, sync::Collection};
 use rocket::{
     http::{Cookies, Status},
@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 pub struct Reader {
     pub email: String,
     name: String,
-    balance: Balance,
+    pub balance: Balance,
     articles: Vec<ArticleGuid>,
 }
 

@@ -1,15 +1,15 @@
 /// articles.rs
 /// Very incomplete. Just posting for skeleton code.
 /// Not included in main module so its errors don't break code
-use crate::common::{email_filter, mongo_error, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, update_balance, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::publisher::{find_publisher, Publisher};
 use crate::reader::find_reader;
 use crate::session::Session;
 use mongodb::bson::DateTime;
 use mongodb::bson::{doc, to_bson};
-use mongodb::sync::Collection;
 use mongodb::options::UpdateOptions;
+use mongodb::sync::Collection;
 use rocket::{http::Status, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
@@ -40,19 +40,62 @@ impl Article {
 // impl TryFrom for Article {
 
 // }
-/*
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BuyArticle {
+    publisher_email: String,
+    article_guid: ArticleGuid,
+}
 
 #[post("/articles/purchase", data = "<article_to_buy>")]
-fn purchase_article(
+pub fn purchase_article(
     mongo_db: State<MongoDB>,
     article_to_buy: Json<BuyArticle>,
     session: Session,
 ) -> Result<Status, ApiError> {
-    /// Buy article if reader doesn't own it.
-    /// Subtract balance from reader
-    /// Pay publisher.
+    // Buy article if reader doesn't own it.
+    // Subtract balance from reader
+    // Pay publisher.
+    let article_to_buy = article_to_buy.into_inner();
+    let article_guid = article_to_buy.article_guid.clone();
+    let publisher_email = article_to_buy.publisher_email.clone();
+    let publisher = find_publisher(mongo_db.get_publishers_collection(), publisher_email.clone())?;
+    let readers = mongo_db.get_readers_collection();
+    let reader = find_reader(readers, session.email)?;
+    let reader_email = reader.email.clone();
+    let reader_balance = reader.balance.clone();
+
+    if reader.owns_article(article_guid.clone()) {
+        // Already purchased the article.
+        Ok(Status::Ok)
+    } else {
+        // Need to purchase article.
+        let publishers = mongo_db.get_publishers_collection();
+        let article_result = get_article(publishers, publisher_email.clone(), article_guid)?;
+        match article_result {
+            Some(article) => {
+                let reader_new_balance = reader_balance.try_subtracting(article.price)?;
+                update_balance(
+                    mongo_db.get_readers_collection(),
+                    reader_new_balance,
+                    reader_email,
+                )?;
+                let publisher_new_balance = publisher.balance + article.price;
+                update_balance(
+                    mongo_db.get_publishers_collection(),
+                    publisher_new_balance,
+                    publisher_email,
+                )?;
+            }
+            None => {
+                // Article is not registered.
+                // TODO: What happens is article is not registered?
+            }
+        }
+
+        Ok(Status::Ok)
+    }
 }
-*/
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterArticle {
@@ -95,7 +138,11 @@ fn insert_article(
         .upsert(true) // should create the field if there are no matches
         .build();
     publishers
-        .update_one(email_filter(register_article.publisher_email), update, Some(options))
+        .update_one(
+            email_filter(register_article.publisher_email),
+            update,
+            Some(options),
+        )
         .or_else(mongo_error)?;
     Ok(Status::Created)
 }
@@ -136,3 +183,5 @@ pub fn owns_article(
         Ok(Status::NotFound)
     }
 }
+
+
