@@ -70,11 +70,8 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             session::check_cookies,
             articles::owns_article,
             articles::register_article,
-<<<<<<< HEAD
             articles::purchase_article,
-=======
-            articles::add_article_to_reader,
->>>>>>> a0fd6f6de4ffd76b385ece842a9cbb7e364b2d32
+            // articles::add_article_to_reader,
             // FOR DEBUGGING
             publisher::scan_publishers,
             publisher::get_account,

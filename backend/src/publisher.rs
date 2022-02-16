@@ -87,10 +87,7 @@ pub fn get_account(
 }
 
 #[get("/publisher/<email>")]
-pub fn get_publisher(
-    mongo_db: State<MongoDB>,
-    email: String,
-) -> Result<Json<Publisher>, ApiError> {
+pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
     let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
     Ok(Json(find_publisher(publishers, email)?))
 }

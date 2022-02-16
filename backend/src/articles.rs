@@ -4,7 +4,7 @@
 use crate::common::{email_filter, mongo_error, update_balance, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::publisher::{find_publisher, Publisher};
-use crate::reader::find_reader;
+use crate::reader::{find_reader, Reader};
 use crate::session::Session;
 use mongodb::bson::DateTime;
 use mongodb::bson::{doc, to_bson};
@@ -59,26 +59,30 @@ pub fn purchase_article(
     let article_to_buy = article_to_buy.into_inner();
     let article_guid = article_to_buy.article_guid.clone();
     let publisher_email = article_to_buy.publisher_email.clone();
-    let publisher = find_publisher(mongo_db.get_publishers_collection(), publisher_email.clone())?;
+    let publisher = find_publisher(
+        mongo_db.get_publishers_collection(),
+        publisher_email.clone(),
+    )?;
     let readers = mongo_db.get_readers_collection();
     let reader = find_reader(readers, session.email)?;
     let reader_email = reader.email.clone();
     let reader_balance = reader.balance.clone();
-
     if reader.owns_article(article_guid.clone()) {
         // Already purchased the article.
         Ok(Status::Ok)
     } else {
         // Need to purchase article.
         let publishers = mongo_db.get_publishers_collection();
-        let article_result = get_article(publishers, publisher_email.clone(), article_guid)?;
+        let article_result =
+            get_article(publishers, publisher_email.clone(), article_guid.clone())?;
         match article_result {
             Some(article) => {
+                // Take out the cost from reader balance and add to publisher balance.
                 let reader_new_balance = reader_balance.try_subtracting(article.price)?;
                 update_balance(
                     mongo_db.get_readers_collection(),
                     reader_new_balance,
-                    reader_email,
+                    reader_email.clone(),
                 )?;
                 let publisher_new_balance = publisher.balance + article.price;
                 update_balance(
@@ -86,14 +90,15 @@ pub fn purchase_article(
                     publisher_new_balance,
                     publisher_email,
                 )?;
+                // Reader now owns the article.
+                add_article_to_reader(
+                    mongo_db.get_readers_collection(),
+                    reader_email,
+                    article_guid,
+                )
             }
-            None => {
-                // Article is not registered.
-                // TODO: What happens is article is not registered?
-            }
+            None => Err(ApiError::ArticleNotRegistered),
         }
-
-        Ok(Status::Ok)
     }
 }
 
@@ -169,15 +174,14 @@ pub fn register_article(
 
 // Register an article for a reader.
 // might need to modify the slug
-#[post("/articles/register/reader", data = "<article_guid>")]
-pub fn add_article_to_reader(
-    mongo_db: State<MongoDB>,
-    session: Session,
+// #[post("/articles/register/reader", data = "<article_guid>")]
+fn add_article_to_reader(
+    readers: Collection<Reader>,
+    reader_email: String,
     article_guid: ArticleGuid,
 ) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_readers_collection();
-    let document = email_filter(session.email);
-    let update = doc! { "$push":  { "articles": [ article_guid ] } };
+    let document = email_filter(reader_email);
+    let update = doc! { "$push":  { "articles": article_guid } };
 
     let update_query = readers.update_one(document, update, None);
 
@@ -203,5 +207,3 @@ pub fn owns_article(
         Ok(Status::NotFound)
     }
 }
-
-

@@ -22,6 +22,7 @@ pub enum ApiError {
     NotEnoughFunds,
     AuthorizationError,
     UserNotFound,
+    ArticleNotRegistered,
 }
 
 static USER_ALREADY_EXISTS_MSG: &str = "User Already exists";
@@ -31,6 +32,7 @@ static INTERAL_SERVER_ERROR_MSG: &str = "Internal Server Error";
 static NOT_ENOUGH_FUNDS_MSG: &str = "Not Enough Funds";
 static AUTHORIZATION_ERROR: &str = "Unauthorized error";
 static USER_NOT_FOUND: &str = "User was not found";
+static ARTICLE_NOT_REGISTERED: &str = "Article is not registered";
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -42,6 +44,7 @@ impl fmt::Display for ApiError {
             ApiError::NotEnoughFunds => f.write_str(NOT_ENOUGH_FUNDS_MSG),
             ApiError::AuthorizationError => f.write_str(AUTHORIZATION_ERROR),
             ApiError::UserNotFound => f.write_str(USER_NOT_FOUND),
+            ApiError::ArticleNotRegistered => f.write_str(ARTICLE_NOT_REGISTERED),
         }
     }
 }
@@ -56,6 +59,7 @@ impl StdError for ApiError {
             ApiError::NotEnoughFunds => NOT_ENOUGH_FUNDS_MSG,
             ApiError::AuthorizationError => AUTHORIZATION_ERROR,
             ApiError::UserNotFound => USER_NOT_FOUND,
+            ApiError::ArticleNotRegistered => ARTICLE_NOT_REGISTERED,
         }
     }
 }
@@ -78,6 +82,9 @@ impl<'r> Responder<'r> for ApiError {
                 Ok(Response::build().raw_status(404, USER_NOT_FOUND).finalize())
             }
             ApiError::AuthorizationError => Err(Status::Unauthorized),
+            ApiError::ArticleNotRegistered => Ok(Response::build()
+                .raw_status(400, ARTICLE_NOT_REGISTERED)
+                .finalize()),
         }
     }
 }
@@ -168,7 +175,7 @@ impl Sub for Balance {
 
 impl Balance {
     pub fn try_subtracting(self, other: Self) -> Result<Self, ApiError> {
-        if other < self {
+        if other > self {
             Err(ApiError::NotEnoughFunds)
         } else {
             Ok(self - other)
