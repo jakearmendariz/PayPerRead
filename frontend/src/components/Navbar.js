@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import './Navbar.css';
 
 /** Check if the user is loggedin */
@@ -66,7 +66,9 @@ function Navbar(props) {
   const [loggedin, setLogin] = useState(false);
 
   const handleClick = () => setClick(!click);
-  const scrollToView = (componentRef) => window.scrollTo(0, componentRef.current.offsetTop);  
+  const scrollToView = (componentRef) => window.scrollTo(0, componentRef.current.offsetTop);
+
+  const { welcomeRef, aboutRef } = props;
 
   isLoggedIn(setLogin);
   return (
@@ -80,15 +82,15 @@ function Navbar(props) {
           <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
         </div>
         <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item" onClick={() => scrollToView(props.welcomeRef)}>
-            <div className="nav-links">
+          <li className="nav-item" onClick={() => scrollToView(welcomeRef)}>
+            <NavLink to="/" className="nav-links">
               Home
-            </div>
+            </NavLink>
           </li>
-          <li className="nav-item" onClick={() => scrollToView(props.aboutRef)}>
-            <div className="nav-links">
+          <li className="nav-item" onClick={() => scrollToView(aboutRef)}>
+            <NavLink to="/" className="nav-links">
               About Us
-            </div>
+            </NavLink>
           </li>
           <ManageProfile loggedin={loggedin} />
           <SigninOrLogout loggedin={loggedin} />
