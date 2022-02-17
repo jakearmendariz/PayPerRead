@@ -8,19 +8,15 @@ import Welcome from '../components/Welcome';
 import About from '../components/About';
 
 function App() {
-  const aboutRef = useRef(null);
   const welcomeRef = useRef(null);
+  const aboutRef = useRef(null);
 
   return (
     <div>
       {/* <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>  */}
-      <Navbar aboutRef={aboutRef} welcomeRef={welcomeRef} />
-      <div ref={welcomeRef}>
-        <Welcome />
-      </div>
-      <div ref={aboutRef}>
-        <About />
-      </div>
+      <Navbar welcomeRef={welcomeRef} aboutRef={aboutRef} />
+      <Welcome innerRef={welcomeRef} />
+      <About innerRef={aboutRef} />
       {/* <div className="center-content">
 
       <div className="col-lg-2">

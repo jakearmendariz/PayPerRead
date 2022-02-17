@@ -1,9 +1,9 @@
 import React from 'react';
 import './About.css';
 
-function About() {
+function About(props) {
   return (
-    <div className="about-container">
+    <div className="about-container" ref={props.innerRef}>
       <h1>How does it work?</h1>
       <div className="about-wrapper">
         <div className="about-box-1">

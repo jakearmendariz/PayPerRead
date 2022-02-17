@@ -66,7 +66,7 @@ function Navbar(props) {
   const [loggedin, setLogin] = useState(false);
 
   const handleClick = () => setClick(!click);
-  const scrollToView = (componentRef) => componentRef.current.scrollIntoView();
+  const scrollToView = (componentRef) => window.scrollTo(0, componentRef.current.offsetTop);  
 
   isLoggedIn(setLogin);
   return (
@@ -81,14 +81,14 @@ function Navbar(props) {
         </div>
         <ul className={click ? 'nav-menu active' : 'nav-menu'}>
           <li className="nav-item" onClick={() => scrollToView(props.welcomeRef)}>
-            <Link to="/" className="nav-links">
+            <div className="nav-links">
               Home
-            </Link>
+            </div>
           </li>
           <li className="nav-item" onClick={() => scrollToView(props.aboutRef)}>
-            <Link to="/" className="nav-links">
+            <div className="nav-links">
               About Us
-            </Link>
+            </div>
           </li>
           <ManageProfile loggedin={loggedin} />
           <SigninOrLogout loggedin={loggedin} />
