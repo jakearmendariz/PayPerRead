@@ -44,7 +44,7 @@ pub struct NewReader {
 
 impl Reader {
     /// Does the reader own the article
-    pub fn owns_article(self, article_guid: String) -> bool {
+    pub fn owns_article(&self, article_guid: String) -> bool {
         self.articles.contains(&article_guid)
     }
 }
@@ -60,7 +60,7 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
     Ok(Json(readers_vec))
 }
 
-pub fn find_reader(readers: Collection<Reader>, email: String) -> Result<Reader, ApiError> {
+pub fn find_reader(readers: &Collection<Reader>, email: String) -> Result<Reader, ApiError> {
     readers
         .find_one(email_filter(email), None)
         .or_else(mongo_error)?
@@ -70,13 +70,13 @@ pub fn find_reader(readers: Collection<Reader>, email: String) -> Result<Reader,
 #[get("/reader/<email>")]
 pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
     let readers: Collection<Reader> = mongo_db.get_readers_collection();
-    Ok(Json(find_reader(readers, email)?))
+    Ok(Json(find_reader(&readers, email)?))
 }
 
 #[get("/reader/account")]
 pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
     let readers: Collection<Reader> = mongo_db.get_readers_collection();
-    Ok(Json(find_reader(readers, session.email)?))
+    Ok(Json(find_reader(&readers, session.email)?))
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]

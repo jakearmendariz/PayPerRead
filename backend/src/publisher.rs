@@ -68,7 +68,7 @@ pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>,
 
 /// Finds the publisher from the email in the collection table
 pub fn find_publisher(
-    publishers: Collection<Publisher>,
+    publishers: &Collection<Publisher>,
     publisher_email: String,
 ) -> Result<Publisher, ApiError> {
     publishers
@@ -83,13 +83,13 @@ pub fn get_account(
     session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
     let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
-    Ok(Json(find_publisher(publishers, session.email)?))
+    Ok(Json(find_publisher(&publishers, session.email)?))
 }
 
 #[get("/publisher/<email>")]
 pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
     let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
-    Ok(Json(find_publisher(publishers, email)?))
+    Ok(Json(find_publisher(&publishers, email)?))
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]

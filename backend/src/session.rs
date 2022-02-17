@@ -121,7 +121,7 @@ pub fn login(
     // Verify that the user we are looking up exists.
     let sessions = mongo_db.get_session_collection();
     let readers = mongo_db.get_readers_collection();
-    find_reader(readers, reader.email.clone())?;
+    find_reader(&readers, reader.email.clone())?;
     // Create cookie, save and return.
     start_session(sessions, reader.email, cookies)
 }
@@ -135,7 +135,7 @@ pub fn login_publisher(
     // Verify that the user we are looking up exists.
     let sessions = mongo_db.get_session_collection();
     let publishers = mongo_db.get_publishers_collection();
-    find_publisher(publishers, publisher_auth.email.clone())?;
+    find_publisher(&publishers, publisher_auth.email.clone())?;
     // Create cookie, save and return.
     start_session(sessions, publisher_auth.email, cookies)
 }
@@ -150,8 +150,17 @@ fn start_session(
     Ok(Status::Ok)
 }
 
-/// If the user has a valid session cookie, then return their email.
+/// If the user has a valid session cookie, then return success
 #[get("/cookies")]
-pub fn check_cookies(session: Session) -> String {
-    session.email
+pub fn check_cookies(_session: Session) -> Status {
+    Status::Ok
+}
+
+#[get("/logout")]
+pub fn logout(_session: Session, mut cookies: Cookies) -> Status {
+    // Just remove cookie from browser.
+    // No need to delete it from mongo, it will expire on its own.
+    // let cookie = Cookie::build(SESSION_COOKIE_STR, session.token).path("/").finish();
+    cookies.remove(Cookie::named("Session"));
+    Status::Ok
 }

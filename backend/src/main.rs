@@ -68,10 +68,10 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             session::login,
             session::login_publisher,
             session::check_cookies,
+            session::logout,
             articles::owns_article,
             articles::register_article,
             articles::purchase_article,
-            // articles::add_article_to_reader,
             // FOR DEBUGGING
             publisher::scan_publishers,
             publisher::get_account,

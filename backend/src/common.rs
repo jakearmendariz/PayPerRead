@@ -107,7 +107,7 @@ pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
 /// Takes collection as a parameter so it can be expanded to
 /// both the reader and publsher table.
 pub fn update_balance<T>(
-    collection: mongodb::sync::Collection<T>,
+    collection: &mongodb::sync::Collection<T>,
     updated_balance: Balance,
     email: String,
 ) -> Result<Status, ApiError> {

@@ -1,10 +1,11 @@
+/// mongo.rs
+/// Connection to mongoDB
 use crate::publisher::Publisher;
 use crate::reader::Reader;
 use crate::session::Session;
-/// mongo.rs
-/// Connection to mongoDB
 use mongodb::bson::doc;
 use mongodb::sync::{Client, Collection, Database};
+
 /// Primary struct for maintaining connection to MongoDB
 ///
 /// Note: Considering changing this to a series of collections.
