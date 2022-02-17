@@ -44,8 +44,17 @@ pub struct NewReader {
 
 impl Reader {
     /// Does the reader own the article
-    pub fn owns_article(&self, article_guid: String) -> bool {
-        self.articles.contains(&article_guid)
+    pub fn owns_article(&self, article_guid: &str) -> bool {
+        self.articles.contains(&article_guid.to_string())
+    }
+}
+
+impl MongoDB {
+    pub fn find_reader(&self, email: &str) -> Result<Reader, ApiError> {
+        self.readers
+            .find_one(email_filter(email), None)
+            .or_else(mongo_error)?
+            .ok_or(ApiError::UserNotFound)
     }
 }
 
@@ -62,21 +71,19 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
 
 pub fn find_reader(readers: &Collection<Reader>, email: String) -> Result<Reader, ApiError> {
     readers
-        .find_one(email_filter(email), None)
+        .find_one(email_filter(&email), None)
         .or_else(mongo_error)?
         .ok_or(ApiError::UserNotFound)
 }
 
 #[get("/reader/<email>")]
 pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
-    let readers: Collection<Reader> = mongo_db.get_readers_collection();
-    Ok(Json(find_reader(&readers, email)?))
+    Ok(Json(mongo_db.find_reader(&email)?))
 }
 
 #[get("/reader/account")]
 pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
-    let readers: Collection<Reader> = mongo_db.get_readers_collection();
-    Ok(Json(find_reader(&readers, session.email)?))
+    get_reader(mongo_db, session.email)
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]
@@ -86,14 +93,13 @@ pub fn add_reader(
     reader_auth: JwtAuth,
     mut cookies: Cookies,
 ) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_readers_collection();
     let reader = new_reader.into_inner();
     if reader_auth.email != reader.email {
         // Tried to create a user that didn't match authorization.
         return Err(ApiError::AuthorizationError);
     }
     let email = reader.email.clone();
-    match readers.insert_one(Reader::from(reader), None) {
+    match mongo_db.readers.insert_one(Reader::from(reader), None) {
         Ok(_) => {
             cookies.add(session::create_session(
                 mongo_db.get_session_collection(),
@@ -116,7 +122,7 @@ pub fn add_reader(
 #[delete("/reader")]
 pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
     let readers = mongo_db.get_readers_collection();
-    let result = readers.find_one_and_delete(email_filter(session.email), None);
+    let result = readers.find_one_and_delete(email_filter(&session.email), None);
     match result {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),

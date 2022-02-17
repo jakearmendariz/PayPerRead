@@ -4,7 +4,6 @@ use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
-use mongodb::sync::Collection;
 use rocket::http::{Cookies, Status};
 use rocket::State;
 use rocket_contrib::json::Json;
@@ -22,8 +21,8 @@ pub struct Publisher {
 }
 
 impl Publisher {
-    pub fn lookup_article(self, article_guid: ArticleGuid) -> Option<Article> {
-        self.articles.get(&article_guid).cloned()
+    pub fn lookup_article(self, article_guid: &str) -> Option<Article> {
+        self.articles.get(article_guid).cloned()
     }
 
     /// This will update the value, but only call when the article does not exist.
@@ -33,6 +32,15 @@ impl Publisher {
             Some(_) => Err(ApiError::InternalServerError),
             None => Ok(()),
         }
+    }
+}
+
+impl MongoDB {
+    pub fn find_publisher(&self, email: &str) -> Result<Publisher, ApiError> {
+        self.publishers
+            .find_one(email_filter(email), None)
+            .or_else(mongo_error)?
+            .ok_or(ApiError::UserNotFound)
     }
 }
 
@@ -66,30 +74,17 @@ pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>,
     Ok(Json(publishers_vec))
 }
 
-/// Finds the publisher from the email in the collection table
-pub fn find_publisher(
-    publishers: &Collection<Publisher>,
-    publisher_email: String,
-) -> Result<Publisher, ApiError> {
-    publishers
-        .find_one(email_filter(publisher_email), None)
-        .or_else(mongo_error)?
-        .ok_or(ApiError::UserNotFound)
-}
-
 #[get("/publisher")]
 pub fn get_account(
     mongo_db: State<MongoDB>,
     session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
-    let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
-    Ok(Json(find_publisher(&publishers, session.email)?))
+    get_publisher(mongo_db, session.email)
 }
 
 #[get("/publisher/<email>")]
 pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
-    let publishers: Collection<Publisher> = mongo_db.get_publishers_collection();
-    Ok(Json(find_publisher(&publishers, email)?))
+    Ok(Json(mongo_db.find_publisher(&email)?))
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]
@@ -128,7 +123,7 @@ pub fn add_publisher(
 #[delete("/publisher")]
 pub fn delete_publisher(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
     let publishers = mongo_db.get_publishers_collection();
-    let result = publishers.find_one_and_delete(email_filter(session.email), None);
+    let result = publishers.find_one_and_delete(email_filter(&session.email), None);
     match result {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),

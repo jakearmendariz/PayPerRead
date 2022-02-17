@@ -90,8 +90,8 @@ impl<'r> Responder<'r> for ApiError {
 }
 
 /// Commonly used as a filter for searching mongodb
-pub fn email_filter(email: String) -> Document {
-    doc! {"email": email.as_str()}
+pub fn email_filter(email: &str) -> Document {
+    doc! {"email": email}
 }
 
 /// Converts mongo's error struct to ours, printing information.
@@ -109,7 +109,7 @@ pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
 pub fn update_balance<T>(
     collection: &mongodb::sync::Collection<T>,
     updated_balance: Balance,
-    email: String,
+    email: &str,
 ) -> Result<Status, ApiError> {
     let update = doc! {"$set": {"balance": updated_balance.to_bson()}};
     match collection.update_one(email_filter(email), update, None) {
@@ -128,7 +128,7 @@ pub struct Balance {
 
 impl Balance {
     /// Converts to bson, doesn't handle error for now.
-    fn to_bson(self) -> Bson {
+    pub fn to_bson(self) -> Bson {
         // Should never panic...
         to_bson(&self).expect("Couldn't serialize balance")
     }
