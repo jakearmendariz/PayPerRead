@@ -1,17 +1,26 @@
 import './App.css';
 
+import React, { useRef } from 'react';
+
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Welcome from '../components/Welcome';
 import About from '../components/About';
 
 function App() {
+  const aboutRef = useRef(null);
+  const welcomeRef = useRef(null);
+
   return (
     <div>
       {/* <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>  */}
-      <Navbar />
-      <Welcome />
-      <About />
+      <Navbar aboutRef={aboutRef} welcomeRef={welcomeRef} />
+      <div ref={welcomeRef}>
+        <Welcome />
+      </div>
+      <div ref={aboutRef}>
+        <About />
+      </div>
       {/* <div className="center-content">
 
       <div className="col-lg-2">

@@ -61,10 +61,13 @@ function ManageProfile(props) {
   return null;
 }
 
-function Navbar() {
+function Navbar(props) {
   const [click, setClick] = useState(false);
-  const handleClick = () => setClick(!click);
   const [loggedin, setLogin] = useState(false);
+
+  const handleClick = () => setClick(!click);
+  const scrollToView = (componentRef) => componentRef.current.scrollIntoView();
+
   isLoggedIn(setLogin);
   return (
     <nav className="navbar">
@@ -77,12 +80,12 @@ function Navbar() {
           <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
         </div>
         <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item">
+          <li className="nav-item" onClick={() => scrollToView(props.welcomeRef)}>
             <Link to="/" className="nav-links">
               Home
             </Link>
           </li>
-          <li className="nav-item">
+          <li className="nav-item" onClick={() => scrollToView(props.aboutRef)}>
             <Link to="/" className="nav-links">
               About Us
             </Link>
