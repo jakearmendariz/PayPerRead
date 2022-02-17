@@ -150,8 +150,17 @@ fn start_session(
     Ok(Status::Ok)
 }
 
-/// If the user has a valid session cookie, then return their email.
+/// If the user has a valid session cookie, then return success
 #[get("/cookies")]
-pub fn check_cookies(session: Session) -> String {
-    session.email
+pub fn check_cookies(_session: Session) -> Status {
+    Status::Ok
+}
+
+#[get("/logout")]
+pub fn logout(_session: Session, mut cookies: Cookies) -> Status {
+    // Just remove cookie from browser.
+    // No need to delete it from mongo, it will expire on its own.
+    // let cookie = Cookie::build(SESSION_COOKIE_STR, session.token).path("/").finish();
+    cookies.remove(Cookie::named("Session"));
+    Status::Ok
 }
