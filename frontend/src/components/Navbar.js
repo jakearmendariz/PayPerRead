@@ -63,42 +63,11 @@ function ManageProfile(props) {
 
 function Navbar(props) {
   const [click, setClick] = useState(false);
-  const [loggedin, setLogin] = useState(false);
-
   const handleClick = () => setClick(!click);
+  const [loggedin, setLogin] = useState(false);
   const scrollToView = (componentRef) => window.scrollTo(0, componentRef.current.offsetTop);
 
   const { welcomeRef, aboutRef } = props;
-
-  isLoggedIn(setLogin);
-  return (
-    <li className="nav-item">
-      <Link to="/signin/reader" className="nav-links">
-        Sign Up
-      </Link>
-    </li>
-  );
-}
-
-/** ManageProfile */
-function ManageProfile(props) {
-  const { loggedin } = props;
-  if (loggedin) {
-    return (
-      <li className="nav-item">
-        <Link to="/" className="nav-links">
-          Manage Profile
-        </Link>
-      </li>
-    );
-  }
-  return null;
-}
-
-function Navbar() {
-  const [click, setClick] = useState(false);
-  const handleClick = () => setClick(!click);
-  const [loggedin, setLogin] = useState(false);
   isLoggedIn(setLogin);
   return (
     <nav className="navbar">
@@ -119,11 +88,7 @@ function Navbar() {
           <li className="nav-item" onClick={() => scrollToView(aboutRef)}>
             <NavLink to="/" className="nav-links">
               About Us
-<<<<<<< HEAD
             </NavLink>
-=======
-            </Link>
->>>>>>> b616f588 (Added logout endpoint and a changing nav bar if user is loggedin)
           </li>
           <ManageProfile loggedin={loggedin} />
           <SigninOrLogout loggedin={loggedin} />
