@@ -30,19 +30,19 @@ function SigninOrLogout(props) {
   const { loggedin } = props;
   if (loggedin) {
     return (
-      <li onClick={logout} className="nav-item">
-        <Link to="/" className="nav-links">
+      <div onClick={logout} className="col-1">
+        <Link to="/" className="">
           Logout
         </Link>
-      </li>
+      </div>
     );
   }
   return (
-    <li className="nav-item">
-      <Link to="/signin/reader" className="nav-links">
+    <div className="col-1">
+      <Link to="/signin/reader" className="">
         Sign Up
       </Link>
-    </li>
+    </div>
   );
 }
 
@@ -51,11 +51,8 @@ function ManageProfile(props) {
   const { loggedin } = props;
   if (loggedin) {
     return (
-      <li className="nav-item">
-        <Link to="/" className="nav-links">
-          Manage Profile
-        </Link>
-      </li>
+      <div className="col-1">
+      </div>
     );
   }
   return null;
@@ -72,29 +69,42 @@ function Navbar(props) {
 
   isLoggedIn(setLogin);
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <h1 to="/" className="navbar-logo">
+    <nav className="navbar fixed-top container-fluid">
+      <div className="row w-100">
+
+        <h1 to="/" className={[`col-${loggedin ? 8 : 9}`, "text-white"].join(" ")}>
           PayPerRead
-          <i className="fab fa-pushed" />
+          <i className="" />
         </h1>
-        <div className="menu-icon" onClick={handleClick}>
-          <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
-        </div>
-        <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item" onClick={() => scrollToView(welcomeRef)}>
-            <NavLink to="/" className="nav-links">
+        
+        {/* <div className="display-none" onClick={handleClick}> 
+          <i className={click ? '' : ''} />
+        </div>*/}
+        
+          <div className="col-1" onClick={() => scrollToView(welcomeRef)}>
+            <NavLink to="/" className="">
               Home
             </NavLink>
-          </li>
-          <li className="nav-item" onClick={() => scrollToView(aboutRef)}>
-            <NavLink to="/" className="nav-links">
+          </div>
+
+          <div className="col-1" onClick={() => scrollToView(aboutRef)}>
+            <NavLink to="/" className="">
               About Us
             </NavLink>
-          </li>
-          <ManageProfile loggedin={loggedin} />
-          <SigninOrLogout loggedin={loggedin} />
-        </ul>
+          </div>
+
+          { loggedin && 
+            <div className="col-1">
+              <Link to="/" className="">Manage Profile</Link>
+            </div>
+          }
+
+          <div onClick={loggedin && logout} className="col-1">
+            <Link to={loggedin ? "/" : "/signin/reader"} className="">
+              { loggedin ? "Logout" : "Sign up" }
+            </Link>
+          </div>
+      
       </div>
     </nav>
   );
