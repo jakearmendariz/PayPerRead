@@ -20,6 +20,7 @@ pub struct Article {
     article_name: String,
     created_at: DateTime,
     price: Balance,
+    views: u32,
 }
 
 impl Article {
@@ -28,6 +29,7 @@ impl Article {
             article_name,
             created_at: DateTime::now(),
             price,
+            views: 0,
         }
     }
 }
@@ -61,8 +63,11 @@ pub fn purchase_article(
         // Already purchased the article.
         return Ok(Status::Ok);
     }
+
     // Preform the transaction, add the article
-    mongo_db.finalize_transaction(publisher, reader, article_guid, article)
+    mongo_db.finalize_transaction(&publisher, &reader, &article_guid, &article)?;
+    // Increase article view count
+    mongo_db.increment_article_views(&publisher, &article, &article_guid)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -136,10 +141,10 @@ impl MongoDB {
     // might need to modify the slug
     fn add_article_to_reader(
         &self,
-        reader_email: String,
-        article_guid: ArticleGuid,
+        reader_email: &str,
+        article_guid: &ArticleGuid,
     ) -> Result<Status, ApiError> {
-        let document = email_filter(&reader_email);
+        let document = email_filter(reader_email);
         let update = doc! { "$push":  { "articles": article_guid } };
         let update_query = self.readers.update_one(document, update, None);
 
@@ -155,10 +160,10 @@ impl MongoDB {
     /// Save article for reader
     fn finalize_transaction(
         &self,
-        publisher: Publisher,
-        reader: Reader,
-        article_guid: ArticleGuid,
-        article: Article,
+        publisher: &Publisher,
+        reader: &Reader,
+        article_guid: &ArticleGuid,
+        article: &Article,
     ) -> Result<Status, ApiError> {
         // Subtract balance from reader.
         let reader_balance = reader.balance.try_subtracting(article.price)?;
@@ -167,6 +172,27 @@ impl MongoDB {
         let publisher_balance = publisher.balance + article.price;
         update_balance(&self.publishers, publisher_balance, &publisher.email)?;
         // Add article to reader.
-        self.add_article_to_reader(reader.email, article_guid)
+        self.add_article_to_reader(&reader.email, article_guid)
+    }
+
+    /// Increase the view count of the article
+    /// by one and updates article object in publisher's
+    /// collection
+    fn increment_article_views(
+        &self,
+        publisher: &Publisher,
+        article: &Article,
+        article_guid: &ArticleGuid,
+    ) -> Result<Status, ApiError> {
+        let document = email_filter(&publisher.email);
+        let new_views = article.views + 1;
+        let field_to_update = format!("articles.{}.views", article_guid);
+        let update = doc! { "$set":  { field_to_update: new_views} };
+        let update_query = self.publishers.update_one(document, update, None);
+
+        match update_query {
+            Ok(_) => Ok(Status::Ok),
+            Err(_) => Err(ApiError::MongoDBError),
+        }
     }
 }
