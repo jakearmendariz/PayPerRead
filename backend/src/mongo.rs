@@ -11,13 +11,14 @@ use mongodb::sync::{Client, Collection, Database};
 /// Note: Considering changing this to a series of collections.
 /// That would avoid making a request for the collection each time we try to interact with data.
 /// Slower startup time, but I think its worth it as long as we don't run on a a lambda.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct MongoDB {
     // Keeping client for now, may not be needed.
     _client: Client,
     // Preloading user database because it will be used often.
     user_db: Database,
-    pub article_db: Database,
+    pub readers: Collection<Reader>,
+    pub publishers: Collection<Publisher>,
 }
 
 impl MongoDB {
@@ -51,10 +52,12 @@ pub fn connect_to_mongo() -> Result<MongoDB, mongodb::error::Error> {
 
     // Preload the user database
     let user_db = client.database("Users");
-    let article_db = client.database("Articles");
+    let readers = user_db.collection("Readers");
+    let publishers = user_db.collection("Publishers");
     Ok(MongoDB {
         _client: client,
         user_db,
-        article_db,
+        readers,
+        publishers,
     })
 }
