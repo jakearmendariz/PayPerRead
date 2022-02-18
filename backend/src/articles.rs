@@ -141,7 +141,7 @@ impl MongoDB {
     // might need to modify the slug
     fn add_article_to_reader(
         &self,
-        reader_email: &String,
+        reader_email: &str,
         article_guid: &ArticleGuid,
     ) -> Result<Status, ApiError> {
         let document = email_filter(reader_email);
@@ -175,11 +175,11 @@ impl MongoDB {
         self.add_article_to_reader(&reader.email, article_guid)
     }
 
-    /// Increase the view count of the article 
+    /// Increase the view count of the article
     /// by one and updates article object in publisher's
     /// collection
     fn increment_article_views(
-        &self, 
+        &self,
         publisher: &Publisher,
         article: &Article,
         article_guid: &ArticleGuid,
@@ -195,6 +195,4 @@ impl MongoDB {
             Err(_) => Err(ApiError::MongoDBError),
         }
     }
-
 }
-
