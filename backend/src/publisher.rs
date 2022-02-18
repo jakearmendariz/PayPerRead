@@ -67,9 +67,8 @@ pub struct NewPublisher {
 /// Scan of entire publishers table.
 #[get("/publishers")]
 pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>, ApiError> {
-    let publishers = mongo_db.get_publishers_collection();
     // find with no parameters is just a scan.
-    let cursor = publishers.find(None, None).or_else(mongo_error)?;
+    let cursor = mongo_db.publishers.find(None, None).or_else(mongo_error)?;
     let publishers_vec = cursor.map(|item| item.unwrap()).collect::<Vec<Publisher>>();
     Ok(Json(publishers_vec))
 }
@@ -92,22 +91,20 @@ pub fn add_publisher(
     mongo_db: State<MongoDB>,
     new_publisher: Json<NewPublisher>,
     publisher_auth: JwtAuth,
-    mut cookies: Cookies,
+    cookies: Cookies,
 ) -> Result<Status, ApiError> {
-    let publishers = mongo_db.get_publishers_collection();
     let publisher = new_publisher.into_inner();
     if publisher_auth.email != publisher.email {
         // Didn't match auth.
         return Err(ApiError::AuthorizationError);
     }
     let email = publisher.email.clone();
-
-    match publishers.insert_one(Publisher::from(publisher), None) {
+    match mongo_db
+        .publishers
+        .insert_one(Publisher::from(publisher), None)
+    {
         Ok(_) => {
-            cookies.add(session::create_session(
-                mongo_db.get_session_collection(),
-                email,
-            )?);
+            mongo_db.start_session(email, cookies)?;
             Ok(Status::Created)
         }
         Err(e) => {
@@ -122,8 +119,9 @@ pub fn add_publisher(
 
 #[delete("/publisher")]
 pub fn delete_publisher(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
-    let publishers = mongo_db.get_publishers_collection();
-    let result = publishers.find_one_and_delete(email_filter(&session.email), None);
+    let result = mongo_db
+        .publishers
+        .find_one_and_delete(email_filter(&session.email), None);
     match result {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),

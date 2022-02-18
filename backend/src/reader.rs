@@ -4,9 +4,8 @@ use crate::articles::ArticleGuid;
 /// TODO: Update users account balance
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
-use crate::session;
 use crate::session::{JwtAuth, Session};
-use mongodb::{bson::doc, sync::Collection};
+use mongodb::bson::doc;
 use rocket::{
     http::{Cookies, Status},
     State,
@@ -62,18 +61,10 @@ impl MongoDB {
 /// Only for debugging/testing purposes
 #[get("/readers")]
 pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
-    let readers = mongo_db.get_readers_collection();
     // find with no parameters is just a scan.
-    let cursor = readers.find(None, None).or_else(mongo_error)?;
+    let cursor = mongo_db.readers.find(None, None).or_else(mongo_error)?;
     let readers_vec = cursor.map(|item| item.unwrap()).collect::<Vec<Reader>>();
     Ok(Json(readers_vec))
-}
-
-pub fn find_reader(readers: &Collection<Reader>, email: String) -> Result<Reader, ApiError> {
-    readers
-        .find_one(email_filter(&email), None)
-        .or_else(mongo_error)?
-        .ok_or(ApiError::UserNotFound)
 }
 
 #[get("/reader/<email>")]
@@ -91,7 +82,7 @@ pub fn add_reader(
     mongo_db: State<MongoDB>,
     new_reader: Json<NewReader>,
     reader_auth: JwtAuth,
-    mut cookies: Cookies,
+    cookies: Cookies,
 ) -> Result<Status, ApiError> {
     let reader = new_reader.into_inner();
     if reader_auth.email != reader.email {
@@ -101,10 +92,7 @@ pub fn add_reader(
     let email = reader.email.clone();
     match mongo_db.readers.insert_one(Reader::from(reader), None) {
         Ok(_) => {
-            cookies.add(session::create_session(
-                mongo_db.get_session_collection(),
-                email,
-            )?);
+            mongo_db.start_session(email, cookies)?;
             Ok(Status::Created)
         }
         Err(e) => {
@@ -121,8 +109,9 @@ pub fn add_reader(
 
 #[delete("/reader")]
 pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
-    let readers = mongo_db.get_readers_collection();
-    let result = readers.find_one_and_delete(email_filter(&session.email), None);
+    let result = mongo_db
+        .readers
+        .find_one_and_delete(email_filter(&session.email), None);
     match result {
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),
