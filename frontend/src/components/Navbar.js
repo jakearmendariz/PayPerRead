@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import './Navbar.css';
 
 /** Check if the user is loggedin */
@@ -46,6 +47,10 @@ function SigninOrLogout(props) {
   );
 }
 
+SigninOrLogout.propTypes = {
+  loggedin: PropTypes.bool,
+};
+
 /** ManageProfile */
 function ManageProfile(props) {
   const { loggedin } = props;
@@ -60,6 +65,10 @@ function ManageProfile(props) {
   }
   return null;
 }
+
+ManageProfile.propTypes = {
+  loggedin: PropTypes.bool,
+};
 
 function Navbar(props) {
   const [click, setClick] = useState(false);
@@ -97,5 +106,16 @@ function Navbar(props) {
     </nav>
   );
 }
+
+Navbar.propTypes = {
+  welcomeRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+  aboutRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+};
 
 export default Navbar;

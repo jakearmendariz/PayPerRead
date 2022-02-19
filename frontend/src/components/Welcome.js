@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './Welcome.css';
 
 function Welcome(props) {
@@ -11,5 +12,12 @@ function Welcome(props) {
     </div>
   );
 }
+
+Welcome.propTypes = {
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+};
 
 export default Welcome;

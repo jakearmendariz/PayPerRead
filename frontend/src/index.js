@@ -4,19 +4,22 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 
 import App from './pages/App';
-import UserLandingPage from './pages/UserLandingPage';
+import ReaderProfilePage from './pages/ReaderProfilePage';
 import PublisherLandingPage from './pages/PublisherLandingPage';
 import SignInPage from './pages/SignInPage';
 import VerifySignup from './pages/VerifySignup.js';
 
+import { createGlobalStyle } from 'styled-components'
+
 import './global.css';
+
 
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="user" element={<UserLandingPage />} />
+        <Route path="reader" element={<ReaderProfilePage />} />
         <Route path="publisher" element={<PublisherLandingPage />} />
         <Route path="signin/:user" element={<SignInPage />} />
         <Route path="verify-signup" element={<VerifySignup />} />
