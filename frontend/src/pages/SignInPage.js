@@ -7,7 +7,7 @@ function SignInComponent({
   subtitle, description, success, failure, alternate,
 }) {
   return (
-    <div className='signin-page'>
+    <div className="signin-page">
       <div className="center-content">
 
         {/* set the width to be the size of 2 columns, and have a breakpoint at the predefined lg */}
@@ -21,7 +21,9 @@ function SignInComponent({
 
           {/* TODO: We may put an explanatory page linked here */}
           <p className="secondary-font secondary-color">
-            Learn more about how we work <a href="/">here</a>
+            Learn more about how we work
+            {' '}
+            <a href="/">here</a>
           </p>
 
           <p className="my-3 secondary-font secondary-color">
