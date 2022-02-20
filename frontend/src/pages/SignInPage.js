@@ -7,44 +7,46 @@ function SignInComponent({
   subtitle, description, success, failure, alternate,
 }) {
   return (
-    <div className="center-content">
+    <div className="signin-page">
+      <div className="center-content">
 
-      {/* set the width to be the size of 2 columns, and have a breakpoint at the predefined lg */}
-      <div className="col-lg-2">
+        {/* set the width to be the size of 2 columns, and have a breakpoint at the predefined lg */}
+        <div className="col-lg-3">
 
-        {/* Use the fonts and colors defined in global.css */}
-        <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>
-        <h2 className="primary-font primary-color">{subtitle}</h2>
+          {/* Use the fonts and colors defined in global.css */}
+          <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>
+          <h2 className="primary-font primary-color">{subtitle}</h2>
 
-        <p className="mt-3 secondary-font secondary-color">{description}</p>
+          <p className="mt-3 secondary-font secondary-color">{description}</p>
 
-        {/* TODO: We may put an explanatory page linked here */}
-        <p className="secondary-font secondary-color">
-          Learn more about how we work
-          <Link to="/">here</Link>
-          .
-        </p>
+          {/* TODO: We may put an explanatory page linked here */}
+          <p className="secondary-font secondary-color">
+            Learn more about how we work
+            {' '}
+            <a href="/">here</a>
+          </p>
 
-        <p className="my-3 secondary-font secondary-color">
-          Not the right type of account?
-          {' '}
-          <Link to={alternate}>Click here</Link>
-          {' '}
-          to change the account type.
-        </p>
+          <p className="my-3 secondary-font secondary-color">
+            Not the right type of account?
+            {' '}
+            <Link to={alternate}>Click here</Link>
+            {' '}
+            to change the account type.
+          </p>
 
-        {/* TODO: fix styling because the library's implementation of styling is a bitch */}
-        <GoogleLogin
-          clientId="395326925781-gs6ubj69r0egkkeifimohrktr2h3an6p.apps.googleusercontent.com"
-          buttonText="Sign in"
-          icon={false}
-          onSuccess={success}
-          onFailure={failure}
-          cookiePolicy="single_host_origin"
-          className="styled-button secondary-font primary-color justify-content-center"
-          style={{ color: '#f00' }}
-        />
+          {/* TODO: fix styling because the library's implementation of styling is a bitch */}
+          <GoogleLogin
+            clientId="395326925781-gs6ubj69r0egkkeifimohrktr2h3an6p.apps.googleusercontent.com"
+            buttonText="Sign in"
+            icon={false}
+            onSuccess={success}
+            onFailure={failure}
+            cookiePolicy="single_host_origin"
+            className="styled-button secondary-font primary-color justify-content-center"
+            style={{ color: '#f00' }}
+          />
 
+        </div>
       </div>
     </div>
   );

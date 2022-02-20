@@ -22,6 +22,7 @@ pub enum ApiError {
     NotEnoughFunds,
     AuthorizationError,
     UserNotFound,
+    ArticleNotRegistered,
 }
 
 static USER_ALREADY_EXISTS_MSG: &str = "User Already exists";
@@ -31,6 +32,7 @@ static INTERAL_SERVER_ERROR_MSG: &str = "Internal Server Error";
 static NOT_ENOUGH_FUNDS_MSG: &str = "Not Enough Funds";
 static AUTHORIZATION_ERROR: &str = "Unauthorized error";
 static USER_NOT_FOUND: &str = "User was not found";
+static ARTICLE_NOT_REGISTERED: &str = "Article is not registered";
 
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -42,6 +44,7 @@ impl fmt::Display for ApiError {
             ApiError::NotEnoughFunds => f.write_str(NOT_ENOUGH_FUNDS_MSG),
             ApiError::AuthorizationError => f.write_str(AUTHORIZATION_ERROR),
             ApiError::UserNotFound => f.write_str(USER_NOT_FOUND),
+            ApiError::ArticleNotRegistered => f.write_str(ARTICLE_NOT_REGISTERED),
         }
     }
 }
@@ -56,6 +59,7 @@ impl StdError for ApiError {
             ApiError::NotEnoughFunds => NOT_ENOUGH_FUNDS_MSG,
             ApiError::AuthorizationError => AUTHORIZATION_ERROR,
             ApiError::UserNotFound => USER_NOT_FOUND,
+            ApiError::ArticleNotRegistered => ARTICLE_NOT_REGISTERED,
         }
     }
 }
@@ -78,13 +82,16 @@ impl<'r> Responder<'r> for ApiError {
                 Ok(Response::build().raw_status(404, USER_NOT_FOUND).finalize())
             }
             ApiError::AuthorizationError => Err(Status::Unauthorized),
+            ApiError::ArticleNotRegistered => Ok(Response::build()
+                .raw_status(400, ARTICLE_NOT_REGISTERED)
+                .finalize()),
         }
     }
 }
 
 /// Commonly used as a filter for searching mongodb
-pub fn email_filter(email: String) -> Document {
-    doc! {"email": email.as_str()}
+pub fn email_filter(email: &str) -> Document {
+    doc! {"email": email}
 }
 
 /// Converts mongo's error struct to ours, printing information.
@@ -100,9 +107,9 @@ pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
 /// Takes collection as a parameter so it can be expanded to
 /// both the reader and publsher table.
 pub fn update_balance<T>(
-    collection: mongodb::sync::Collection<T>,
+    collection: &mongodb::sync::Collection<T>,
     updated_balance: Balance,
-    email: String,
+    email: &str,
 ) -> Result<Status, ApiError> {
     let update = doc! {"$set": {"balance": updated_balance.to_bson()}};
     match collection.update_one(email_filter(email), update, None) {
@@ -121,7 +128,7 @@ pub struct Balance {
 
 impl Balance {
     /// Converts to bson, doesn't handle error for now.
-    fn to_bson(self) -> Bson {
+    pub fn to_bson(self) -> Bson {
         // Should never panic...
         to_bson(&self).expect("Couldn't serialize balance")
     }
@@ -168,7 +175,7 @@ impl Sub for Balance {
 
 impl Balance {
     pub fn try_subtracting(self, other: Self) -> Result<Self, ApiError> {
-        if other < self {
+        if other > self {
             Err(ApiError::NotEnoughFunds)
         } else {
             Ok(self - other)

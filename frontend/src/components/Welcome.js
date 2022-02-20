@@ -1,31 +1,23 @@
 import React from 'react';
-import { ButtonPublisherSignIn } from './ButtonPublisherSignIn';
-import { ButtonReaderSignIn } from './ButtonReaderSignIn';
+import PropTypes from 'prop-types';
 import './Welcome.css';
 
-function Welcome() {
+function Welcome(props) {
+  const { innerRef } = props;
+
   return (
-    <div className="welcome-container">
+    <div className="welcome-container" ref={innerRef}>
       <h1>Welcome to PayPerRead!</h1>
       <p>Built For Writers Making A Living</p>
-      <div>
-        <ButtonReaderSignIn
-          className="btns"
-          buttonStyle="btn--outline"
-          buttonSize="btn--large"
-        >
-          Login for Readers
-        </ButtonReaderSignIn>
-        <ButtonPublisherSignIn
-          className="btns"
-          buttonStyle="btn--outline"
-          buttonSize="btn--large"
-        >
-          Login For Publishers
-        </ButtonPublisherSignIn>
-      </div>
     </div>
   );
 }
+
+Welcome.propTypes = {
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+};
 
 export default Welcome;

@@ -14,11 +14,13 @@
     "react-google-login": "^5.2.2",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
+    "styled-components": "^5.3.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "lint": "eslint src --fix",
     "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "start-win": "react-scripts start",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "DISABLE_ESLINT_PLUGIN=true react-scripts test",
     "eject": "DISABLE_ESLINT_PLUGIN=true react-scripts eject"

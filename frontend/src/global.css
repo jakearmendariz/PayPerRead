@@ -1,6 +1,13 @@
+body {
+	background-color: #f5f5f5;
+}
+
+.signin-page {
+   height: 100vh;
+}
 
 .center-content {
-
+	
 	height: 65vh;
 	display: flex;
 	align-items: center;
@@ -9,14 +16,14 @@
 }
 
 .primary-font {
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Roboto', sans-serif;
 }
 
 .secondary-font {
 	font-family: 'Roboto', sans-serif;
 }
 
-.primary-color: {
+.primary-color {
 	color: #333 !important;
 }
 
