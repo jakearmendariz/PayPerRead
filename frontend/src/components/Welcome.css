@@ -42,3 +42,30 @@
   .fa-play-circle {
     margin-left: 4px;
   }
+
+  @media screen and (max-width: 960px) {
+    .welcome-container > h1 {
+      font-size: 70px;
+      margin-top: -150px;
+    }
+  }
+  
+  @media screen and (max-width: 876px) {
+    .welcome-container > h1 {
+      font-size: 30px;
+      margin-top: -100px;
+    }
+  
+    .welcome-container > p {
+      font-size: 18px;
+    }
+  
+    .btn-mobile {
+      display: block;
+      text-decoration: none;
+    }
+  
+    .btn {
+      width: 100%;
+    }
+  }
