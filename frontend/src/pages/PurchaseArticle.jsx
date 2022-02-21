@@ -6,32 +6,32 @@ import { useParams, useNavigate } from 'react-router-dom';
 function PurchaseArticle() {
 
   const navigate = useNavigate();
-  const { id } = useParams();
+  const id  = '123E5C'//useParams();
   const [ state, setState ] = useState({ articleTitle: "", articlePrice: 0.00 });
 
   // check if the user owns the article,
   // if not logged in direct them to signin
-  // useEffect(() => {
-  //   fetch(`http://localhost:8000/articles/own/${id}`, {
-  //     credentials: 'include',
-  //   })
-  //     .then((resp) => {
-  //       if(resp.status == "200")
-  //         postPurchaseStatus("success");
-  //       console.log(resp);
-  //     })
-  //     .catch((err) => {
-  //       // Reader need to sign in first
-  //       navigate('/signin/reader');
-  //     });
+  useEffect(() => {
+    fetch(`http://localhost:8000/articles/own/${id}`, {
+      credentials: 'include',
+    })
+      .then((resp) => {
+        if(resp.status == "200")
+          postPurchaseStatus("success");
+        console.log(resp);
+      })
+      .catch((err) => {
+        // Reader need to sign in first
+        navigate('/signin/reader');
+      });
 
-  // });
+  });
 
   const purchaseArticle = () => {
 
     const payload = {
       publisher_email: "xyan87@ucsc.edu",
-      article_guid: id,
+      article_guid: '123E5C',
     };
 
     fetch(`http://localhost:8000/articles/purchase`, {

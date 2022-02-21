@@ -180,6 +180,7 @@ impl Sub for Balance {
 impl Balance {
     pub fn try_subtracting(self, other: Self) -> Result<Self, ApiError> {
         if other > self {
+            println!("Not enough funds: {:?} - {:?}", self, other);
             Err(ApiError::NotEnoughFunds)
         } else {
             Ok(self - other)
