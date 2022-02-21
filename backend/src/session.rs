@@ -87,7 +87,7 @@ impl MongoDB {
         match self.sessions.find_one(doc! {"token": token}, None) {
             Ok(result) => match result {
                 Some(session) => Outcome::Success(session),
-                None => Outcome::Failure((Status::NotFound, ApiError::NotFound)),
+                None => Outcome::Failure((Status::Unauthorized, ApiError::AuthorizationError)),
             },
             Err(_) => Outcome::Failure((Status::InternalServerError, ApiError::MongoDBError)),
         }

@@ -1,3 +1,4 @@
+use crate::articles::Article;
 /// mongo.rs
 /// Connection to mongoDB
 use crate::publisher::Publisher;
@@ -15,6 +16,7 @@ pub struct MongoDB {
     pub readers: Collection<Reader>,
     pub publishers: Collection<Publisher>,
     pub sessions: Collection<Session>,
+    pub articles: Collection<Article>,
 }
 
 /// Connects to MongoDB, if the request is rejected for any reason
@@ -31,9 +33,12 @@ pub fn connect_to_mongo() -> Result<MongoDB, mongodb::error::Error> {
     let readers = user_db.collection("Readers");
     let publishers = user_db.collection("Publishers");
     let sessions = user_db.collection("Sessions");
+    let article_db = client.database("Articles");
+    let articles = article_db.collection("Articles");
     Ok(MongoDB {
         readers,
         publishers,
         sessions,
+        articles,
     })
 }
