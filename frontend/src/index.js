@@ -4,6 +4,8 @@ import reportWebVitals from './reportWebVitals';
 
 import AppRouter from './pages/AppRouter';
 import { CookiesProvider } from "react-cookie";
+import { Provider } from 'react-redux';
+import store from './redux/store'
 
 import './global.css';
 
@@ -12,7 +14,9 @@ import './global.css';
 ReactDOM.render(
   <React.StrictMode>
     <CookiesProvider>
-      <AppRouter />
+      <Provider store={store}>
+        <AppRouter />
+      </Provider>
     </CookiesProvider>
   </React.StrictMode>,
   document.getElementById('root'),

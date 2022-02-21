@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux'
 import './Navbar.css';
+import { selectLoggedIn, setLoggedIn } from '../redux/slice';
 
 /** Check if the user is loggedin */
-const isLoggedIn = (setLogin) => {
+const isLoggedIn = (dispatch) => {
   fetch('http://localhost:8000/cookies', {
     credentials: 'include',
   }).then((resp) => {
     if (resp.status === 200) {
-      setLogin(true);
+      dispatch(setLoggedIn({loggedIn: true}));
     } else {
-      setLogin(false);
+      dispatch(setLoggedIn({loggedIn: false}));
     }
   });
 };
@@ -32,8 +34,8 @@ const logout = () => {
  * @returns Returns a list item for signing in or logging out
  */
 function SigninOrLogout(props) {
-  const { loggedin } = props;
-  if (loggedin) {
+  const { loggedIn } = props;
+  if (loggedIn) {
     return (
       <li onClick={logout} className="nav-item">
         <Link to="/" className="nav-links">
@@ -52,12 +54,12 @@ function SigninOrLogout(props) {
 }
 
 SigninOrLogout.propTypes = {
-  loggedin: PropTypes.bool,
+  loggedIn: PropTypes.bool,
 };
 
 /** ManageProfile */
 function ManageProfile(props) {
-  const { loggedin } = props;
+  const { loggedIn } = props;
   let isPublisher = false;
   // TODO: Cleanup
   let docCookies = document.cookie.split('; ');
@@ -70,7 +72,7 @@ function ManageProfile(props) {
 
   let profileLink = isPublisher ? '/publisher' : '/reader';
 
-  if (loggedin) {
+  if (loggedIn) {
     return (
       <li className="nav-item">
         <Link to={profileLink} className="nav-links">
@@ -83,13 +85,15 @@ function ManageProfile(props) {
 }
 
 ManageProfile.propTypes = {
-  loggedin: PropTypes.bool,
+  loggedIn: PropTypes.bool,
 };
 
 function Navbar(props) {
   const [click, setClick] = useState(false);
   const handleClick = () => setClick(!click);
-  const [loggedin, setLogin] = useState(false);
+  const dispatch = useDispatch();
+  const loggedIn = useSelector(selectLoggedIn)
+
   const scrollToView = (componentRef) => {
     if (componentRef) {
       window.scrollTo(0, componentRef.current.offsetTop);
@@ -97,7 +101,9 @@ function Navbar(props) {
   };
 
   const { welcomeRef, aboutRef } = props;
-  isLoggedIn(setLogin);
+
+  isLoggedIn(dispatch);
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -119,8 +125,8 @@ function Navbar(props) {
               About Us
             </NavLink>
           </li>
-          <ManageProfile loggedin={loggedin} />
-          <SigninOrLogout loggedin={loggedin} />
+          <ManageProfile loggedIn={loggedIn} />
+          <SigninOrLogout loggedIn={loggedIn} />
         </ul>
       </div>
     </nav>

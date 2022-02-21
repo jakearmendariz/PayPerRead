@@ -4,6 +4,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCookies } from "react-cookie";
 import GoogleLogin from 'react-google-login';
 
+import { setLoggedIn } from '../redux/slice';
+import { useDispatch } from 'react-redux'
+
 function SignInComponent({
   subtitle, description, success, failure, alternate,
 }) {
@@ -80,10 +83,10 @@ SignInComponent.propTypes = {
  * exists: the function to be called if the user exists in our db
  * doesnt: if they don't
  */
-const doesUserExist = (response, navigate, userType) => (exists, doesnt) => {
+const doesUserExist = (response, navigate, userType, dispatch) => (exists, doesnt) => {
   const { email } = response.profileObj;
   fetch(`http://localhost:8000/${userType}/${email}`).then((resp) => {
-    if (resp.status === 200) exists(response, navigate, userType);
+    if (resp.status === 200) exists(response, navigate, userType, dispatch);
     else doesnt(response, navigate, userType);
   });
 };
@@ -116,7 +119,7 @@ const createNew = (response, navigate, userType) => {
  * navigate: the react router hook which navigates from a component
  * userType: 'publisher' or 'reader' based on the slug
  */
-const login = (response, navigate, userType) => {
+const login = (response, navigate, userType, dispatch) => {
   const url = `http://localhost:8000/login/${userType}`;
 
   fetch(url, {
@@ -128,6 +131,7 @@ const login = (response, navigate, userType) => {
     }),
   }).then((resp) => {
     if (resp.status === 200) {
+      dispatch(setLoggedIn({loggedIn: true}));
       navigate('/');
     } else {
       // console.log(resp.status);
@@ -139,6 +143,7 @@ function SignInPage() {
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies();
   const { user } = useParams(); // get the slug
+  const dispatch = useDispatch();
 
   // check if the signup is valid
   if (user !== 'reader' && user !== 'publisher') { return (<div />); } // redirect to a 404 page
@@ -147,12 +152,12 @@ function SignInPage() {
 
   // On the Google signin success
   const success = (response) => {
-    doesUserExist(response, navigate, user)(login, createNew);
     // Cookie to distinguish between reader and publisher account
     setCookie("isPublisher", isPublisher, {
       path: "/",
       maxAge: 3600
     });
+    doesUserExist(response, navigate, user, dispatch)(login, createNew);
   };
   const failure = () => {};
 
