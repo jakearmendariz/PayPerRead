@@ -44,7 +44,7 @@ impl Session {
 
 /// Logs you in and creates a session for the user
 #[get("/login/reader")]
-pub fn login(
+pub fn login_reader(
     mongo_db: State<MongoDB>,
     reader: JwtAuth,
     cookies: Cookies,
