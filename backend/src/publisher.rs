@@ -78,12 +78,13 @@ pub fn get_account(
     mongo_db: State<MongoDB>,
     session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
-    get_publisher(mongo_db, session.email)
+    Ok(Json(mongo_db.find_publisher(&session.email)?))
 }
 
 #[get("/publisher/<email>")]
-pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
-    Ok(Json(mongo_db.find_publisher(&email)?))
+pub fn publisher_exists(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+   mongo_db.find_publisher(&email)?;
+   Ok(Status::Ok)
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]
