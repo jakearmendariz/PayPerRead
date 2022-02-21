@@ -13,8 +13,9 @@
   
   .welcome-container > h1 {
     color: rgb(255, 255, 255);
-    font-size: 100px;
+    font-size: 9vw;
     margin-top: -100px;
+    text-align: center;
   }
   
   .welcome-container > p {
@@ -41,4 +42,24 @@
   
   .fa-play-circle {
     margin-left: 4px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .welcome-container > h1 {
+      font-size: 35px;
+      margin-top: -100px;
+    }
+  
+    .welcome-container > p {
+      font-size: 22px;
+    }
+  
+    .btn-mobile {
+      display: block;
+      text-decoration: none;
+    }
+  
+    .btn {
+      width: 100%;
+    }
   }
