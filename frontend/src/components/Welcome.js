@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useCookies } from "react-cookie";
 import './Welcome.css';
 
 function Welcome(props) {
+  // const [cookies, setCookie] = useCookies();
   const { innerRef } = props;
-
+  console.log(document.cookie);
   return (
     <div className="welcome-container" ref={innerRef}>
       <h1>Welcome to PayPerRead!</h1>

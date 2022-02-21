@@ -68,13 +68,15 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
 }
 
 #[get("/reader/<email>")]
-pub fn get_reader(mongo_db: State<MongoDB>, email: String) -> Result<Json<Reader>, ApiError> {
-    Ok(Json(mongo_db.find_reader(&email)?))
+pub fn reader_exists(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+    // Verify that a reader exists, do not return reader
+    mongo_db.find_reader(&email)?;
+    Ok(Status::Ok)
 }
 
 #[get("/reader/account")]
 pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
-    get_reader(mongo_db, session.email)
+    Ok(Json(mongo_db.find_reader(&session.email)?))
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]

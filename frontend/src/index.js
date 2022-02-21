@@ -1,32 +1,17 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 
-import App from './pages/App';
-import ReaderProfilePage from './pages/ReaderProfilePage';
-import PublisherLandingPage from './pages/PublisherLandingPage';
-import SignInPage from './pages/SignInPage';
-import VerifySignup from './pages/VerifySignup.js';
-import PurchaseArticle from './pages/PurchaseArticle';
-
-import { createGlobalStyle } from 'styled-components'
+import AppRouter from './pages/AppRouter';
+import { CookiesProvider } from "react-cookie";
 
 import './global.css';
 
-
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="reader" element={<ReaderProfilePage />} />
-        <Route path="publisher" element={<PublisherLandingPage />} />
-        <Route path="signin/:user" element={<SignInPage />} />
-        <Route path="verify-signup" element={<VerifySignup />} />
-        <Route path="purchase/:id" element={<PurchaseArticle />} />
-      </Routes>
-    </BrowserRouter>
+    <CookiesProvider>
+      <AppRouter />
+    </CookiesProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );
