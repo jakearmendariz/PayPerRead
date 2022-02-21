@@ -66,6 +66,8 @@ impl StdError for ApiError {
 
 impl<'r> Responder<'r> for ApiError {
     fn respond_to(self, _: &Request) -> response::Result<'r> {
+        // TODO use loggin library.
+        println!("Responding with error: \"{}\"", self);
         match self {
             ApiError::NotFound => Err(Status::NotFound),
             ApiError::InternalServerError => Err(Status::InternalServerError),
@@ -176,6 +178,7 @@ impl Sub for Balance {
 impl Balance {
     pub fn try_subtracting(self, other: Self) -> Result<Self, ApiError> {
         if other > self {
+            println!("Not enough funds: {:?} - {:?}", self, other);
             Err(ApiError::NotEnoughFunds)
         } else {
             Ok(self - other)

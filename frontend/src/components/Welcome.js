@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useCookies } from "react-cookie";
+import { useCookies } from 'react-cookie';
 import './Welcome.css';
 
 function Welcome(props) {

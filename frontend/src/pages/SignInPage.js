@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useCookies } from "react-cookie";
+import { useCookies } from 'react-cookie';
 import GoogleLogin from 'react-google-login';
 
 import { setLoggedIn } from '../redux/slice';
@@ -153,9 +153,9 @@ function SignInPage() {
   // On the Google signin success
   const success = (response) => {
     // Cookie to distinguish between reader and publisher account
-    setCookie("isPublisher", isPublisher, {
-      path: "/",
-      maxAge: 3600
+    setCookie('isPublisher', isPublisher, {
+      path: '/',
+      maxAge: 3600,
     });
     doesUserExist(response, navigate, user, dispatch)(login, createNew);
   };

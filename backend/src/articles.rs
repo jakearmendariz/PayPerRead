@@ -11,6 +11,27 @@ use rocket::{http::Status, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
+// hash(email, uid) => guid
+// Problem: owns_article() still needs email and uid
+// Benefit: Publishers don't need as large of a uid, specific to them, not globally
+// We still have globally unique
+
+// Storing articles
+/*
+
+guid => (uuid, guid)
+guid => publisher.uid
+pub struct Article {
+    article_guid: String, // hash from email and publisher
+    article_name: String,
+    created_at: DateTime,
+    price: Balance,
+    views: u32,
+}
+
+
+*/
+
 /// Seperate type so we can abstract this later on.
 /// Should probably be a set number of characters and enforce as unique.
 pub type ArticleGuid = String;
@@ -39,6 +60,7 @@ pub struct BuyArticle {
     publisher_email: String,
     article_guid: ArticleGuid,
 }
+
 /// Buy article if reader doesn't own it.
 /// Subtract balance from reader
 /// Pay publisher.
@@ -58,7 +80,6 @@ pub fn purchase_article(
     let article = mongo_db
         .get_article(&publisher_email, &article_guid)?
         .ok_or(ApiError::ArticleNotRegistered)?;
-
     if reader.owns_article(&article_guid) {
         // Already purchased the article.
         return Ok(Status::Ok);

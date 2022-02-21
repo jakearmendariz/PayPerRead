@@ -31,22 +31,21 @@ const PriceTh = styled.th`
   padding-left: 2rem;
   font-weight: normal;
   vertical-align: top;
-`
+`;
 
 const Articleth = styled.th`
   font-weight: normal;
-`
+`;
 const Divider = styled.hr`
     border-top: 2px solid #bbb;
 `;
 
 const TableDomain = styled.span`
   color: grey;
-`
-
+`;
 
 function formatBalance(balance) {
-  let convertedBalance = balance.dollars + balance.cents / 100;
+  const convertedBalance = balance.dollars + balance.cents / 100;
   return `$${convertedBalance.toFixed(2)}`;
 }
 
@@ -76,26 +75,26 @@ function PaymentMethod() {
   );
 }
 
-const PurchaseEntry = ({purchase }) => (
-  <tr>
-    <Articleth>
-      <TableDomain>
-        {purchase.domain}
-      </TableDomain>
-      <div>
-        {purchase.article_name}
-      </div>
-    </Articleth>
-    <PriceTh>{formatBalance(purchase.price)}</PriceTh>
-  </tr>
-)
-
-const PurchaseHistory = ({ purchases }) => {
-  purchases = purchases.map((purchase, index) =>
-    <PurchaseEntry purchase={purchase} key={index}/>
+function PurchaseEntry({ purchase }) {
+  return (
+    <tr>
+      <Articleth>
+        <TableDomain>
+          {purchase.domain}
+        </TableDomain>
+        <div>
+          {purchase.article_name}
+        </div>
+      </Articleth>
+      <PriceTh>{formatBalance(purchase.price)}</PriceTh>
+    </tr>
   );
+}
 
-  console.log(purchases)
+function PurchaseHistory({ purchases }) {
+  purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
+
+  console.log(purchases);
 
   return (
     <Card style={{ width: '55rem', minHeight: '20rem' }} title="Purchase History">
@@ -103,11 +102,15 @@ const PurchaseHistory = ({ purchases }) => {
         <tbody>
           <tr>
             <Articleth
-              style={{ paddingBottom: '0.5rem', fontSize: "1.2rem" }}>
+              style={{ paddingBottom: '0.5rem', fontSize: '1.2rem' }}
+            >
               Article
             </Articleth>
             <PriceTh
-              style={{ fontSize: "1.2rem" }}>Price</PriceTh>
+              style={{ fontSize: '1.2rem' }}
+            >
+              Price
+            </PriceTh>
           </tr>
           {purchases}
         </tbody>
@@ -121,11 +124,11 @@ function ReaderProfilePage() {
   const [reader, setReader] = useState({
     balance: {
       dollars: 0,
-      cents: 0
+      cents: 0,
     },
     articles: [],
-    purchases: []
-  })
+    purchases: [],
+  });
 
   useEffect(() => {
     fetch('http://localhost:8000/reader/account', {
@@ -141,7 +144,7 @@ function ReaderProfilePage() {
               article_name: 'One Article to Understand The Past, Present, and Future of Web 3.0',
               price: {
                 dollars: 1,
-                cents: 25
+                cents: 25,
               },
             },
             {
@@ -149,18 +152,18 @@ function ReaderProfilePage() {
               article_name: 'How Long Covid Exhausts the Body',
               price: {
                 dollars: 0,
-                cents: 75
-              }
+                cents: 75,
+              },
             },
             {
               domain: 'theguardian.com',
               article_name: 'Bitcoin miners revived a dying coal plant - then CO2 emissions soared',
               price: {
                 dollars: 2,
-                cents: 0
-              }
-            }
-          ]
+                cents: 0,
+              },
+            },
+          ],
         });
       })
       .catch((err) => {
@@ -170,20 +173,20 @@ function ReaderProfilePage() {
   }, []);
 
   return (
-    <>
-      <div className="center-content" style={{ marginTop: '5rem' }}>
-        <Column>
-          <Row>
-            <AccountDetails
-              balance={reader.balance}
-              articles={reader.articles} />
-            <PaymentMethod />
-          </Row>
-          <PurchaseHistory
-            purchases={reader.purchases} />
-        </Column>
-      </div>
-    </>
+    <div className="center-content" style={{ marginTop: '5rem' }}>
+      <Column>
+        <Row>
+          <AccountDetails
+            balance={reader.balance}
+            articles={reader.articles}
+          />
+          <PaymentMethod />
+        </Row>
+        <PurchaseHistory
+          purchases={reader.purchases}
+        />
+      </Column>
+    </div>
   );
 }
 

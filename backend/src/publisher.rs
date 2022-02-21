@@ -83,8 +83,8 @@ pub fn get_account(
 
 #[get("/publisher/<email>")]
 pub fn publisher_exists(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
-   mongo_db.find_publisher(&email)?;
-   Ok(Status::Ok)
+    mongo_db.find_publisher(&email)?;
+    Ok(Status::Ok)
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]

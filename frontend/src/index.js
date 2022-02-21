@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
+import { CookiesProvider } from 'react-cookie';
 import reportWebVitals from './reportWebVitals';
 
 import AppRouter from './pages/AppRouter';
@@ -8,8 +9,6 @@ import { Provider } from 'react-redux';
 import store from './redux/store'
 
 import './global.css';
-
-
 
 ReactDOM.render(
   <React.StrictMode>

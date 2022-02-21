@@ -17,7 +17,7 @@ function App() {
   const listenForRequest = (e) => {
 
     console.log(e);
-    setState({ approved: false });
+    setState({ approved: true });
   };
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function App() {
       <h1>Why PayPerRead is Cool</h1>
       { 
         !state.approved &&
-        <iframe src="https://payperread.jakearmendariz.repl.co/purchase-article" data-id="test-article-id" />
+          <iframe src="http://localhost:3000/purchase/test-article" />
       }
       { state.approved && <ArticleContents />}
     </div>
