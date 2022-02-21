@@ -24,19 +24,42 @@ const Row = styled.div`
 const Column = styled.div`
   display: flex;
   flex-direction: column;
-  height: 25rem;
 `;
 
-function AccountDetails() {
+const PriceTh = styled.th`
+  width: 7rem;
+  padding-left: 2rem;
+  font-weight: normal;
+  vertical-align: top;
+`
+
+const Articleth = styled.th`
+  font-weight: normal;
+`
+const Divider = styled.hr`
+    border-top: 2px solid #bbb;
+`;
+
+const TableDomain = styled.span`
+  color: grey;
+`
+
+
+function formatBalance(balance) {
+  let convertedBalance = balance.dollars + balance.cents / 100;
+  return `$${convertedBalance.toFixed(2)}`;
+}
+
+function AccountDetails({ balance, articles }) {
   return (
     <Card style={{ width: '20rem' }} title="Account Details">
       <Subtitle>Balance</Subtitle>
       <Text>
-        $55.03
+        {formatBalance(balance)}
       </Text>
       <Subtitle>Articles Owned</Subtitle>
       <Text>
-        38
+        {articles.length}
       </Text>
     </Card>
   );
@@ -53,52 +76,111 @@ function PaymentMethod() {
   );
 }
 
-function PurchaseHistory() {
+const PurchaseEntry = ({purchase }) => (
+  <tr>
+    <Articleth>
+      <TableDomain>
+        {purchase.domain}
+      </TableDomain>
+      <div>
+        {purchase.article_name}
+      </div>
+    </Articleth>
+    <PriceTh>{formatBalance(purchase.price)}</PriceTh>
+  </tr>
+)
+
+const PurchaseHistory = ({ purchases }) => {
+  purchases = purchases.map((purchase, index) =>
+    <PurchaseEntry purchase={purchase} key={index}/>
+  );
+
+  console.log(purchases)
+
   return (
-    <Card style={{ width: '55rem' }} title="Purchase History">
-      <Subtitle>medium.com</Subtitle>
-      <Text>
-        One Article to Understand The Past, Present, and Future of Web 3.0 | $1.25
-      </Text>
-
-      <Subtitle>nytimes.com</Subtitle>
-      <Text>
-        How Long Covid Exhausts the Body | $0.75
-      </Text>
-
-      <Subtitle>theguardian.com</Subtitle>
-      <Text>
-        Bitcoin miners revived a dying coal plant - then CO2 emissions soared | $2.00
-      </Text>
+    <Card style={{ width: '55rem', minHeight: '20rem' }} title="Purchase History">
+      <table style={{ fontSize: '1rem' }}>
+        <tbody>
+          <tr>
+            <Articleth
+              style={{ paddingBottom: '0.5rem', fontSize: "1.2rem" }}>
+              Article
+            </Articleth>
+            <PriceTh
+              style={{ fontSize: "1.2rem" }}>Price</PriceTh>
+          </tr>
+          {purchases}
+        </tbody>
+      </table>
     </Card>
   );
 }
 
 function ReaderProfilePage() {
   const navigate = useNavigate();
+  const [reader, setReader] = useState({
+    balance: {
+      dollars: 0,
+      cents: 0
+    },
+    articles: [],
+    purchases: []
+  })
 
   useEffect(() => {
     fetch('http://localhost:8000/reader/account', {
       credentials: 'include',
     })
       .then((resp) => resp.json())
-      .then((data) => console.log(data))
+      .then((data) => {
+        setReader({
+          ...data,
+          purchases: [
+            {
+              domain: 'medium.com',
+              article_name: 'One Article to Understand The Past, Present, and Future of Web 3.0',
+              price: {
+                dollars: 1,
+                cents: 25
+              },
+            },
+            {
+              domain: 'nytimes.com',
+              article_name: 'How Long Covid Exhausts the Body',
+              price: {
+                dollars: 0,
+                cents: 75
+              }
+            },
+            {
+              domain: 'theguardian.com',
+              article_name: 'Bitcoin miners revived a dying coal plant - then CO2 emissions soared',
+              price: {
+                dollars: 2,
+                cents: 0
+              }
+            }
+          ]
+        });
+      })
       .catch((err) => {
         // Reader need to sign in first
         navigate('/signin/reader');
       });
-  });
+  }, []);
 
   return (
     <>
-      <Navbar />
-      <div className="center-content">
+      <div className="center-content" style={{ marginTop: '5rem' }}>
         <Column>
           <Row>
-            <AccountDetails />
+            <AccountDetails
+              balance={reader.balance}
+              articles={reader.articles} />
             <PaymentMethod />
           </Row>
-          <PurchaseHistory />
+          <PurchaseHistory
+            purchases={reader.purchases} />
         </Column>
       </div>
     </>

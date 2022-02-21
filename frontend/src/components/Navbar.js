@@ -18,9 +18,13 @@ const isLoggedIn = (setLogin) => {
 
 /** Logouts the user */
 const logout = () => {
+  document.cookie = '';
   fetch('http://localhost:8000/logout', {
     credentials: 'include',
-  }).then((resp) => { window.location.reload(false); });
+  }).then((resp) => {
+    document.cookie = "isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    window.location.reload(false);
+  });
 };
 
 /**
@@ -54,10 +58,22 @@ SigninOrLogout.propTypes = {
 /** ManageProfile */
 function ManageProfile(props) {
   const { loggedin } = props;
+  let isPublisher = false;
+  // TODO: Cleanup
+  let docCookies = document.cookie.split('; ');
+  docCookies.forEach(docCookie => {
+    docCookie = docCookie.split('=');
+    if(docCookie[0] == 'isPublisher'){
+      isPublisher = docCookie[1] == 'true';
+    }
+  })
+
+  let profileLink = isPublisher ? '/publisher' : '/reader';
+
   if (loggedin) {
     return (
       <li className="nav-item">
-        <Link to="/" className="nav-links">
+        <Link to={profileLink} className="nav-links">
           Manage Profile
         </Link>
       </li>
@@ -74,7 +90,11 @@ function Navbar(props) {
   const [click, setClick] = useState(false);
   const handleClick = () => setClick(!click);
   const [loggedin, setLogin] = useState(false);
-  const scrollToView = (componentRef) => window.scrollTo(0, componentRef.current.offsetTop);
+  const scrollToView = (componentRef) => {
+    if (componentRef) {
+      window.scrollTo(0, componentRef.current.offsetTop);
+    }
+  };
 
   const { welcomeRef, aboutRef } = props;
   isLoggedIn(setLogin);

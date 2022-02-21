@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useCookies } from "react-cookie";
 import GoogleLogin from 'react-google-login';
 
 function SignInComponent({
@@ -136,6 +137,7 @@ const login = (response, navigate, userType) => {
 
 function SignInPage() {
   const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies();
   const { user } = useParams(); // get the slug
 
   // check if the signup is valid
@@ -146,6 +148,11 @@ function SignInPage() {
   // On the Google signin success
   const success = (response) => {
     doesUserExist(response, navigate, user)(login, createNew);
+    // Cookie to distinguish between reader and publisher account
+    setCookie("isPublisher", isPublisher, {
+      path: "/",
+      maxAge: 3600
+    });
   };
   const failure = () => {};
 
