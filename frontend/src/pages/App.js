@@ -7,8 +7,7 @@ import Footer from '../components/Footer';
 import Welcome from '../components/Welcome';
 import About from '../components/About';
 
-function App({welcomeRef, aboutRef}) {
-
+function App({ welcomeRef, aboutRef }) {
   return (
     <div>
       <Welcome innerRef={welcomeRef} />

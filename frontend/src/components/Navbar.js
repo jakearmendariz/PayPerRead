@@ -22,7 +22,7 @@ const logout = () => {
   fetch('http://localhost:8000/logout', {
     credentials: 'include',
   }).then((resp) => {
-    document.cookie = "isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = 'isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT';
     window.location.reload(false);
   });
 };
@@ -60,15 +60,15 @@ function ManageProfile(props) {
   const { loggedin } = props;
   let isPublisher = false;
   // TODO: Cleanup
-  let docCookies = document.cookie.split('; ');
-  docCookies.forEach(docCookie => {
+  const docCookies = document.cookie.split('; ');
+  docCookies.forEach((docCookie) => {
     docCookie = docCookie.split('=');
-    if(docCookie[0] == 'isPublisher'){
+    if (docCookie[0] == 'isPublisher') {
       isPublisher = docCookie[1] == 'true';
     }
-  })
+  });
 
-  let profileLink = isPublisher ? '/publisher' : '/reader';
+  const profileLink = isPublisher ? '/publisher' : '/reader';
 
   if (loggedin) {
     return (

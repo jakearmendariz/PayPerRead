@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useCookies } from "react-cookie";
+import { useCookies } from 'react-cookie';
 import GoogleLogin from 'react-google-login';
 
 function SignInComponent({
@@ -149,9 +149,9 @@ function SignInPage() {
   const success = (response) => {
     doesUserExist(response, navigate, user)(login, createNew);
     // Cookie to distinguish between reader and publisher account
-    setCookie("isPublisher", isPublisher, {
-      path: "/",
-      maxAge: 3600
+    setCookie('isPublisher', isPublisher, {
+      path: '/',
+      maxAge: 3600,
     });
   };
   const failure = () => {};

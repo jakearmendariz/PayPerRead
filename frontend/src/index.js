@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
+import { CookiesProvider } from 'react-cookie';
 import reportWebVitals from './reportWebVitals';
 
 import AppRouter from './pages/AppRouter';
-import { CookiesProvider } from "react-cookie";
 
 import './global.css';
 
