@@ -66,8 +66,12 @@ impl StdError for ApiError {
 
 impl<'r> Responder<'r> for ApiError {
     fn respond_to(self, _: &Request) -> response::Result<'r> {
+        // TODO use loggin library.
+        println!("Responding with error: \"{}\"", self);
         match self {
-            ApiError::NotFound => Err(Status::NotFound),
+            ApiError::NotFound => {
+                Err(Status::NotFound)
+            },
             ApiError::InternalServerError => Err(Status::InternalServerError),
             ApiError::MongoDBError => Ok(Response::build()
                 .raw_status(424, MONGO_DB_ERROR_MSG)

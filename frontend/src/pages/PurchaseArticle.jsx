@@ -11,21 +11,21 @@ function PurchaseArticle() {
 
   // check if the user owns the article,
   // if not logged in direct them to signin
-  useEffect(() => {
-    fetch(`http://localhost:8000/articles/own/${id}`, {
-      credentials: 'include',
-    })
-      .then((resp) => {
-        if(resp.status == "200")
-          postPurchaseStatus("success");
-        console.log(resp);
-      })
-      .catch((err) => {
-        // Reader need to sign in first
-        navigate('/signin/reader');
-      });
+  // useEffect(() => {
+  //   fetch(`http://localhost:8000/articles/own/${id}`, {
+  //     credentials: 'include',
+  //   })
+  //     .then((resp) => {
+  //       if(resp.status == "200")
+  //         postPurchaseStatus("success");
+  //       console.log(resp);
+  //     })
+  //     .catch((err) => {
+  //       // Reader need to sign in first
+  //       navigate('/signin/reader');
+  //     });
 
-  });
+  // });
 
   const purchaseArticle = () => {
 

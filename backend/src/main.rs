@@ -34,7 +34,6 @@ impl Fairing for CORS {
     }
 
     fn on_response(&self, request: &Request, response: &mut Response) {
-        println!("{:?}", request.remote());
         response.set_header(Header::new(
             "Access-Control-Allow-Origin",
             "http://localhost:3000"
