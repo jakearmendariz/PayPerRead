@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { CookiesProvider } from 'react-cookie';
+import { Provider } from 'react-redux';
 import reportWebVitals from './reportWebVitals';
 
 import AppRouter from './pages/AppRouter';
-import { Provider } from 'react-redux';
-import store from './redux/store'
+import store from './redux/store';
 
 import './global.css';
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 import './Navbar.css';
 import { selectLoggedIn, setLoggedIn } from '../redux/slice';
 
@@ -11,9 +11,9 @@ const isLoggedIn = (dispatch) => {
     credentials: 'include',
   }).then((resp) => {
     if (resp.status === 200) {
-      dispatch(setLoggedIn({loggedIn: true}));
+      dispatch(setLoggedIn({ loggedIn: true }));
     } else {
-      dispatch(setLoggedIn({loggedIn: false}));
+      dispatch(setLoggedIn({ loggedIn: false }));
     }
   });
 };
@@ -92,7 +92,7 @@ function Navbar(props) {
   const [click, setClick] = useState(false);
   const handleClick = () => setClick(!click);
   const dispatch = useDispatch();
-  const loggedIn = useSelector(selectLoggedIn)
+  const loggedIn = useSelector(selectLoggedIn);
 
   const scrollToView = (componentRef) => {
     if (componentRef) {
