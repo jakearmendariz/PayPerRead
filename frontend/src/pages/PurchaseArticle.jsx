@@ -12,12 +12,13 @@ function PurchaseArticle() {
 
   const navigate = useNavigate();
   const { id } = useParams();
+  const publisher_email = "xyan87@ucsc.edu"
   const [ state, setState ] = useState({ approved: false, articleTitle: "", articlePrice: 0.00 });
 
   // check if the user owns the article,
   // if not logged in direct them to signin
   useEffect(() => {
-    fetch(`http://localhost:8000/articles/own/${id}`, {
+    fetch(`http://localhost:8000/articles/own/${publisher_email}.${id}`, {
       credentials: 'include',
     })
       .then((resp) => {
@@ -34,8 +35,8 @@ function PurchaseArticle() {
   const purchaseArticle = () => {
 
     const payload = {
-      publisher_email: "xyan87@ucsc.edu",
-      article_guid: id,
+      publisher_email,
+      article_uid: id,
     };
 
     fetch(`http://localhost:8000/articles/purchase`, {

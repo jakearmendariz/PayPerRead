@@ -203,9 +203,10 @@ impl MongoDB {
     /// by one and updates article object in publisher's
     /// collection
     fn increment_article_views(&self, article: &Article) -> ApiResult<Status> {
+        println!("Update article views");
         let document = doc! {"guid": &article.guid};
-        let update = doc! { "$set":  { "views": article.views + 1} };
-        let update_query = self.publishers.update_one(document, update, None);
+        let update = doc! { "$inc":  { "views": 1} };
+        let update_query = self.articles.update_one(document, update, None);
 
         match update_query {
             Ok(_) => Ok(Status::Ok),
