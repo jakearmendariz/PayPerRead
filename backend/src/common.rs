@@ -11,6 +11,8 @@ use std::fmt;
 use std::ops::Add;
 use std::ops::Sub;
 
+pub type ApiResult<T> = Result<T, ApiError>;
+
 /// Primary error for api.
 /// Feel free to add enum arms!
 #[derive(Debug)]
