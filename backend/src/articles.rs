@@ -152,10 +152,10 @@ impl MongoDB {
         );
         let publisher = self.find_publisher(&register_article.publisher_email)?;
         let article = Article::new(
-            guid, 
-            publisher.domain, 
-            register_article.article_name, 
-            register_article.price
+            guid,
+            publisher.domain,
+            register_article.article_name,
+            register_article.price,
         );
         self.articles
             .insert_one(&article, None)

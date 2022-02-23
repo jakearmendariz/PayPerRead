@@ -4,8 +4,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import GoogleLogin from 'react-google-login';
 
+import { useDispatch } from 'react-redux';
 import { setLoggedIn } from '../redux/slice';
-import { useDispatch } from 'react-redux'
 
 function SignInComponent({
   subtitle, description, success, failure, alternate,
@@ -131,7 +131,7 @@ const login = (response, navigate, userType, dispatch) => {
     }),
   }).then((resp) => {
     if (resp.status === 200) {
-      dispatch(setLoggedIn({loggedIn: true}));
+      dispatch(setLoggedIn({ loggedIn: true }));
       navigate('/');
     } else {
       // console.log(resp.status);

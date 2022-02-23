@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import styled from 'styled-components';
+import { setUseProxies } from 'immer';
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
-import { setUseProxies } from 'immer';
 
 const Subtitle = styled.span`
   color: grey;
@@ -44,7 +44,6 @@ const Divider = styled.hr`
 const TableDomain = styled.span`
   color: grey;
 `;
-
 
 function formatBalance(balance) {
   const convertedBalance = balance.dollars + balance.cents / 100;
@@ -120,19 +119,19 @@ function PurchaseHistory({ purchases }) {
 }
 
 const fetchPurchases = async (articles) => {
-  const purchases = []
-  for(let i = 0; i < articles.length; i++) {
+  const purchases = [];
+  for (let i = 0; i < articles.length; i++) {
     let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
     article_detail = await article_detail.json();
     purchases.push({
       domain: article_detail.domain,
       article_name: article_detail.article_name,
-      price: article_detail.price
+      price: article_detail.price,
     });
   }
-  console.log(purchases)
+  console.log(purchases);
   return purchases;
-}
+};
 
 function ReaderProfilePage() {
   const navigate = useNavigate();
@@ -144,7 +143,7 @@ function ReaderProfilePage() {
     articles: [],
   });
 
-  const [purchases, setPurchases] = useState([])
+  const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
     fetch('http://localhost:8000/reader/account', {
@@ -154,7 +153,7 @@ function ReaderProfilePage() {
       .then((data) => {
         setReader(data);
         // Convert article guids into purchase data
-        fetchPurchases(data.articles, setPurchases).then(result => {
+        fetchPurchases(data.articles, setPurchases).then((result) => {
           setPurchases(result);
         });
       })
@@ -163,7 +162,6 @@ function ReaderProfilePage() {
         navigate('/signin/reader');
       });
   }, []);
-
 
   return (
     <div className="center-content" style={{ marginTop: '5rem' }}>
