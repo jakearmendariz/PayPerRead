@@ -9,7 +9,7 @@ const postPurchaseStatus = (s) => {
 };
 
 const ownsArticle = (publisher_email, id) => {
-  fetch(`http://localhost:8000/articles/own/${publisher_email}.${id}`, {
+  fetch(`http://localhost:8000/articles/own/${publisher_email}@:${id}`, {
     credentials: 'include',
   })
     .then((resp) => {
@@ -18,7 +18,7 @@ const ownsArticle = (publisher_email, id) => {
     })
 }
 const setArticleState = (state, setState, publisher_email, id) => {
-  fetch(`http://localhost:8000/articles/${publisher_email}.${id}`)
+  fetch(`http://localhost:8000/articles/${publisher_email}@:${id}`)
       .then((resp) => {
         if (resp.status == "200")
           resp.json().then(article => {
@@ -27,6 +27,7 @@ const setArticleState = (state, setState, publisher_email, id) => {
             if (update != state.articlePrice) {
               setState({ approved: state.approved, articleTitle: article['article_name'], articlePrice: update, loggedin: state.loggedin })
             }
+            // setState({ approved: state.approved, articleTitle: article['article_name'], articlePrice: update, loggedin: state.loggedin })
             console.log(state.articlePrice);
           });
 

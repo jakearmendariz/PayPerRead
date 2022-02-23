@@ -121,6 +121,7 @@ function PurchaseHistory({ purchases }) {
 const fetchPurchases = async (articles) => {
   const purchases = [];
   for (let i = 0; i < articles.length; i++) {
+    console.log(articles[i])
     let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
     article_detail = await article_detail.json();
     purchases.push({
