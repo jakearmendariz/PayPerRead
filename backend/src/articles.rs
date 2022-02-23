@@ -18,6 +18,7 @@ pub type ArticleGuid = String;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Article {
     guid: ArticleGuid,
+    domain: String,
     article_name: String,
     created_at: DateTime,
     price: Balance,
@@ -25,10 +26,11 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn new(article_name: String, price: Balance, guid: String) -> Self {
+    pub fn new(guid: String, domain: String, article_name: String, price: Balance) -> Self {
         Article {
-            article_name,
             guid,
+            domain,
+            article_name,
             created_at: DateTime::now(),
             price,
             views: 0,
@@ -75,9 +77,9 @@ pub fn purchase_article(
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterArticle {
+    article_uid: ArticleGuid,
     publisher_email: String,
     article_name: String,
-    article_uid: ArticleGuid,
     price: Balance,
 }
 
@@ -125,7 +127,7 @@ pub fn get_article(
 }
 
 fn build_guid(email: &str, uid: &str) -> String {
-    email.to_string() + "." + uid
+    email.to_string() + "@:" + uid
 }
 
 impl MongoDB {
@@ -148,7 +150,13 @@ impl MongoDB {
             &register_article.publisher_email,
             &register_article.article_uid,
         );
-        let article = Article::new(register_article.article_name, register_article.price, guid);
+        let publisher = self.find_publisher(&register_article.publisher_email)?;
+        let article = Article::new(
+            guid, 
+            publisher.domain, 
+            register_article.article_name, 
+            register_article.price
+        );
         self.articles
             .insert_one(&article, None)
             .or_else(mongo_error)?;

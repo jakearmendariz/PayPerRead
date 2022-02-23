@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 pub struct Publisher {
     pub email: String,
     name: String,
-    domain: String,
+    pub domain: String,
     pub balance: Balance,
     pub articles: Vec<ArticleGuid>,
 }

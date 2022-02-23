@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
+import { setUseProxies } from 'immer';
 
 const Subtitle = styled.span`
   color: grey;
@@ -43,6 +44,7 @@ const Divider = styled.hr`
 const TableDomain = styled.span`
   color: grey;
 `;
+
 
 function formatBalance(balance) {
   const convertedBalance = balance.dollars + balance.cents / 100;
@@ -94,8 +96,6 @@ function PurchaseEntry({ purchase }) {
 function PurchaseHistory({ purchases }) {
   purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
 
-  console.log(purchases);
-
   return (
     <Card style={{ width: '55rem', minHeight: '20rem' }} title="Purchase History">
       <table style={{ fontSize: '1rem' }}>
@@ -119,6 +119,21 @@ function PurchaseHistory({ purchases }) {
   );
 }
 
+const fetchPurchases = async (articles) => {
+  const purchases = []
+  for(let i = 0; i < articles.length; i++) {
+    let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
+    article_detail = await article_detail.json();
+    purchases.push({
+      domain: article_detail.domain,
+      article_name: article_detail.article_name,
+      price: article_detail.price
+    });
+  }
+  console.log(purchases)
+  return purchases;
+}
+
 function ReaderProfilePage() {
   const navigate = useNavigate();
   const [reader, setReader] = useState({
@@ -127,8 +142,9 @@ function ReaderProfilePage() {
       cents: 0,
     },
     articles: [],
-    purchases: [],
   });
+
+  const [purchases, setPurchases] = useState([])
 
   useEffect(() => {
     fetch('http://localhost:8000/reader/account', {
@@ -136,34 +152,10 @@ function ReaderProfilePage() {
     })
       .then((resp) => resp.json())
       .then((data) => {
-        setReader({
-          ...data,
-          purchases: [
-            {
-              domain: 'medium.com',
-              article_name: 'One Article to Understand The Past, Present, and Future of Web 3.0',
-              price: {
-                dollars: 1,
-                cents: 25,
-              },
-            },
-            {
-              domain: 'nytimes.com',
-              article_name: 'How Long Covid Exhausts the Body',
-              price: {
-                dollars: 0,
-                cents: 75,
-              },
-            },
-            {
-              domain: 'theguardian.com',
-              article_name: 'Bitcoin miners revived a dying coal plant - then CO2 emissions soared',
-              price: {
-                dollars: 2,
-                cents: 0,
-              },
-            },
-          ],
+        setReader(data);
+        // Convert article guids into purchase data
+        fetchPurchases(data.articles, setPurchases).then(result => {
+          setPurchases(result);
         });
       })
       .catch((err) => {
@@ -171,6 +163,7 @@ function ReaderProfilePage() {
         navigate('/signin/reader');
       });
   }, []);
+
 
   return (
     <div className="center-content" style={{ marginTop: '5rem' }}>
@@ -183,7 +176,7 @@ function ReaderProfilePage() {
           <PaymentMethod />
         </Row>
         <PurchaseHistory
-          purchases={reader.purchases}
+          purchases={purchases}
         />
       </Column>
     </div>
