@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import './Navbar.css';
+import { selectLoggedIn, setLoggedIn } from '../redux/slice';
 
 /** Check if the user is loggedin */
-const isLoggedIn = (setLogin) => {
+const isLoggedIn = (dispatch) => {
   fetch('http://localhost:8000/cookies', {
     credentials: 'include',
   }).then((resp) => {
     if (resp.status === 200) {
-      setLogin(true);
+      dispatch(setLoggedIn({ loggedIn: true }));
     } else {
-      setLogin(false);
+      dispatch(setLoggedIn({ loggedIn: false }));
     }
   });
 };
 
 /** Logouts the user */
 const logout = () => {
+  document.cookie = '';
   fetch('http://localhost:8000/logout', {
     credentials: 'include',
-  }).then((resp) => { window.location.reload(false); });
+  }).then((resp) => {
+    document.cookie = 'isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT';
+    window.location.reload(false);
+  });
 };
 
 /**
@@ -28,8 +34,8 @@ const logout = () => {
  * @returns Returns a list item for signing in or logging out
  */
 function SigninOrLogout(props) {
-  const { loggedin } = props;
-  if (loggedin) {
+  const { loggedIn } = props;
+  if (loggedIn) {
     return (
       <li onClick={logout} className="nav-item">
         <Link to="/" className="nav-links">
@@ -48,16 +54,28 @@ function SigninOrLogout(props) {
 }
 
 SigninOrLogout.propTypes = {
-  loggedin: PropTypes.bool,
+  loggedIn: PropTypes.bool,
 };
 
 /** ManageProfile */
 function ManageProfile(props) {
-  const { loggedin } = props;
-  if (loggedin) {
+  const { loggedIn } = props;
+  let isPublisher = false;
+  // TODO: Cleanup
+  const docCookies = document.cookie.split('; ');
+  docCookies.forEach((docCookie) => {
+    docCookie = docCookie.split('=');
+    if (docCookie[0] == 'isPublisher') {
+      isPublisher = docCookie[1] == 'true';
+    }
+  });
+
+  const profileLink = isPublisher ? '/publisher' : '/reader';
+
+  if (loggedIn) {
     return (
       <li className="nav-item">
-        <Link to="/" className="nav-links">
+        <Link to={profileLink} className="nav-links">
           Manage Profile
         </Link>
       </li>
@@ -67,17 +85,25 @@ function ManageProfile(props) {
 }
 
 ManageProfile.propTypes = {
-  loggedin: PropTypes.bool,
+  loggedIn: PropTypes.bool,
 };
 
 function Navbar(props) {
   const [click, setClick] = useState(false);
   const handleClick = () => setClick(!click);
-  const [loggedin, setLogin] = useState(false);
-  const scrollToView = (componentRef) => window.scrollTo(0, componentRef.current.offsetTop);
+  const dispatch = useDispatch();
+  const loggedIn = useSelector(selectLoggedIn);
+
+  const scrollToView = (componentRef) => {
+    if (componentRef) {
+      window.scrollTo(0, componentRef.current.offsetTop);
+    }
+  };
 
   const { welcomeRef, aboutRef } = props;
-  isLoggedIn(setLogin);
+
+  isLoggedIn(dispatch);
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -99,8 +125,8 @@ function Navbar(props) {
               About Us
             </NavLink>
           </li>
-          <ManageProfile loggedin={loggedin} />
-          <SigninOrLogout loggedin={loggedin} />
+          <ManageProfile loggedIn={loggedIn} />
+          <SigninOrLogout loggedIn={loggedIn} />
         </ul>
       </div>
     </nav>

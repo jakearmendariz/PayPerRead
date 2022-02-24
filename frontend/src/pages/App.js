@@ -7,13 +7,9 @@ import Footer from '../components/Footer';
 import Welcome from '../components/Welcome';
 import About from '../components/About';
 
-function App() {
-  const welcomeRef = useRef(null);
-  const aboutRef = useRef(null);
-
+function App({ welcomeRef, aboutRef }) {
   return (
     <div>
-      <Navbar welcomeRef={welcomeRef} aboutRef={aboutRef} />
       <Welcome innerRef={welcomeRef} />
       <About innerRef={aboutRef} />
       <Footer />

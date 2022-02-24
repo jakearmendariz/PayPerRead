@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+import { formatBalance } from '../utils/methods';
+import { Row, Column } from '../utils/Alignments';
 
 import styled from 'styled-components';
-import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 
 const Subtitle = styled.span`
@@ -14,29 +16,35 @@ const Text = styled.span`
   margin-bottom: 0.5rem;
 `;
 
-const Row = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 55rem;
-  margin-bottom: 2rem
+const PriceTh = styled.th`
+  width: 7rem;
+  padding-left: 2rem;
+  font-weight: normal;
+  vertical-align: top;
 `;
 
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 25rem;
+const ArticleTh = styled.th`
+  font-weight: normal;
 `;
 
-function AccountDetails() {
+const TableDomain = styled.span`
+  color: grey;
+`;
+
+const Spacer = styled.tr`
+  height: 1rem;
+`
+
+function AccountDetails({ balance, articles }) {
   return (
     <Card style={{ width: '20rem' }} title="Account Details">
       <Subtitle>Balance</Subtitle>
       <Text>
-        $55.03
+        {formatBalance(balance)}
       </Text>
       <Subtitle>Articles Owned</Subtitle>
       <Text>
-        38
+        {articles.length}
       </Text>
     </Card>
   );
@@ -44,7 +52,7 @@ function AccountDetails() {
 
 function PaymentMethod() {
   return (
-    <Card style={{ width: '30rem' }} title="Payment Method">
+    <Card style={{ width: '25rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
       <Text>
         ****-****-****-1234
@@ -53,55 +61,110 @@ function PaymentMethod() {
   );
 }
 
-function PurchaseHistory() {
+function PurchaseEntry({ purchase }) {
   return (
-    <Card style={{ width: '55rem' }} title="Purchase History">
-      <Subtitle>medium.com</Subtitle>
-      <Text>
-        One Article to Understand The Past, Present, and Future of Web 3.0 | $1.25
-      </Text>
+    <tr>
+      <ArticleTh>
+        <TableDomain>
+          {purchase.domain}
+        </TableDomain>
+        <div>
+          {purchase.article_name}
+        </div>
+      </ArticleTh>
+      <PriceTh>{formatBalance(purchase.price)}</PriceTh>
+    </tr>
+  );
+}
 
-      <Subtitle>nytimes.com</Subtitle>
-      <Text>
-        How Long Covid Exhausts the Body | $0.75
-      </Text>
+function PurchaseHistory({ purchases }) {
+  purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
 
-      <Subtitle>theguardian.com</Subtitle>
-      <Text>
-        Bitcoin miners revived a dying coal plant - then CO2 emissions soared | $2.00
-      </Text>
+  return (
+    <Card style={{ width: '55rem', minHeight: '20rem' }} title="Purchase History">
+      <table style={{ fontSize: '1rem' }}>
+        <tbody>
+          <tr>
+            <ArticleTh
+              style={{ fontSize: '1.2rem', borderBottom: 'thin solid #bbb' }}
+            >
+              Article
+            </ArticleTh>
+            <PriceTh
+              style={{ fontSize: '1.2rem', borderBottom: 'thin solid #bbb' }}
+            >
+              Price
+            </PriceTh>
+          </tr>
+          <Spacer/>
+          {purchases}
+        </tbody>
+      </table>
     </Card>
   );
 }
 
+const fetchPurchases = async (articles) => {
+  const purchases = [];
+  for (let i = 0; i < articles.length; i++) {
+    console.log(articles[i])
+    let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
+    article_detail = await article_detail.json();
+    purchases.push({
+      domain: article_detail.domain,
+      article_name: article_detail.article_name,
+      price: article_detail.price,
+    });
+  }
+  console.log(purchases);
+  return purchases;
+};
+
 function ReaderProfilePage() {
   const navigate = useNavigate();
+  const [reader, setReader] = useState({
+    balance: {
+      dollars: 0,
+      cents: 0,
+    },
+    articles: [],
+  });
+
+  const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
     fetch('http://localhost:8000/reader/account', {
       credentials: 'include',
     })
       .then((resp) => resp.json())
-      .then((data) => console.log(data))
+      .then((data) => {
+        setReader(data);
+        // Convert article guids into purchase data
+        fetchPurchases(data.articles, setPurchases).then((result) => {
+          setPurchases(result);
+        });
+      })
       .catch((err) => {
         // Reader need to sign in first
         navigate('/signin/reader');
       });
-  });
+  }, []);
 
   return (
-    <>
-      <Navbar />
-      <div className="center-content">
-        <Column>
-          <Row>
-            <AccountDetails />
-            <PaymentMethod />
-          </Row>
-          <PurchaseHistory />
-        </Column>
-      </div>
-    </>
+    <div className="center-content" style={{ marginTop: '5rem' }}>
+      <Column>
+        <Row>
+          <AccountDetails
+            balance={reader.balance}
+            articles={reader.articles}
+          />
+          <PaymentMethod />
+        </Row>
+        <PurchaseHistory
+          purchases={purchases}
+        />
+      </Column>
+    </div>
   );
 }
 

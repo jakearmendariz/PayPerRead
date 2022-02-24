@@ -44,7 +44,7 @@ impl Session {
 
 /// Logs you in and creates a session for the user
 #[get("/login/reader")]
-pub fn login(
+pub fn login_reader(
     mongo_db: State<MongoDB>,
     reader: JwtAuth,
     cookies: Cookies,
@@ -87,7 +87,7 @@ impl MongoDB {
         match self.sessions.find_one(doc! {"token": token}, None) {
             Ok(result) => match result {
                 Some(session) => Outcome::Success(session),
-                None => Outcome::Failure((Status::NotFound, ApiError::NotFound)),
+                None => Outcome::Failure((Status::Unauthorized, ApiError::AuthorizationError)),
             },
             Err(_) => Outcome::Failure((Status::InternalServerError, ApiError::MongoDBError)),
         }

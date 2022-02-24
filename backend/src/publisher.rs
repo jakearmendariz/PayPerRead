@@ -1,4 +1,4 @@
-use crate::articles::{Article, ArticleGuid};
+use crate::articles::ArticleGuid;
 use crate::common::{email_filter, mongo_error, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
@@ -8,31 +8,15 @@ use rocket::http::{Cookies, Status};
 use rocket::State;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Publisher provides the contents viewed by readers
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Publisher {
     pub email: String,
     name: String,
-    domain: String,
+    pub domain: String,
     pub balance: Balance,
-    pub articles: HashMap<ArticleGuid, Article>,
-}
-
-impl Publisher {
-    pub fn lookup_article(self, article_guid: &str) -> Option<Article> {
-        self.articles.get(article_guid).cloned()
-    }
-
-    /// This will update the value, but only call when the article does not exist.
-    pub fn insert_article(&mut self, guid: ArticleGuid, article: Article) -> Result<(), ApiError> {
-        match self.articles.insert(guid, article) {
-            // Should never overwrite a value, check should be called before hand
-            Some(_) => Err(ApiError::InternalServerError),
-            None => Ok(()),
-        }
-    }
+    pub articles: Vec<ArticleGuid>,
 }
 
 impl MongoDB {
@@ -51,7 +35,7 @@ impl From<NewPublisher> for Publisher {
             name: publisher.name,
             domain: publisher.domain,
             balance: Balance::default(),
-            articles: HashMap::new(),
+            articles: Vec::new(),
         }
     }
 }
@@ -78,12 +62,13 @@ pub fn get_account(
     mongo_db: State<MongoDB>,
     session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
-    get_publisher(mongo_db, session.email)
+    Ok(Json(mongo_db.find_publisher(&session.email)?))
 }
 
 #[get("/publisher/<email>")]
-pub fn get_publisher(mongo_db: State<MongoDB>, email: String) -> Result<Json<Publisher>, ApiError> {
-    Ok(Json(mongo_db.find_publisher(&email)?))
+pub fn publisher_exists(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+    mongo_db.find_publisher(&email)?;
+    Ok(Status::Ok)
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]
