@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import App from './App';
 import ReaderProfilePage from './ReaderProfilePage';
-import PublisherLandingPage from './PublisherLandingPage';
+import PublisherProfilePage from './PublisherProfilePage';
 import SignInPage from './SignInPage';
 import VerifySignup from './VerifySignup.js';
 import PurchaseArticle from './PurchaseArticle';
@@ -19,7 +19,7 @@ function AppRouter() {
       <Routes>
         <Route path="/" element={<App welcomeRef={welcomeRef} aboutRef={aboutRef} />} />
         <Route path="reader" element={<ReaderProfilePage />} />
-        <Route path="publisher" element={<PublisherLandingPage />} />
+        <Route path="publisher" element={<PublisherProfilePage />} />
         <Route path="signin/:user" element={<SignInPage />} />
         <Route path="verify-signup" element={<VerifySignup />} />
         <Route path="purchase/:id" element={<PurchaseArticle />} />

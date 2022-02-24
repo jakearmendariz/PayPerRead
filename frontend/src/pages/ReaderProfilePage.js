@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+import { formatBalance } from '../utils/methods';
+import { Row, Column } from '../utils/Alignments';
 
 import styled from 'styled-components';
-import { setUseProxies } from 'immer';
-import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 
 const Subtitle = styled.span`
@@ -15,18 +16,6 @@ const Text = styled.span`
   margin-bottom: 0.5rem;
 `;
 
-const Row = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 55rem;
-  margin-bottom: 2rem
-`;
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
 const PriceTh = styled.th`
   width: 7rem;
   padding-left: 2rem;
@@ -34,21 +23,17 @@ const PriceTh = styled.th`
   vertical-align: top;
 `;
 
-const Articleth = styled.th`
+const ArticleTh = styled.th`
   font-weight: normal;
-`;
-const Divider = styled.hr`
-    border-top: 2px solid #bbb;
 `;
 
 const TableDomain = styled.span`
   color: grey;
 `;
 
-function formatBalance(balance) {
-  const convertedBalance = balance.dollars + balance.cents / 100;
-  return `$${convertedBalance.toFixed(2)}`;
-}
+const Spacer = styled.tr`
+  height: 1rem;
+`
 
 function AccountDetails({ balance, articles }) {
   return (
@@ -67,7 +52,7 @@ function AccountDetails({ balance, articles }) {
 
 function PaymentMethod() {
   return (
-    <Card style={{ width: '30rem' }} title="Payment Method">
+    <Card style={{ width: '25rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
       <Text>
         ****-****-****-1234
@@ -79,14 +64,14 @@ function PaymentMethod() {
 function PurchaseEntry({ purchase }) {
   return (
     <tr>
-      <Articleth>
+      <ArticleTh>
         <TableDomain>
           {purchase.domain}
         </TableDomain>
         <div>
           {purchase.article_name}
         </div>
-      </Articleth>
+      </ArticleTh>
       <PriceTh>{formatBalance(purchase.price)}</PriceTh>
     </tr>
   );
@@ -100,17 +85,18 @@ function PurchaseHistory({ purchases }) {
       <table style={{ fontSize: '1rem' }}>
         <tbody>
           <tr>
-            <Articleth
-              style={{ paddingBottom: '0.5rem', fontSize: '1.2rem' }}
+            <ArticleTh
+              style={{ fontSize: '1.2rem', borderBottom: 'thin solid #bbb' }}
             >
               Article
-            </Articleth>
+            </ArticleTh>
             <PriceTh
-              style={{ fontSize: '1.2rem' }}
+              style={{ fontSize: '1.2rem', borderBottom: 'thin solid #bbb' }}
             >
               Price
             </PriceTh>
           </tr>
+          <Spacer/>
           {purchases}
         </tbody>
       </table>
