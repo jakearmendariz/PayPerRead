@@ -38,26 +38,18 @@ impl Article {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BuyArticle {
-    publisher_email: String,
-    article_uid: ArticleGuid,
-}
-
 /// Buy article if reader doesn't own it.
 /// Subtract balance from reader
 /// Pay publisher.
-#[post("/articles/purchase", data = "<article_to_buy>")]
+/// TODO change to a article_guid (will need to parse to get publisher email)
+#[post("/articles/purchase/<publisher_email>/<article_uid>")]
 pub fn purchase_article(
     mongo_db: State<MongoDB>,
-    article_to_buy: Json<BuyArticle>,
+    publisher_email: String,
+    article_uid: String,
     session: Session,
 ) -> ApiResult<Status> {
     // Retrieve information
-    let BuyArticle {
-        article_uid,
-        publisher_email,
-    } = article_to_buy.into_inner();
     let publisher = mongo_db.find_publisher(&publisher_email)?;
     let reader = mongo_db.find_reader(&session.email)?;
     let guid = build_guid(&publisher_email, &article_uid);
@@ -114,11 +106,16 @@ pub fn owns_article(
     }
 }
 
-#[get("/articles/<article_guid>")]
+#[get("/articles/<article_id>?<email>")]
 pub fn get_article(
     mongo_db: State<MongoDB>,
-    article_guid: ArticleGuid,
+    article_id: ArticleGuid,
+    email: Option<String>,
 ) -> ApiResult<Json<Article>> {
+    let article_guid = match email {
+        Some(email) => build_guid(&email, &article_id),
+        None => article_id,
+    };
     // Retrieve article from guid
     let article = mongo_db
         .get_article(&article_guid)?

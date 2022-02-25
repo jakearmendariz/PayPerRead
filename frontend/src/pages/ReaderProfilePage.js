@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import styled from 'styled-components';
 import { formatBalance } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 
 import Table from 'react-bootstrap/Table';
 
-import styled from 'styled-components';
 import Card from '../components/Card';
 
 const Subtitle = styled.span`
