@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import { formatBalance, formatNumber } from '../utils/methods';
-import { Row, Column } from '../utils/Alignments';
+import { Row, Column } from '../utils/Adjustments';
 
 import styled from 'styled-components';
 import Card from '../components/Card';

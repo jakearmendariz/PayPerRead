@@ -8,6 +8,7 @@
     position: sticky;
     top: 0;
     z-index: 999;
+    padding-left: calc(100vw - 100%);
   }
   
   .navbar-container {
