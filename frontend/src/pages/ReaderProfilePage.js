@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import styled from 'styled-components';
 import { formatBalance } from '../utils/methods';
 import { Row, Column } from '../utils/Alignments';
 
-import styled from 'styled-components';
 import Card from '../components/Card';
 
 const Subtitle = styled.span`
@@ -33,7 +33,7 @@ const TableDomain = styled.span`
 
 const Spacer = styled.tr`
   height: 1rem;
-`
+`;
 
 function AccountDetails({ balance, articles }) {
   return (
@@ -96,7 +96,7 @@ function PurchaseHistory({ purchases }) {
               Price
             </PriceTh>
           </tr>
-          <Spacer/>
+          <Spacer />
           {purchases}
         </tbody>
       </table>
@@ -107,7 +107,7 @@ function PurchaseHistory({ purchases }) {
 const fetchPurchases = async (articles) => {
   const purchases = [];
   for (let i = 0; i < articles.length; i++) {
-    console.log(articles[i])
+    console.log(articles[i]);
     let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
     article_detail = await article_detail.json();
     purchases.push({

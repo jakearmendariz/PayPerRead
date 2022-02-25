@@ -2,7 +2,6 @@ import React from 'react';
 
 import styled from 'styled-components';
 
-
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
@@ -18,9 +17,7 @@ const Column = styled.div`
   flex-direction: column;
 `;
 
-
-
 export {
-    Row,
-    Column
-}
+  Row,
+  Column,
+};
