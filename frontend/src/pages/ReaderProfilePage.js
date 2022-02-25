@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import styled from 'styled-components';
+import Table from 'react-bootstrap/Table';
 import { formatBalance } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
-
-import Table from 'react-bootstrap/Table';
 
 import Card from '../components/Card';
 
@@ -18,11 +17,11 @@ const Text = styled.span`
   margin-bottom: 0.5rem;
 `;
 
-const sectionWidth = '55rem'
+const sectionWidth = '55rem';
 
 function AccountDetails({ balance, articles }) {
   return (
-    <Card style={{ width: '25rem', height: '13rem', marginBottom: "1rem" }} title="Account Details">
+    <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Account Details">
       <Subtitle>Balance</Subtitle>
       <Text>
         {formatBalance(balance)}
@@ -37,7 +36,7 @@ function AccountDetails({ balance, articles }) {
 
 function PaymentMethod() {
   return (
-    <Card style={{ width: '25rem', height: '13rem', marginBottom: "1rem" }} title="Payment Method">
+    <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
       <Text>
         ****-****-****-1234

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setIsIframe } from '../redux/slice';
 
 // send message to parent about article purchase status
 const postPurchaseStatus = (s) => {
@@ -61,9 +63,12 @@ function PurchaseArticle() {
     guid: undefined, articleTitle: '', articlePrice: 0.00, loggedin: false,
   });
 
+  const dispatch = useDispatch();
+
   // check if the user owns the article,
   // if not logged in direct them to signin
   useEffect(() => {
+    dispatch(setIsIframe({ isIframe: true }))
     isLoggedin(state, setState);
     if (state.loggedin) {
       setArticleState(state, setState, email, id);
@@ -98,6 +103,7 @@ function PurchaseArticle() {
       <h2>You need to create an account with PayPerRead to read this article.</h2>
       <p>
         Click
+        {' '}
         <a href="http://localhost:3000/signin/reader" target="blank">here</a>
         {' '}
         to make your account.

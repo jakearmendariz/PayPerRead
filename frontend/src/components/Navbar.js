@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import './Navbar.css';
-import { selectLoggedIn, setLoggedIn } from '../redux/slice';
+import { selectLoggedIn, setLoggedIn, selectIsIframe } from '../redux/slice';
 
 /** Check if the user is loggedin */
 const isLoggedIn = (dispatch) => {
@@ -93,6 +93,7 @@ function Navbar(props) {
   const handleClick = () => setClick(!click);
   const dispatch = useDispatch();
   const loggedIn = useSelector(selectLoggedIn);
+  const isIframe = useSelector(selectIsIframe);
 
   const scrollToView = (componentRef) => {
     if (componentRef) {
@@ -104,33 +105,44 @@ function Navbar(props) {
 
   isLoggedIn(dispatch);
 
-  return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <h1 to="/" className="navbar-logo">
-          PayPerRead
-          <i className="fab fa-pushed" />
-        </h1>
-        <div className="menu-icon" onClick={handleClick}>
-          <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
+  return isIframe
+    ? (
+      <nav className="navbar">
+        <div className="navbar-container">
+          <h1 to="/" className="navbar-logo">
+            PayPerRead
+            <i className="fab fa-pushed" />
+          </h1>
         </div>
-        <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item" onClick={() => scrollToView(welcomeRef)}>
-            <NavLink to="/" className="nav-links">
-              Home
-            </NavLink>
-          </li>
-          <li className="nav-item" onClick={() => scrollToView(aboutRef)}>
-            <NavLink to="/" className="nav-links">
-              About Us
-            </NavLink>
-          </li>
-          <ManageProfile loggedIn={loggedIn} />
-          <SigninOrLogout loggedIn={loggedIn} />
-        </ul>
-      </div>
-    </nav>
-  );
+      </nav>
+    )
+    : (
+      <nav className="navbar">
+        <div className="navbar-container">
+          <h1 to="/" className="navbar-logo">
+            PayPerRead
+            <i className="fab fa-pushed" />
+          </h1>
+          <div className="menu-icon" onClick={handleClick}>
+            <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
+          </div>
+          <ul className={click ? 'nav-menu active' : 'nav-menu'}>
+            <li className="nav-item" onClick={() => scrollToView(welcomeRef)}>
+              <NavLink to="/" className="nav-links">
+                Home
+              </NavLink>
+            </li>
+            <li className="nav-item" onClick={() => scrollToView(aboutRef)}>
+              <NavLink to="/" className="nav-links">
+                About Us
+              </NavLink>
+            </li>
+            <ManageProfile loggedIn={loggedIn} />
+            <SigninOrLogout loggedIn={loggedIn} />
+          </ul>
+        </div>
+      </nav>
+    );
 }
 
 Navbar.propTypes = {

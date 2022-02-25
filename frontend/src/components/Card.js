@@ -16,6 +16,7 @@ const Title = styled.span`
 
 const Divider = styled.hr`
     border-top: 2px solid #bbb;
+    color: #fff;
     margin-top: 0.5rem;
 `;
 
