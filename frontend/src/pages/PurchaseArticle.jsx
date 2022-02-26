@@ -5,7 +5,7 @@ import { setIsIframe } from '../redux/slice';
 
 // send message to parent about article purchase status
 const postPurchaseStatus = (s) => {
-  window.parent.postMessage({ message: s }, 'http://localhost:3001');
+  window.parent.postMessage({ message: s }, document.referrer);
 };
 
 const ownsArticle = (state) => {
