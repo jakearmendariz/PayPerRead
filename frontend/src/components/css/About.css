@@ -4,6 +4,7 @@
   padding-bottom: 0;
   padding-top: 2rem;
   margin-bottom: 0;
+  text-align: center;
 }
 
 .row > h1 {
@@ -14,10 +15,6 @@
   align-items: center;
   text-align: center;
   padding: 1.5rem;
-}
-
-.fuckshit {
-  font-size: 10rem;
 }
 
 .col, .col-sm-4 > h3 {

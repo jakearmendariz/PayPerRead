@@ -96,7 +96,9 @@ function Navbar(props) {
 
   const scrollToView = (componentRef) => {
     if (componentRef) {
-      window.scrollTo(0, componentRef.current.offsetTop);
+      if (componentRef.current) {
+        window.scrollTo(0, componentRef.current.offsetTop - 50);
+      }
     }
   };
 

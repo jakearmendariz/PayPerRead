@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { useCookies } from 'react-cookie';
 import './css/Welcome.css';
@@ -12,7 +12,7 @@ function Welcome(props) {
     <div className="welcome-container" ref={innerRef}>
       <h1>Pay Only For What You Read</h1>
       <p>Trusted by Medium, Vox, NyTimes and the WallStreet Journal</p>
-      <a class="btn btn-primary" href="/signin/reader" role="button">Get Started</a>
+      <a className="btn btn-primary" href="/signin/reader" role="button">Get Started</a>
 
     </div>
   );
