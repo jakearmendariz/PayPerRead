@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 
 import styled from 'styled-components';
 import { formatBalance, formatNumber } from '../utils/methods';
-import { Row, Column } from '../utils/Alignments';
+import { Row, Column } from '../utils/Adjustments';
 
 import Card from '../components/Card';
 
@@ -14,24 +14,6 @@ const Subtitle = styled.span`
 const Text = styled.span`
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
-`;
-
-const PriceTh = styled.th`
-  width: 7rem;
-  padding-left: 2rem;
-  font-weight: normal;
-  vertical-align: top;
-`;
-
-const Articleth = styled.th`
-  font-weight: normal;
-`;
-const Divider = styled.hr`
-    border-top: 2px solid #bbb;
-`;
-
-const TableDomain = styled.span`
-  color: grey;
 `;
 
 function AccountOverview(props) {

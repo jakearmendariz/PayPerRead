@@ -6,3 +6,5 @@ dummy/package-lock.json
 .DS_Store
 backend/.env
 backend/target/
+
+/dummy/.env

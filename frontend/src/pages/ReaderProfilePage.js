@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import styled from 'styled-components';
+import Table from 'react-bootstrap/Table';
 import { formatBalance } from '../utils/methods';
-import { Row, Column } from '../utils/Alignments';
+import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 
 import Card from '../components/Card';
 
@@ -16,28 +17,11 @@ const Text = styled.span`
   margin-bottom: 0.5rem;
 `;
 
-const PriceTh = styled.th`
-  width: 7rem;
-  padding-left: 2rem;
-  font-weight: normal;
-  vertical-align: top;
-`;
-
-const ArticleTh = styled.th`
-  font-weight: normal;
-`;
-
-const TableDomain = styled.span`
-  color: grey;
-`;
-
-const Spacer = styled.tr`
-  height: 1rem;
-`;
+const sectionWidth = '55rem';
 
 function AccountDetails({ balance, articles }) {
   return (
-    <Card style={{ width: '20rem' }} title="Account Details">
+    <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Account Details">
       <Subtitle>Balance</Subtitle>
       <Text>
         {formatBalance(balance)}
@@ -52,7 +36,7 @@ function AccountDetails({ balance, articles }) {
 
 function PaymentMethod() {
   return (
-    <Card style={{ width: '25rem' }} title="Payment Method">
+    <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
       <Text>
         ****-****-****-1234
@@ -64,15 +48,9 @@ function PaymentMethod() {
 function PurchaseEntry({ purchase }) {
   return (
     <tr>
-      <ArticleTh>
-        <TableDomain>
-          {purchase.domain}
-        </TableDomain>
-        <div>
-          {purchase.article_name}
-        </div>
-      </ArticleTh>
-      <PriceTh>{formatBalance(purchase.price)}</PriceTh>
+      <td>{purchase.domain}</td>
+      <td>{purchase.article_name}</td>
+      <td>{formatBalance(purchase.price)}</td>
     </tr>
   );
 }
@@ -81,25 +59,19 @@ function PurchaseHistory({ purchases }) {
   purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
 
   return (
-    <Card style={{ width: '55rem', minHeight: '20rem' }} title="Purchase History">
-      <table style={{ fontSize: '1rem' }}>
-        <tbody>
+    <Card style={{ width: '100%', minHeight: '100%' }} title="Purchase History">
+      <Table responsive>
+        <thead>
           <tr>
-            <ArticleTh
-              style={{ fontSize: '1.2rem', borderBottom: 'thin solid #bbb' }}
-            >
-              Article
-            </ArticleTh>
-            <PriceTh
-              style={{ fontSize: '1.2rem', borderBottom: 'thin solid #bbb' }}
-            >
-              Price
-            </PriceTh>
+            <th>Domain</th>
+            <th>Article</th>
+            <th>Price</th>
           </tr>
-          <Spacer />
+        </thead>
+        <tbody>
           {purchases}
         </tbody>
-      </table>
+      </Table>
     </Card>
   );
 }
@@ -107,7 +79,6 @@ function PurchaseHistory({ purchases }) {
 const fetchPurchases = async (articles) => {
   const purchases = [];
   for (let i = 0; i < articles.length; i++) {
-    console.log(articles[i]);
     let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
     article_detail = await article_detail.json();
     purchases.push({
@@ -116,7 +87,6 @@ const fetchPurchases = async (articles) => {
       price: article_detail.price,
     });
   }
-  console.log(purchases);
   return purchases;
 };
 
@@ -152,18 +122,20 @@ function ReaderProfilePage() {
 
   return (
     <div className="center-content" style={{ marginTop: '5rem' }}>
-      <Column>
-        <Row>
-          <AccountDetails
-            balance={reader.balance}
-            articles={reader.articles}
+      <ResponsiveWidth style={{ minHeight: '20rem' }} maxWidth={sectionWidth}>
+        <Column>
+          <Row maxWidth={sectionWidth}>
+            <AccountDetails
+              balance={reader.balance}
+              articles={reader.articles}
+            />
+            <PaymentMethod />
+          </Row>
+          <PurchaseHistory
+            purchases={purchases}
           />
-          <PaymentMethod />
-        </Row>
-        <PurchaseHistory
-          purchases={purchases}
-        />
-      </Column>
+        </Column>
+      </ResponsiveWidth>
     </div>
   );
 }
