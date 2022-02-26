@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import './Navbar.css';
+import './css/Navbar.css';
 import { selectLoggedIn, setLoggedIn } from '../redux/slice';
 
 /** Check if the user is loggedin */

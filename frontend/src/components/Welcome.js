@@ -1,16 +1,19 @@
 import React from 'react';
+import {Button} from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { useCookies } from 'react-cookie';
-import './Welcome.css';
+import './css/Welcome.css';
 
 function Welcome(props) {
   // const [cookies, setCookie] = useCookies();
+  // USED BY (VOX.com. MEDIUM)
   const { innerRef } = props;
-  console.log(document.cookie);
   return (
     <div className="welcome-container" ref={innerRef}>
-      <h1>Welcome to PayPerRead!</h1>
-      <p>Built For Writers Making A Living</p>
+      <h1>Pay Only For What You Read</h1>
+      <p>Trusted by Medium, Vox, NyTimes and the WallStreet Journal</p>
+      <a class="btn btn-primary" href="/signin/reader" role="button">Get Started</a>
+
     </div>
   );
 }

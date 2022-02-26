@@ -1,0 +1,45 @@
+.container {
+  min-height: 100vh;
+  width: 100%;
+  padding-bottom: 0;
+  padding-top: 2rem;
+  margin-bottom: 0;
+}
+
+.row > h1 {
+  color: rgb(0, 0, 0);
+  font-size: 3rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.fuckshit {
+  font-size: 10rem;
+}
+
+.col, .col-sm-4 > h3 {
+  font-size: 2rem;
+}
+
+.col, .col-sm-4 > p {
+  font-size: 1.5rem;
+}
+
+.col-sm-4 {
+  padding-bottom: .5rem;
+}
+
+.col > p {
+  text-align: center;
+}
+
+.about-box-1 {
+  width: 80%;
+  height: 50vh;
+  border-radius: 50%;
+  margin-top: 40px;
+  color: rgb(0, 0, 0);
+}
