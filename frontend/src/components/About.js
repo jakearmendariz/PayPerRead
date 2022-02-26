@@ -1,35 +1,51 @@
 import React from 'react';
-import './About.css';
+import './css/About.css';
 
 function About(props) {
   const { innerRef } = props;
 
   return (
-    <div className="about-container" ref={innerRef}>
-      <h1>How does it work?</h1>
-      <div className="about-wrapper">
-        <div className="about-box-1">
-          <h1> Pay For What You Read </h1>
-          <p>PayPerRead aims to solve profitablity for journalists and bloggers.</p>
+    <div className="container" ref={innerRef}>
+      <div className="row">
+        <h1 style={{ fontSize: '3.5rem' }}>How PayPerRead Works</h1>
+        <div className="col">
           <p>
-            Paying monthly for a subscription can feel annoying/expensive and Ads
-            can ruin a reading experience.
-            {' '}
+            PayPerRead acts as a virtual wallet and a webservice to allow secure purchasing and ownership of articles across
+            third party sites. Sites with PayPerRead embedded in them can charge viewer's of their site a small fee
+            to own access to that page.
+          </p>
+          <p>
+            Users can add money to their account once, and can now purchase articles at any website supporting PayPerRead.
+            No more advertising or subscriptions, only paying creators for the content you enjoy.
           </p>
         </div>
-        <div className="about-box-2">
-          <h1> Manage Articles Here </h1>
-          <p>Users may visit this website to view account settings, add funds, or manage articles.</p>
-          <p>Publishers are able to view profits and transfer funds to their accounts.</p>
+      </div>
+
+      <div className="row">
+        <br />
+      </div>
+      <div className="row">
+        <h1>What We Provide</h1>
+        <div className="col-sm-4">
+          <h3>Pay Only For What You Read</h3>
+          <p>Readers only pay for the articles that interest them, no subscriptions or hidden fees!</p>
+          <p>Once you buy it, you own it in perpetuity throughout the universe.</p>
         </div>
-        <div className="about-box-2">
-          <h1> Iframe-Based </h1>
+        <div className="col-sm-4">
+          <h3>Manage Account Here</h3>
+          <p>Users can add money to their accout and view their purchase history.</p>
+          <p>Publishers can view analytics of their articles, deposit money and use our api to register articles.</p>
+        </div>
+        <div className="col-sm-4">
+          <h3>Honest Source of Revenue</h3>
           <p>
-            Implement our API onto your website! Our platform comes in the form of an
-            Iframe for convenience.
-            {' '}
+            Publishers don't have to
+            worry about going viral or getting users to subscribe to their site.
           </p>
-          <p>Readers may login or create an account through Google to buy an article(s).</p>
+          <p>
+            A fair and small price
+            for access to a site empowers users and publishers alike.
+          </p>
         </div>
       </div>
     </div>
