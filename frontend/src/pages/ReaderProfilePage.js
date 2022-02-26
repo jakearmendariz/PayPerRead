@@ -17,9 +17,18 @@ const Text = styled.span`
   margin-bottom: 0.5rem;
 `;
 
+const Placeholder = styled.div`
+  width: 100%;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #bbb;
+  padding: 2rem 0;
+`;
+
 const sectionWidth = '55rem';
 
-function AccountDetails({ balance, articles }) {
+const AccountDetails = ({ balance, articles }) => {
   return (
     <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Account Details">
       <Subtitle>Balance</Subtitle>
@@ -34,7 +43,7 @@ function AccountDetails({ balance, articles }) {
   );
 }
 
-function PaymentMethod() {
+const PaymentMethod = () => {
   return (
     <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
@@ -45,7 +54,7 @@ function PaymentMethod() {
   );
 }
 
-function PurchaseEntry({ purchase }) {
+const PurchaseEntry = ({ purchase }) => {
   return (
     <tr>
       <td>{purchase.domain}</td>
@@ -55,7 +64,7 @@ function PurchaseEntry({ purchase }) {
   );
 }
 
-function PurchaseHistory({ purchases }) {
+const PurchaseHistory = ({ purchases }) => {
   purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
 
   return (
@@ -72,6 +81,7 @@ function PurchaseHistory({ purchases }) {
           {purchases}
         </tbody>
       </Table>
+      {purchases.length === 0 ? <Placeholder>None</Placeholder> : <></>}
     </Card>
   );
 }
@@ -122,7 +132,7 @@ function ReaderProfilePage() {
 
   return (
     <div className="center-content" style={{ marginTop: '5rem' }}>
-      <ResponsiveWidth style={{ minHeight: '20rem' }} maxWidth={sectionWidth}>
+      <ResponsiveWidth maxWidth={sectionWidth}>
         <Column>
           <Row maxWidth={sectionWidth}>
             <AccountDetails
