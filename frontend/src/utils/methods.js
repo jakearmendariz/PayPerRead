@@ -1,8 +1,6 @@
 function formatNumber(num) {
-  if (typeof num === 'number') {
-    num = num.toString();
-  }
-  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const numString = typeof num === 'number' ? num.toString() : num;
+  return numString.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function formatBalance(balance) {
@@ -12,7 +10,7 @@ function formatBalance(balance) {
 
 const fetchArticles = async (articles) => {
   let fetchedArticles = [];
-  for (let i = 0; i < articles.length; i++) {
+  for (let i = 0; i < articles.length; i += 1) {
     const article_detail = fetch(`http://localhost:8000/articles/${articles[i]}`);
     fetchedArticles.push(article_detail);
   }
@@ -26,9 +24,13 @@ function multiplyBalance(balance, multiplier) {
   let total = balance.cents + balance.dollars * 100;
   total *= multiplier;
   return {
-    dollars: parseInt(total / 100),
+    dollars: parseInt(total / 100, 10),
     cents: total % 100,
   };
+}
+
+function remValue(rem) {
+  return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 }
 
 export {
@@ -36,4 +38,5 @@ export {
   formatBalance,
   fetchArticles,
   multiplyBalance,
+  remValue,
 };

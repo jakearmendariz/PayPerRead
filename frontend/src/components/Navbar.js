@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import './css/Navbar.css';
 import { selectLoggedIn, setLoggedIn, selectIsIframe } from '../redux/slice';
+import { remValue } from '../utils/methods';
 
 /** Check if the user is loggedin */
 const isLoggedIn = (dispatch) => {
@@ -88,6 +89,8 @@ ManageProfile.propTypes = {
   loggedIn: PropTypes.bool,
 };
 
+const navbarHeight = (70 - remValue(2));
+
 function Navbar(props) {
   const [click, setClick] = useState(false);
   const handleClick = () => setClick(!click);
@@ -97,7 +100,7 @@ function Navbar(props) {
 
   const scrollToView = (componentRef) => {
     if (componentRef && componentRef.current) {
-      window.scrollTo(0, componentRef.current.offsetTop);
+      window.scrollTo(0, componentRef.current.offsetTop - navbarHeight);
     }
   };
 
@@ -117,7 +120,7 @@ function Navbar(props) {
       </nav>
     )
     : (
-      <nav className="navbar">
+      <nav className="navbar" id="navbar">
         <div className="navbar-container">
           <h1 to="/" className="navbar-logo">
             PayPerRead
