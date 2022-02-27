@@ -133,7 +133,7 @@ function Navbar(props) {
           <ul className={click ? 'nav-menu active' : 'nav-menu'}>
             <li className="nav-item" onClick={() => {
               scrollToView(welcomeRef);
-              handleClick();
+              setClick(false)
             }}>
               <NavLink to="/" className="nav-links">
                 Home
@@ -141,14 +141,14 @@ function Navbar(props) {
             </li>
             <li className="nav-item" onClick={() => {
               scrollToView(aboutRef);
-              handleClick();
+              setClick(false)
             }}>
               <NavLink to="/" className="nav-links">
                 About Us
               </NavLink>
             </li>
-            <ManageProfile loggedIn={loggedIn} onClick={handleClick} />
-            <SigninOrLogout loggedIn={loggedIn} onClick={handleClick} />
+            <ManageProfile loggedIn={loggedIn} onClick={() => setClick(false)} />
+            <SigninOrLogout loggedIn={loggedIn} onClick={() => setClick(false)} />
           </ul>
         </div>
       </nav>
