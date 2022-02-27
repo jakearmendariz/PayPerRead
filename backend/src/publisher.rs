@@ -1,5 +1,5 @@
 use crate::articles::ArticleGuid;
-use crate::common::{email_filter, mongo_error, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, ApiError, Balance, update_balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
@@ -100,6 +100,14 @@ pub fn add_publisher(
             }
         }
     }
+}
+
+#[post("/publisher/deposit")]
+pub fn deposit_publisher_balance(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
+    // Deposit zero's a publisher balance, no payment logic yet.
+    let publisher = mongo_db.find_publisher(&session.email)?;
+    let zeroed_balance = Balance::default();
+    update_balance(&mongo_db.publishers, zeroed_balance, &publisher.email)
 }
 
 #[delete("/publisher")]

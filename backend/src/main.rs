@@ -65,6 +65,7 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             publisher::publisher_exists,
             publisher::add_publisher,
             publisher::delete_publisher,
+            publisher::deposit_publisher_balance,
             session::login_reader,
             session::login_publisher,
             session::check_cookies,
