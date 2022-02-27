@@ -14,6 +14,12 @@ const Subtitle = styled.span`
   color: grey;
 `;
 
+const Button = styled.span`
+  color: blue;
+  font-size: 2rem;
+  text-align: center;
+`;
+
 const Text = styled.span`
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
@@ -57,12 +63,26 @@ function AccountOverview({
   );
 }
 
-function DirectDeposit() {
+function DirectDeposit({ name }) {
   return (
     <Card
       title="Direct Deposit"
       style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }}
-    />
+    >
+      <Text> Visa ending **** 1234</Text>
+      <Subtitle>{name} 01/2022</Subtitle>
+      <Row>
+        <Column style={{ marginRight: '1rem' }}>
+        </Column>
+
+        <Column>
+          <Subtitle> Payout Using Stripe</Subtitle>
+          <Button><a href="stripe"><i class="fab fa-cc-stripe"></i></a>
+          </Button>
+          
+        </Column>
+      </Row>
+    </Card>
   );
 }
 
@@ -158,7 +178,9 @@ function PublisherProfilePage() {
               articlesRegistered={publisher.articles.length}
               articleViews={articleViews}
             />
-            <DirectDeposit />
+            <DirectDeposit
+              name={publisher.name}
+            />
           </Row>
           <RegisteredArticles
             articles={registeredArticles}
