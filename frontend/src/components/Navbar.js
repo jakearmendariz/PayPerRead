@@ -35,7 +35,7 @@ const logout = () => {
  * @returns Returns a list item for signing in or logging out
  */
 function SigninOrLogout(props) {
-  const { loggedIn } = props;
+  const { loggedIn, onClick } = props;
   if (loggedIn) {
     return (
       <li onClick={logout} className="nav-item">
@@ -46,7 +46,7 @@ function SigninOrLogout(props) {
     );
   }
   return (
-    <li className="nav-item">
+    <li className="nav-item" onClick={onClick}>
       <Link to="/signin/reader" className="nav-links">
         Sign Up
       </Link>
@@ -60,7 +60,7 @@ SigninOrLogout.propTypes = {
 
 /** ManageProfile */
 function ManageProfile(props) {
-  const { loggedIn } = props;
+  const { loggedIn, onClick } = props;
   let isPublisher = false;
   // TODO: Cleanup
   const docCookies = document.cookie.split('; ');
@@ -75,7 +75,7 @@ function ManageProfile(props) {
 
   if (loggedIn) {
     return (
-      <li className="nav-item">
+      <li className="nav-item" onClick={onClick}>
         <Link to={profileLink} className="nav-links">
           Manage Profile
         </Link>
@@ -104,6 +104,7 @@ function Navbar(props) {
     }
   };
 
+
   const { welcomeRef, aboutRef } = props;
 
   isLoggedIn(dispatch);
@@ -120,7 +121,7 @@ function Navbar(props) {
       </nav>
     )
     : (
-      <nav className="navbar" id="navbar">
+      <nav className="navbar">
         <div className="navbar-container">
           <h1 to="/" className="navbar-logo">
             PayPerRead
@@ -130,18 +131,24 @@ function Navbar(props) {
             <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
           </div>
           <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-            <li className="nav-item" onClick={() => scrollToView(welcomeRef)}>
+            <li className="nav-item" onClick={() => {
+              scrollToView(welcomeRef);
+              handleClick();
+            }}>
               <NavLink to="/" className="nav-links">
                 Home
               </NavLink>
             </li>
-            <li className="nav-item" onClick={() => scrollToView(aboutRef)}>
+            <li className="nav-item" onClick={() => {
+              scrollToView(aboutRef);
+              handleClick();
+            }}>
               <NavLink to="/" className="nav-links">
                 About Us
               </NavLink>
             </li>
-            <ManageProfile loggedIn={loggedIn} />
-            <SigninOrLogout loggedIn={loggedIn} />
+            <ManageProfile loggedIn={loggedIn} onClick={handleClick} />
+            <SigninOrLogout loggedIn={loggedIn} onClick={handleClick} />
           </ul>
         </div>
       </nav>
