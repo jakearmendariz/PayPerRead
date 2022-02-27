@@ -39,8 +39,8 @@ const createNewUser = (details, navigate, publisherDetails, dispatch) => () => {
   }).then((resp) => {
     if (resp.status === 201) {
       navigate('/');
-      dispatch(setLoggedIn({loggedIn: true}));
-    };
+      dispatch(setLoggedIn({ loggedIn: true }));
+    }
   });
 };
 
@@ -76,7 +76,9 @@ function VerifySignup() {
           type="submit"
           className="styled-button primary-color secondary-font"
           onClick={createNewUser(location, navigate, { domain: state.text }, dispatch)}
-        >Verify Signup</button>
+        >
+          Verify Signup
+        </button>
       </div>
     </div>
   );

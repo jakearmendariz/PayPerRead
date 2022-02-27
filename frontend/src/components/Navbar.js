@@ -96,7 +96,7 @@ function Navbar(props) {
   const isIframe = useSelector(selectIsIframe);
 
   const scrollToView = (componentRef) => {
-    if (componentRef) {
+    if (componentRef && componentRef.current) {
       window.scrollTo(0, componentRef.current.offsetTop);
     }
   };

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import styled from 'styled-components';
 import Table from 'react-bootstrap/Table';
-import { formatBalance } from '../utils/methods';
+import { formatBalance, formatNumber, fetchArticles } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 
 import Card from '../components/Card';
@@ -28,7 +28,7 @@ const Placeholder = styled.div`
 
 const sectionWidth = '55rem';
 
-const AccountDetails = ({ balance, articles }) => {
+function AccountDetails({ balance, articles }) {
   return (
     <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Account Details">
       <Subtitle>Balance</Subtitle>
@@ -37,13 +37,13 @@ const AccountDetails = ({ balance, articles }) => {
       </Text>
       <Subtitle>Articles Owned</Subtitle>
       <Text>
-        {articles.length}
+        {formatNumber(articles.length)}
       </Text>
     </Card>
   );
 }
 
-const PaymentMethod = () => {
+function PaymentMethod() {
   return (
     <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
@@ -54,7 +54,7 @@ const PaymentMethod = () => {
   );
 }
 
-const PurchaseEntry = ({ purchase }) => {
+function PurchaseEntry({ purchase }) {
   return (
     <tr>
       <td>{purchase.domain}</td>
@@ -64,7 +64,7 @@ const PurchaseEntry = ({ purchase }) => {
   );
 }
 
-const PurchaseHistory = ({ purchases }) => {
+function PurchaseHistory({ purchases }) {
   purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
 
   return (
@@ -86,20 +86,6 @@ const PurchaseHistory = ({ purchases }) => {
   );
 }
 
-const fetchPurchases = async (articles) => {
-  const purchases = [];
-  for (let i = 0; i < articles.length; i++) {
-    let article_detail = await fetch(`http://localhost:8000/articles/${articles[i]}`);
-    article_detail = await article_detail.json();
-    purchases.push({
-      domain: article_detail.domain,
-      article_name: article_detail.article_name,
-      price: article_detail.price,
-    });
-  }
-  return purchases;
-};
-
 function ReaderProfilePage() {
   const navigate = useNavigate();
   const [reader, setReader] = useState({
@@ -120,7 +106,7 @@ function ReaderProfilePage() {
       .then((data) => {
         setReader(data);
         // Convert article guids into purchase data
-        fetchPurchases(data.articles, setPurchases).then((result) => {
+        fetchArticles(data.articles, setPurchases).then((result) => {
           setPurchases(result);
         });
       })
