@@ -10,6 +10,7 @@ import { setLoggedIn } from '../redux/slice';
 function SignInComponent({
   subtitle, description, success, failure, alternate,
 }) {
+  const otherAccount = subtitle === 'Reader' ? 'Publisher' : 'Reader';
   return (
     <div className="signin-page">
       <div className="center-content">
@@ -24,18 +25,21 @@ function SignInComponent({
           <p className="mt-3 secondary-font secondary-color">{description}</p>
 
           {/* TODO: We may put an explanatory page linked here */}
-          <p className="secondary-font secondary-color">
+          {/* <p className="secondary-font secondary-color">
             Learn more about how we work
             {' '}
             <a href="/">here</a>
-          </p>
+          </p> */}
 
           <p className="my-3 secondary-font secondary-color">
             Not the right type of account?
             {' '}
             <Link to={alternate}>Click here</Link>
             {' '}
-            to change the account type.
+            to sign up as a
+            {' '}
+            {otherAccount}
+            .
           </p>
 
           {/* TODO: fix styling because the library's implementation of styling is a bitch */}
@@ -166,7 +170,7 @@ function SignInPage() {
       subtitle={isPublisher ? 'Publisher' : 'Reader'}
       description={isPublisher
         ? 'Sign up here to add PayPerRead to your site and begin getting paid for your work.'
-        : 'We are a web3-inspired service that helps connect your contribution directly to the author.'}
+        : 'Sign up as a reader to begin contributing to authors and view the content you love.'}
       success={success}
       failure={failure}
       alternate={isPublisher ? '/signin/reader' : '/signin/publisher'}

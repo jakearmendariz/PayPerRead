@@ -1,8 +1,11 @@
   
   .welcome-container {
-    background: url("../images/bookbg.jfif") center center/cover no-repeat;
+    /* background: url("../images/bookbg.jfif") center center/cover no-repeat; */
+    object-fit: cover;
+    background-color: rgb(6,30, 45);
     height: 100vh;
     width: 100%;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -13,7 +16,7 @@
   
   .welcome-container > h1 {
     color: rgb(255, 255, 255);
-    font-size: 9vw;
+    font-size: 6.5rem;
     margin-top: -100px;
     text-align: center;
   }
@@ -24,6 +27,8 @@
     font-size: 32px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
       'Lucida Sans', Arial, sans-serif;
+    width: 70%;
+    text-align: center;
   }
   
   .welcome-links {
