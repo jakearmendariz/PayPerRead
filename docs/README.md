@@ -9,7 +9,7 @@ Then, implement our iframe into your site so that our service can ask for approv
 
 Replace the bracketed items with your information.
 
-Then our iframe will post a message through the `Window.postMessage` api. You will need to verify that the message's origin is from our domain and that the response is a success.
+Then our iframe will post a message through the `Window.postMessage` api when the reader has paid for access. You will need to verify that the message's origin is from our domain and that the response is a success.
 
 The response will be a js object that looks like the following:
 
