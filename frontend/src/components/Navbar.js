@@ -110,16 +110,7 @@ function Navbar(props) {
   isLoggedIn(dispatch);
 
   return isIframe
-    ? (
-      <nav className="navbar">
-        <div className="navbar-container">
-          <h1 to="/" className="navbar-logo">
-            PayPerRead
-            <i className="fab fa-pushed" />
-          </h1>
-        </div>
-      </nav>
-    )
+    ?  <></>
     : (
       <nav className="navbar">
         <div className="navbar-container">

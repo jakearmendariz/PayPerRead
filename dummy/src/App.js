@@ -35,7 +35,7 @@ function App() {
       <h1>Why PayPerRead is Cool</h1>
       { 
         !state.approved &&
-          <iframe width="400" height="400" src="http://localhost:3000/purchase/xyan87@ucsc.edu/123E5C" />
+          <iframe style={{maxWidth:"500px"}} width="100%" height="400" src="http://localhost:3000/purchase/xyan87@ucsc.edu/123E5C" />
       }
       { state.approved && <ArticleContents />}
     </div>
