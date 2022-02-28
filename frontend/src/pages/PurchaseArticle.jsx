@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setIsIframe } from '../redux/slice';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { setIsIframe, setLoggedIn, selectLoggedIn } from '../redux/slice';
 import { Button } from 'react-bootstrap';
 // send message to parent about article purchase status
 const postPurchaseStatus = (s) => {
@@ -24,7 +25,6 @@ const setArticleState = (state, setState, email, articleId) => {
     .then((resp) => {
       if (resp.status === 200) {
         resp.json().then((article) => {
-          console.log(article);
           const update = article.price.dollars + article.price.cents / 100.0;
           if (update !== state.articlePrice) {
             setState({
@@ -41,8 +41,8 @@ const setArticleState = (state, setState, email, articleId) => {
     });
 };
 
-const isLoggedin = (state, setState, incrementRequestCounter) => {
-  if (!state.loggedin) {
+const isLoggedin = (state, setState) => {
+  if (state.loggedin == undefined) {
     fetch('http://localhost:8000/cookies', {
       credentials: 'include',
     })
@@ -56,45 +56,52 @@ const isLoggedin = (state, setState, incrementRequestCounter) => {
             loading: state.loading,
             loadingCount: state.loadingCount + 1
           });
+        } else {
+          setState({
+            guid: state.guid,
+            articleTitle: state.articleTitle,
+            articlePrice: state.articlePrice,
+            loggedin: false,
+            loading: state.loading,
+            loadingCount: state.loadingCount + 1
+          });
         }
       });
-      incrementRequestCounter()
   }
+};
+
+const purchaseArticle = () => {
+  fetch(`http://localhost:8000/articles/purchase/${email}/${id}`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+    .then((resp) => {
+      if (resp.status === 200) postPurchaseStatus('success');
+    });
 };
 
 function PurchaseArticle() {
   const { email, id } = useParams();
   const [state, setState] = useState({
-    guid: undefined, articleTitle: '', articlePrice: 0.00, loggedin: false, loading: true, loadingCount: 0,
+    guid: undefined, articleTitle: '', articlePrice: 0.00, loggedin: undefined, loading: true, loadingCount: 0,
   });
-  var numLoading = 0;
-  const incrementRequestCounter = () => numLoading += 1;
   const [authorizedPayment, setAuthorization] = useState(false);
+  const loggedIn = useSelector(selectLoggedIn);
 
   const dispatch = useDispatch();
-
+  dispatch(setIsIframe({ isIframe: true }))
   // check if the user owns the article,
   // if not logged in direct them to signin
   useEffect(() => {
-    dispatch(setIsIframe({ isIframe: true }))
-    isLoggedin(state, setState, incrementRequestCounter);
+    if (!state.loggedin) {
+      isLoggedin(state, setState);
+    }
     if (state.loggedin) {
+      dispatch(setLoggedIn({ loggedIn: true }));
       setArticleState(state, setState, email, id);
-      incrementRequestCounter();
       ownsArticle(state);
-      incrementRequestCounter();
     }
   });
-
-  const purchaseArticle = () => {
-    fetch(`http://localhost:8000/articles/purchase/${email}/${id}`, {
-      method: 'POST',
-      credentials: 'include',
-    })
-      .then((resp) => {
-        if (resp.status === 200) postPurchaseStatus('success');
-      });
-  };
 
   const PaymentButton = () => {
     const buttonStyle = {
@@ -106,26 +113,46 @@ function PurchaseArticle() {
       margin: "1rem"
     }
     if (!authorizedPayment) {
-      return <Button style={buttonStyle} type="submit" onClick={() => setAuthorization(true)}>Authorize Payment</Button>
+      return (
+        <Button 
+          style={buttonStyle} 
+          type="submit" 
+          onClick={() => setAuthorization(true)}
+        >
+          Buy Article
+        </Button>
+      );
     } else {
-      return <Button style={buttonStyle} type="submit" onClick={purchaseArticle}>Confirm Payment</Button>
+      return (
+        <Button 
+          style={buttonStyle} 
+          type="submit" 
+          onClick={purchaseArticle}
+        >
+          Confirm Purchase
+        </Button>);
     }
   }
   console.log(state.loadingCount);
-  if (state.loadingCount < 3 && state.loading) {
-    setState({
-      guid: state.guid,
-      articleTitle: state.articleTitle,
-      articlePrice: state.articlePrice,
-      loggedin: state.loggedin,
-      loading: false,
-      loadingCount: state.loadingCount,
-    });
+  // if (state.loadingCount < 2 && state.loading) {
+  //   setState({
+  //     guid: state.guid,
+  //     articleTitle: state.articleTitle,
+  //     articlePrice: state.articlePrice,
+  //     loggedin: state.loggedin,
+  //     loading: false,
+  //     loadingCount: state.loadingCount,
+  //   });
+  // }
+  // while(state.loading);
+  console.log("loggedin", state.loggedin);
+  if ( state.loggedin == undefined  || state.guid == undefined) {
+    if (state.loggedin !== false) {
+      return null;
+    }
   }
-  if (state.loading) {
-    return null;
-  }
-  if (state.loggedin) {
+  console.log(state.loggedin);
+  if (state.loggedin || loggedIn) {
     return (
       <div style={{margin: "2rem"}} className="text-center">
         <h1 style={{fontSize:"2.5rem"}}>${state.articlePrice}</h1>
@@ -140,19 +167,20 @@ function PurchaseArticle() {
         <p style={{marginTop:"1rem", position: "absolute", bottom: "0", textAlign:"center"}} className="text-center">Powered by PayPerRead</p>
       </div>
     );
+  } else {
+    return (
+      <div className="text-center">
+        <h2>You need to create an account with PayPerRead to read this article.</h2>
+        <p>
+          Click
+          {' '}
+          <a href="http://localhost:3000/signin/reader" target="blank">here</a>
+          {' '}
+          to make your account.
+        </p>
+      </div>
+    );
   }
-  return (
-    <div className="text-center">
-      <h2>You need to create an account with PayPerRead to read this article.</h2>
-      <p>
-        Click
-        {' '}
-        <a href="http://localhost:3000/signin/reader" target="blank">here</a>
-        {' '}
-        to make your account.
-      </p>
-    </div>
-  );
 }
 
 export default PurchaseArticle;
