@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Table from 'react-bootstrap/Table';
 import {
   formatBalance, formatNumber,
-  fetchArticles, multiplyBalance,
+  fetchArticles, multiplyBalance, zeroBalance
 } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 import Card from '../components/Card';
@@ -14,11 +14,11 @@ const Subtitle = styled.span`
   color: grey;
 `;
 
-const Button = styled.span`
-  color: blue;
-  font-size: 2rem;
-  text-align: center;
-`;
+// const Button = styled.span`
+//   color: blue;
+//   font-size: 2rem;
+//   text-align: center;
+// `;
 
 const Text = styled.span`
   font-size: 1.2rem;
@@ -35,6 +35,17 @@ const Placeholder = styled.div`
 `;
 
 const sectionWidth = '55rem';
+
+function Deposit() {
+  // onClick={zeroBalance}
+
+  return (
+    <button style={{fontSize: "2rem", textAlign: "center"}} 
+    href="publisher"
+    onClick={zeroBalance}
+    ><i class="fab fa-cc-stripe"></i></button>
+  );
+}
 
 function AccountOverview({
   domain, balance, articlesRegistered, articleViews,
@@ -77,8 +88,7 @@ function DirectDeposit({ name }) {
 
         <Column>
           <Subtitle> Payout Using Stripe</Subtitle>
-          <Button><a href="stripe"><i class="fab fa-cc-stripe"></i></a>
-          </Button>
+          <Deposit>swer</Deposit>
           
         </Column>
       </Row>

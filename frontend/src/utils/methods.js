@@ -29,6 +29,16 @@ function multiplyBalance(balance, multiplier) {
   };
 }
 
+function zeroBalance(){
+  console.log("zero");
+  fetch('http://localhost:8000/publisher/deposit', {
+    method: 'POST',
+    credentials: 'include',
+  }).then(response => {
+    console.log(response);
+  });
+}
+
 function remValue(rem) {
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 }
@@ -38,5 +48,6 @@ export {
   formatBalance,
   fetchArticles,
   multiplyBalance,
+  zeroBalance,
   remValue,
 };
