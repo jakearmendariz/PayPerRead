@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Table from 'react-bootstrap/Table';
 import {
   formatBalance, formatNumber,
-  fetchArticles, multiplyBalance, zeroBalance
+  fetchArticles, multiplyBalance, zeroBalance,
 } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 import Card from '../components/Card';
@@ -40,10 +40,13 @@ function Deposit() {
   // onClick={zeroBalance}
 
   return (
-    <a style={{fontSize: "2rem", textAlign: "center"}} 
-    href="publisher"
-    onClick={zeroBalance}
-    ><i className="fab fa-cc-stripe"></i></a>
+    <a
+      style={{ fontSize: '2rem', textAlign: 'center' }}
+      href="publisher"
+      onClick={zeroBalance}
+    >
+      <i className="fab fa-cc-stripe" />
+    </a>
   );
 }
 
@@ -81,15 +84,18 @@ function DirectDeposit({ name }) {
       style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }}
     >
       <Text> Visa ending **** 1234</Text>
-      <Subtitle>{name} 01/2022</Subtitle>
+      <Subtitle>
+        {name}
+        {' '}
+        01/2022
+      </Subtitle>
       <Row>
-        <Column style={{ marginRight: '1rem' }}>
-        </Column>
+        <Column style={{ marginRight: '1rem' }} />
 
         <Column>
           <Subtitle> Payout Using Stripe</Subtitle>
           <Deposit>swer</Deposit>
-          
+
         </Column>
       </Row>
     </Card>

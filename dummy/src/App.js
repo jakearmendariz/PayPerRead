@@ -37,7 +37,6 @@ function App() {
   };
 
   return (
-
       <div style={containerStyle}>
         <h1 style={cursorStyle} onClick={() => setState({ page: (<Home />) })}>PayPerRead Blog</h1>
         <a style={{ float: "right" }} href="http://localhost:3000">PayPerRead Home</a>
