@@ -1,45 +1,54 @@
 import React, { useState, useEffect } from 'react';
 
+import FirstArticle from './articles/FirstArticle';
+import SecondArticle from './articles/SecondArticle';
+
 import logo from './logo.svg';
 import './App.css';
 
-const ArticleContents = () => (
-    <div>
-      <p>Yeah, this is the article</p>
-      <img src="https://i.ytimg.com/vi/317jz-PU7Mg/maxresdefault.jpg" />
-    </div>
+function Home() {
+
+  return (
+    <>
+      <p>PayPerRead is a service that helps small publishers and content creators earn more money for their work. This is our blog.</p>
+      <p>Click the link at the top right of the page to visit the PayPerRead home page, or click a link at the top left to view our own articles. We hope you enjoy our service.</p>
+    </>
   );
+
+}
 
 function App() {
 
-  const [ state, setState ] = useState({ approved: false });
-  
-  const listenForRequest = (e) => {
+  const [ state, setState ] = useState({ page: (<Home />) });
 
-    if(e.origin != "http://localhost:3000")
-      return;
-    if(!e.data.message || e.data.message != "success")
-      return;
-
-    setState({ approved: true });
+  const containerStyle = {
+    width: "50%",
+    marginLeft: "auto",
+    marginRight: "auto",
   };
 
-  useEffect(() => {
-    window.addEventListener("message", listenForRequest);
-    return () => window.removeEventListener("message", listenForRequest);
-  }, []);
+  const cursorStyle = { cursor: "pointer" };
+  const linkStyle = { ...cursorStyle, color: "#00f", textDecoration: "underline" };
 
-  
+  const dividerStyle = {
+    width: "100%",
+    height: "2px",
+    backgroundColor: "#ddd",
+  };
+
   return (
-    <div className="App">
-      <h1>Why PayPerRead is Cool</h1>
-      { 
-        !state.approved &&
-          <iframe width="400" height="400" src="http://localhost:3000/purchase/xyan87@ucsc.edu/123E5C" />
-      }
-      { state.approved && <ArticleContents />}
+      <div style={containerStyle}>
+        <h1 style={cursorStyle} onClick={() => setState({ page: (<Home />) })}>PayPerRead Blog</h1>
+        <a style={{ float: "right" }} href="http://localhost:3000">PayPerRead Home</a>
+        <p style={linkStyle} onClick={() => setState({ page: (<FirstArticle />) })}>• How to use PayPerRead as a Reader</p>
+        <p style={linkStyle} onClick={() => setState({ page: (<SecondArticle />) })}>• Premium PayPerRead Content</p>
+        <div style={dividerStyle} />
+
+      { state.page }
     </div>
+
   );
+
 }
 
 export default App;

@@ -29,12 +29,12 @@ function multiplyBalance(balance, multiplier) {
   };
 }
 
-function zeroBalance(){
-  console.log("zero");
+function zeroBalance() {
+  console.log('zero');
   fetch('http://localhost:8000/publisher/deposit', {
     method: 'POST',
     credentials: 'include',
-  }).then(response => {
+  }).then((response) => {
     console.log(response);
   });
 }
