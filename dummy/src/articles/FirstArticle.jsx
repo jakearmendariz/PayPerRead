@@ -42,7 +42,7 @@ function FirstArticle() {
       <h2>How to use PayPerRead as a Reader</h2>
       { 
         !state.approved &&
-          <iframe style={iframeStyle} width="500" height="400" src="http://localhost:3000/purchase/xyan87@ucsc.edu/123E5C" />
+          <iframe style={iframeStyle} width="500" height="400" src="http://localhost:3000/purchase/dwilby@ucsc.edu/randomstring" />
       }
       </div>
       { state.approved && <ArticleContents />}
