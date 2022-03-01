@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Welcome from '../components/Welcome';
 import About from '../components/About';
+import AddBalance from '../components/AddBalance';
 
 function App({ welcomeRef, aboutRef }) {
   return (

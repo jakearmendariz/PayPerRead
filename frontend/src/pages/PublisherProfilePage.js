@@ -61,7 +61,8 @@ function AccountOverview({
         <Column style={{ marginRight: '1rem' }}>
           <Subtitle>Domain</Subtitle>
           <Text>{domain}</Text>
-          <Subtitle>Balance</Subtitle>
+          <Subtitle>Balance
+          </Subtitle>
           <Text>{formatBalance(balance)}</Text>
         </Column>
 
