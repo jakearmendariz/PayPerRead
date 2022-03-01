@@ -4,6 +4,41 @@ import { useDispatch } from 'react-redux';
 
 import { Button } from 'react-bootstrap';
 import { setIsIframe, setLoggedIn } from '../redux/slice';
+
+import { formatBalance } from '../utils/methods';
+
+import styled from 'styled-components';
+
+const CheckoutBox = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: center
+`
+
+const LeftTh = styled.th`
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: left;
+  padding-left: 1rem;
+`
+const RightTh = styled.th`
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: right;
+`
+
+const Divider = styled.hr`
+  border-top: 2px solid #6f6f6f;
+  color: #fff;
+  margin-top: 0.5rem;
+`;
+
+const ErrorText = styled.div`
+  color: red;
+  font-size: 1rem;
+  font-weight: normal
+`
+
 // send message to parent about article purchase status
 const postPurchaseStatus = (s) => {
   window.parent.postMessage({ message: s }, document.referrer);
@@ -20,17 +55,16 @@ const ownsArticle = (state) => {
   }
 };
 
-const setArticleState = (state, setState, email, articleId) => {
+const fetchArticle = (state, setState, email, articleId) => {
   fetch(`http://localhost:8000/articles/${articleId}?email=${email}`)
     .then((resp) => {
       if (resp.status === 200) {
         resp.json().then((article) => {
-          const update = article.price.dollars + article.price.cents / 100.0;
-          if (update !== state.articlePrice) {
+          if (JSON.stringify(article.price) !== JSON.stringify(state.price)) {
             setState({
               guid: article.guid,
               articleTitle: article.article_name,
-              articlePrice: update,
+              articlePrice: article.price,
               loggedin: state.loggedin,
             });
           }
@@ -41,23 +75,26 @@ const setArticleState = (state, setState, email, articleId) => {
 
 const isLoggedin = (state, setState) => {
   if (state.loggedin === undefined) {
-    fetch('http://localhost:8000/cookies', {
+    fetch('http://localhost:8000/reader/account', {
       credentials: 'include',
     })
       .then((resp) => {
         if (resp.status === 200) {
-          setState({
-            guid: state.guid,
-            articleTitle: state.articleTitle,
-            articlePrice: state.articlePrice,
-            loggedin: true,
-          });
+          return resp.json();
         } else {
           setState({
-            guid: state.guid,
-            articleTitle: state.articleTitle,
-            articlePrice: state.articlePrice,
+            ...state,
             loggedin: false,
+          });
+          return null
+        }
+      })
+      .then(data => {
+        if (data !== null) {
+          setState({
+            ...state,
+            balance: data.balance,
+            loggedin: true,
           });
         }
       });
@@ -65,7 +102,7 @@ const isLoggedin = (state, setState) => {
 };
 
 function PaymentButton(props) {
-  const { purchaseArticle } = props;
+  const { purchaseArticle, insufficientBalance } = props;
   const [confirmingPayment, setConfirmation] = useState(false);
   const buttonStyle = {
     width: '50%',
@@ -77,34 +114,55 @@ function PaymentButton(props) {
     padding: '0.5rem',
     margin: '1rem',
   };
-  if (!confirmingPayment) {
-    return (
+
+  const buttonText = confirmingPayment ? 'Confirm Purchase' : 'Buy Article';
+  const handleClick = () => {
+    if (confirmingPayment) {
+      purchaseArticle();
+    } else {
+      setConfirmation(true);
+    }
+  }
+
+  return (
+    <>
       <Button
         style={buttonStyle}
         type="submit"
-        onClick={() => setConfirmation(true)}
+        onClick={handleClick}
       >
-        Buy Article
+        {buttonText}
       </Button>
-    );
-  }
-  return (
-    <Button
-      style={buttonStyle}
-      type="submit"
-      onClick={purchaseArticle}
-    >
-      Confirm Purchase
-    </Button>
+      {
+        insufficientBalance &&
+        <ErrorText>
+          Insufficient Balance
+        </ErrorText>
+      }
+
+    </>
   );
 }
 
 function PurchaseArticle() {
   // Define parameters and state
   const { email, id } = useParams();
-  const [state, setState] = useState({
-    guid: undefined, articleTitle: undefined, articlePrice: 0.00, loggedin: undefined,
+  const [articleState, setArticleState] = useState({
+    guid: undefined,
+    articleTitle: undefined,
+    articlePrice: {
+      dollars: 0,
+      cents: 0
+    },
   });
+  const [readerState, setReaderState] = useState({
+    balance: {
+      dollars: 0,
+      cents: 0
+    },
+    loggedin: undefined
+  });
+  const [insufficientBalance, setInsufficientBalance] = useState(false);
 
   // Actions
   const purchaseArticle = () => {
@@ -113,7 +171,11 @@ function PurchaseArticle() {
       credentials: 'include',
     })
       .then((resp) => {
-        if (resp.status === 200) postPurchaseStatus('success');
+        if (resp.status === 200) {
+          postPurchaseStatus('success');
+        } else {
+          setInsufficientBalance(true);
+        }
       });
   };
 
@@ -123,15 +185,15 @@ function PurchaseArticle() {
   // check if the user owns the article,
   // if not logged in direct them to signin
   useEffect(() => {
-    if (!state.loggedin) {
-      isLoggedin(state, setState);
-    }
-    if (state.loggedin) {
+    if (readerState.loggedin) {
       dispatch(setLoggedIn({ loggedIn: true }));
-      setArticleState(state, setState, email, id);
-      ownsArticle(state);
+      fetchArticle(articleState, setArticleState, email, id);
+      ownsArticle(articleState);
+    } else {
+      isLoggedin(readerState, setReaderState);
     }
-  });
+  }, [readerState.loggedin, articleState.guid]);
+
   const buttonStyle = {
     width: '50%',
     fontSize: '1.2rem',
@@ -143,28 +205,41 @@ function PurchaseArticle() {
     margin: '1.5rem',
   };
   // Render
-  console.log(state.loggedin);
-  if (state.loggedin === undefined || state.guid === undefined) {
-    if (state.loggedin !== false) {
+  if (readerState.loggedin === undefined || articleState.guid === undefined) {
+    if (readerState.loggedin !== false) {
       return null;
     }
   }
-  if (state.loggedin) {
+  if (readerState.loggedin) {
     return (
       <div style={{ margin: '2rem' }} className="text-center">
-        <h2 style={{ fontSize: '2.5rem' }}>
-          $
-          {state.articlePrice}
-        </h2>
         <p style={{ fontSize: '1.25rem' }}>
           To continue reading you have to purchase the article
           <br />
           &quot;
-          {state.articleTitle}
+          {articleState.articleTitle}
           &quot;
           <br />
         </p>
-        <PaymentButton purchaseArticle={purchaseArticle} />
+        <Divider />
+        <CheckoutBox>
+          <table>
+            <tbody>
+              <tr>
+                <RightTh>Your Balance:</RightTh>
+                <LeftTh align="left">{formatBalance(readerState.balance)}</LeftTh>
+              </tr>
+              <tr>
+                <RightTh align="right">Article Price:</RightTh>
+                <LeftTh align="left">{formatBalance(articleState.articlePrice)}</LeftTh>
+              </tr>
+            </tbody>
+          </table>
+        </CheckoutBox>
+        <PaymentButton
+          purchaseArticle={purchaseArticle}
+          insufficientBalance={insufficientBalance}
+        />
         <p
           style={{
             marginTop: '1rem', position: 'absolute', bottom: '0', textAlign: 'center',
@@ -173,26 +248,26 @@ function PurchaseArticle() {
         >
           Powered by PayPerRead
         </p>
-      </div>
+      </div >
     );
   }
   return (
     <div style={{ margin: '2rem' }} className="text-center">
       <h2 style={{ fontSize: '2rem' }}>Hi!</h2>
       <p style={{ fontSize: '1.25rem' }}>This page is requesting a one time fee to read this article.</p>
-      <p style={{ fontSize: '1.25rem', marginTop: "1rem"}}>
-        To continue you reading, you must make a <a style={{color:"black"}} href="http://localhost:3000">PayPerRead</a> account.
+      <p style={{ fontSize: '1.25rem', marginTop: "1rem" }}>
+        To continue you reading, you must make a <a style={{ color: "black" }} href="http://localhost:3000">PayPerRead</a> account.
         <br></br>
         <a className="btn btn-primary" target="blank" style={buttonStyle} href="/signin/reader" role="button">Sign Up</a>
       </p>
       <p
-          style={{
-            marginTop: '1.5rem', position: 'absolute', bottom: '0', textAlign: 'center',
-          }}
-          className="text-center"
-        >
-          Powered by PayPerRead
-        </p>
+        style={{
+          marginTop: '1.5rem', position: 'absolute', bottom: '0', textAlign: 'center',
+        }}
+        className="text-center"
+      >
+        Powered by PayPerRead
+      </p>
     </div>
   );
 }
