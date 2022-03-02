@@ -2,10 +2,7 @@ use crate::articles::ArticleGuid;
 /// reader.rs
 /// create, read, scan and delete users.
 /// TODO: Update users account balance
-use crate::common::{
-    email_filter, mongo_error, 
-    update_balance, ApiError, Balance
-};
+use crate::common::{email_filter, mongo_error, update_balance, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
