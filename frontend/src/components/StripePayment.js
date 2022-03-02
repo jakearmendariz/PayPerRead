@@ -32,10 +32,14 @@ const CARD_OPTIONS = {
 }
 
 export default function StripePayment() {
+    const [amount, setAmount] = useState(0)
     const [success, setSuccess] = useState(false)
     const stripe = useStripe()
     const elements = useElements()
-
+    const payload = {
+        dollars: 0,
+        cents: 0,
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -43,16 +47,12 @@ export default function StripePayment() {
             type: "card",
             card: elements.getElement(CardElement)
         })
-
+        payload.cents = event.target.amounts.value * 100;
 
         if (!error) {
             try {
-                const payload = {
-                    dollars: 5,
-                    cents: 5,
-                };
                 const p = JSON.stringify(payload);
-                fetch('http://localhost:8000/addBalance', {  //add balance endpoint
+                fetch('http://localhost:8000/reader/add-balance', {
                     method: 'POST',
                     credentials: 'include',
                     body: p,
@@ -74,16 +74,23 @@ export default function StripePayment() {
             {!success ?
                 <Card
                     title="Add to Balance"
-                    style={{ width: '25rem', height: '13rem', margin: '0 auto' }}
+                    style={{ width: '25rem', height: '20rem', margin: '0 auto' }}
                 >
-                    <Row/>
                     <form onSubmit={handleSubmit}>
                         <fieldset className="FormGroup">
+                            <label>Name on Card</label>
                             <div className="FormRow">
+                                <input placeholder="John Doe"></input>
+                            </div>
+                            <label>Amount</label>
+                            <div className="FormRow">
+                                <input placeholder="5" id="amounts"></input>
+                            </div>
+                            <div className="FormRow" style={{ marginTop: '0.5rem' }}>
                                 <CardElement options={CARD_OPTIONS} />
                             </div>
                         </fieldset>
-                        <button className="btn btn-primary btn-sm">Pay</button>
+                        <button className="btn btn-primary btn-sm" >Pay</button>
                     </form>
                 </Card>
                 :
