@@ -32,8 +32,7 @@ function multiplyBalance(balance, multiplier) {
 }
 
 function zeroBalance() {
-  console.log('zero');
-  fetch(buildApiUrl('publisher/deposit'), {
+  fetch('http://localhost:8000/publisher/deposit', {
     method: 'POST',
     credentials: 'include',
   }).then((response) => {

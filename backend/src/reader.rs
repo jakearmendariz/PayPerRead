@@ -2,7 +2,7 @@ use crate::articles::ArticleGuid;
 /// reader.rs
 /// create, read, scan and delete users.
 /// TODO: Update users account balance
-use crate::common::{email_filter, mongo_error, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, update_balance, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
@@ -118,4 +118,16 @@ pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Statu
         Ok(_) => Ok(Status::Ok),
         Err(_) => Err(ApiError::MongoDBError),
     }
+}
+
+#[post("/reader/add-balance", data = "<add_balance>")]
+pub fn add_to_balance(
+    mongo_db: State<MongoDB>,
+    session: Session,
+    add_balance: Json<Balance>,
+) -> Result<Status, ApiError> {
+    let reader = mongo_db.find_reader(&session.email)?;
+    let additional_balance = add_balance.into_inner();
+    let updated_balance = reader.balance + additional_balance;
+    update_balance(&mongo_db.readers, updated_balance, &session.email)
 }

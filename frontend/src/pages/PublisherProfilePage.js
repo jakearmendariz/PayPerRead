@@ -15,12 +15,6 @@ const Subtitle = styled.span`
   color: grey;
 `;
 
-// const Button = styled.span`
-//   color: blue;
-//   font-size: 2rem;
-//   text-align: center;
-// `;
-
 const Text = styled.span`
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
@@ -61,7 +55,8 @@ function AccountOverview({
         <Column style={{ marginRight: '1rem' }}>
           <Subtitle>Domain</Subtitle>
           <Text>{domain}</Text>
-          <Subtitle>Balance</Subtitle>
+          <Subtitle>Balance
+          </Subtitle>
           <Text>{formatBalance(balance)}</Text>
         </Column>
 
