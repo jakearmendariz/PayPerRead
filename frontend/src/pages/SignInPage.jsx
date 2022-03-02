@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import GoogleLogin from 'react-google-login';
+
+import LoadingIcon from '../components/LoadingIcon';
 
 import { useDispatch } from 'react-redux';
 import { setLoggedIn } from '../redux/slice';
@@ -149,6 +151,10 @@ function SignInPage() {
   const [cookies, setCookie] = useCookies();
   const { user } = useParams(); // get the slug
   const dispatch = useDispatch();
+  const [ state, setState ] = useState({ loading: false });
+
+  if(state.loading) return (<LoadingIcon />);
+
 
   // check if the signup is valid
   if (user !== 'reader' && user !== 'publisher') { return (<div />); } // redirect to a 404 page
@@ -158,6 +164,7 @@ function SignInPage() {
   // On the Google signin success
   const success = (response) => {
     // Cookie to distinguish between reader and publisher account
+    setState({ loading: true });
     setCookie('isPublisher', isPublisher, {
       path: '/',
       maxAge: 3600,

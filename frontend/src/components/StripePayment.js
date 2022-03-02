@@ -93,7 +93,7 @@ export default function StripePayment() {
                   <CardElement options={CARD_OPTIONS} />
                 </div>
               </fieldset>
-              <button className="btn btn-primary btn-s" style={{width: '100%', marginTop: '1rem'}}>Pay</button>
+              <button className="btn btn-primary btn-s" style={{ width: '100%', marginTop: '1rem' }}>Pay</button>
             </form>
           </Card>
         )
@@ -106,7 +106,7 @@ export default function StripePayment() {
               <Column style={{ marginRight: '1rem' }}>
                 <Subtitle>Complete</Subtitle>
                 <Text>Funds have been added to your account.</Text>
-                <NavLink to={paymentRedirect} className="btn btn-primary btn-s" style={{marginTop: '1rem'}}>Done</NavLink>
+                <NavLink to={paymentRedirect} className="btn btn-primary btn-s" style={{ marginTop: '1rem' }}>Done</NavLink>
               </Column>
             </Row>
           </Card>

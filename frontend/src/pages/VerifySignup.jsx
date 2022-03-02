@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux';
 import { setLoggedIn } from '../redux/slice';
 import { buildApiUrl } from '../utils/ApiConfig';
 
+import LoadingIcon from '../components/LoadingIcon';
+
 /*
  * Create the user and then redirect to the homepage
  */
@@ -48,12 +50,15 @@ const createNewUser = (details, navigate, publisherDetails, dispatch) => () => {
 function VerifySignup() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [state, setState] = useState({ text: '' });
+  const [state, setState] = useState({ text: '', loading: false });
   const dispatch = useDispatch();
   const isPublisher = location.state.userType === 'publisher';
   const handleChange = (e) => {
     setState({ text: e.currentTarget.value });
   };
+
+  if(state.loading)
+    return (<LoadingIcon />);
 
   return (
     <div className="center-content">
@@ -76,7 +81,10 @@ function VerifySignup() {
         <button
           type="submit"
           className="styled-button primary-color secondary-font"
-          onClick={createNewUser(location, navigate, { domain: state.text }, dispatch)}
+          onClick={() => {
+            setState({ ...state, loading: true });
+            createNewUser(location, navigate, { domain: state.text }, dispatch)();
+          }}
         >
           Verify Signup
         </button>

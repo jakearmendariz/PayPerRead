@@ -5,7 +5,7 @@ import App from './App';
 import ReaderProfilePage from './ReaderProfilePage';
 import PublisherProfilePage from './PublisherProfilePage';
 import SignInPage from './SignInPage';
-import VerifySignup from './VerifySignup.js';
+import VerifySignup from './VerifySignup';
 import PurchaseArticle from './PurchaseArticle';
 import Navbar from '../components/Navbar';
 import AddBalance from './AddBalance';
