@@ -14,12 +14,6 @@ const Subtitle = styled.span`
   color: grey;
 `;
 
-// const Button = styled.span`
-//   color: blue;
-//   font-size: 2rem;
-//   text-align: center;
-// `;
-
 const Text = styled.span`
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
