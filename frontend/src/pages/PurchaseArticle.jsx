@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
+import { buildApiUrl } from "../utils/ApiConfig"
 import { Button } from 'react-bootstrap';
 import { setIsIframe, setLoggedIn } from '../redux/slice';
 
@@ -46,7 +46,7 @@ const postPurchaseStatus = (s) => {
 
 const ownsArticle = (state) => {
   if (state.guid) {
-    fetch(`http://localhost:8000/articles/own/${state.guid}`, {
+    fetch(buildApiUrl(`articles/own/${state.guid}`), {
       credentials: 'include',
     })
       .then((resp) => {
@@ -56,7 +56,7 @@ const ownsArticle = (state) => {
 };
 
 const fetchArticle = (state, setState, email, articleId) => {
-  fetch(`http://localhost:8000/articles/${articleId}?email=${email}`)
+  fetch(buildApiUrl(`articles/${articleId}?email=${email}`))
     .then((resp) => {
       if (resp.status === 200) {
         resp.json().then((article) => {
@@ -75,7 +75,7 @@ const fetchArticle = (state, setState, email, articleId) => {
 
 const isLoggedin = (state, setState) => {
   if (state.loggedin === undefined) {
-    fetch('http://localhost:8000/reader/account', {
+    fetch(buildApiUrl('reader/account'), {
       credentials: 'include',
     })
       .then((resp) => {
@@ -166,7 +166,7 @@ function PurchaseArticle() {
 
   // Actions
   const purchaseArticle = () => {
-    fetch(`http://localhost:8000/articles/purchase/${email}/${id}`, {
+    fetch(buildApiUrl(`articles/purchase/${email}/${id}`), {
       method: 'POST',
       credentials: 'include',
     })

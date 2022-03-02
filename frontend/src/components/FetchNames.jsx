@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import { buildApiUrl } from '../utils/ApiConfig';
 const defaultState = {
 	names: [],
 };
@@ -14,7 +14,7 @@ const FetchNames = () => {
 	useEffect(() => {
 		
 		// the endpoint we are fetching from/the database (use a temporary one for now)
-		const url = "http://localhost:8000/readers";
+		const url = buildApiUrl("readers");
 		fetch(url)
 			.then(data => data.json())
 			.then(resp => {

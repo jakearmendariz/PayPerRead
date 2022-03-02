@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Table from 'react-bootstrap/Table';
 import { formatBalance, formatNumber, fetchArticles } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
-
+import { buildApiUrl } from '../utils/ApiConfig';
 import Card from '../components/Card';
 
 const Subtitle = styled.span`
@@ -106,7 +106,7 @@ function ReaderProfilePage() {
   const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/reader/account', {
+    fetch(buildApiUrl('reader/account'), {
       credentials: 'include',
     })
       .then((resp) => resp.json())

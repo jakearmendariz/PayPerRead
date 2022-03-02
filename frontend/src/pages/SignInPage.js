@@ -6,6 +6,7 @@ import GoogleLogin from 'react-google-login';
 
 import { useDispatch } from 'react-redux';
 import { setLoggedIn } from '../redux/slice';
+import { buildApiUrl } from '../utils/ApiConfig';
 
 function SignInComponent({
   subtitle, description, success, failure, alternate,
@@ -89,7 +90,7 @@ SignInComponent.propTypes = {
  */
 const doesUserExist = (response, navigate, userType, dispatch) => (exists, doesnt) => {
   const { email } = response.profileObj;
-  fetch(`http://localhost:8000/${userType}/${email}`).then((resp) => {
+  fetch(buildApiUrl(`${userType}/${email}`)).then((resp) => {
     if (resp.status === 200) exists(response, navigate, userType, dispatch);
     else doesnt(response, navigate, userType);
   });
@@ -124,7 +125,7 @@ const createNew = (response, navigate, userType) => {
  * userType: 'publisher' or 'reader' based on the slug
  */
 const login = (response, navigate, userType, dispatch) => {
-  const url = `http://localhost:8000/login/${userType}`;
+  const url = buildApiUrl(`login/${userType}`);
 
   fetch(url, {
     method: 'GET',

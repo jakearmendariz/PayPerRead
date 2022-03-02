@@ -9,6 +9,7 @@ import {
 } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 import Card from '../components/Card';
+import { buildApiUrl } from '../utils/ApiConfig';
 
 const Subtitle = styled.span`
   color: grey;
@@ -31,7 +32,6 @@ const Placeholder = styled.div`
 const sectionWidth = '55rem';
 
 function Deposit() {
-
   return (
     <a
       style={{ fontSize: '2rem', textAlign: 'center' }}
@@ -152,7 +152,7 @@ function PublisherProfilePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8000/publisher', {
+    fetch(buildApiUrl('publisher'), {
       credentials: 'include',
     })
       .then((resp) => resp.json())
