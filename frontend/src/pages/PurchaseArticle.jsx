@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { NavLink, useParams, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { buildApiUrl } from "../utils/ApiConfig"
 import { Button } from 'react-bootstrap';
-import { setIsIframe, setLoggedIn } from '../redux/slice';
+import { setIsIframe, setLoggedIn, setPaymentRedirect } from '../redux/slice';
 
 import { formatBalance } from '../utils/methods';
 
@@ -104,6 +104,7 @@ const isLoggedin = (state, setState) => {
 function PaymentButton(props) {
   const { purchaseArticle, insufficientBalance } = props;
   const [confirmingPayment, setConfirmation] = useState(false);
+
   const buttonStyle = {
     width: '50%',
     fontSize: '1.2rem',
@@ -135,9 +136,16 @@ function PaymentButton(props) {
       </Button>
       {
         insufficientBalance &&
-        <ErrorText>
-          Insufficient Balance
-        </ErrorText>
+        <>
+          <ErrorText>
+            Insufficient Balance
+          </ErrorText>
+          <ErrorText>
+            Please add more money to your balance
+            {' '}
+            <NavLink to="/reader/add-balance">here</NavLink>
+          </ErrorText>
+        </>
       }
 
     </>
@@ -163,6 +171,7 @@ function PurchaseArticle() {
     loggedin: undefined
   });
   const [insufficientBalance, setInsufficientBalance] = useState(false);
+  const location = useLocation();
 
   // Actions
   const purchaseArticle = () => {
@@ -182,6 +191,7 @@ function PurchaseArticle() {
   // Work before rendering
   const dispatch = useDispatch();
   dispatch(setIsIframe({ isIframe: true }));
+  dispatch(setPaymentRedirect({ paymentRedirect: location.pathname }));
   // check if the user owns the article,
   // if not logged in direct them to signin
   useEffect(() => {

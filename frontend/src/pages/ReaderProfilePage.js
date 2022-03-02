@@ -31,9 +31,10 @@ const sectionWidth = '55rem';
 function AccountDetails({ balance, articles }) {
   return (
     <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Account Details">
-      <Subtitle>Balance
+      <Subtitle>
+        Balance
         <a
-          href="reader/AddBalance"
+          href="reader/add-balance"
           style={{ marginLeft: '0.5rem', color: 'grey', textAlign: 'center' }}
         >
           <i className="fas fa-plus" />
