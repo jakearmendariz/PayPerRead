@@ -1,3 +1,5 @@
+import { buildApiUrl } from './ApiConfig';
+
 function formatNumber(num) {
   const numString = typeof num === 'number' ? num.toString() : num;
   return numString.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -11,7 +13,7 @@ function formatBalance(balance) {
 const fetchArticles = async (articles) => {
   let fetchedArticles = [];
   for (let i = 0; i < articles.length; i += 1) {
-    const article_detail = fetch(`http://localhost:8000/articles/${articles[i]}`);
+    const article_detail = fetch(buildApiUrl(`articles/${articles[i]}`));
     fetchedArticles.push(article_detail);
   }
 
@@ -31,7 +33,7 @@ function multiplyBalance(balance, multiplier) {
 
 function zeroBalance() {
   console.log('zero');
-  fetch('http://localhost:8000/publisher/deposit', {
+  fetch(buildApiUrl('publisher/deposit'), {
     method: 'POST',
     credentials: 'include',
   }).then((response) => {

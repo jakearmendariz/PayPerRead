@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import './css/Navbar.css';
 import { selectLoggedIn, setLoggedIn, selectIsIframe } from '../redux/slice';
 import { remValue } from '../utils/methods';
-
+import { buildApiUrl } from '../utils/ApiConfig';
 /** Check if the user is loggedin */
 const isLoggedIn = (dispatch) => {
-  fetch('http://localhost:8000/cookies', {
+  fetch(buildApiUrl('cookies'), {
     credentials: 'include',
   }).then((resp) => {
     if (resp.status === 200) {
@@ -22,7 +22,7 @@ const isLoggedIn = (dispatch) => {
 /** Logouts the user */
 const logout = () => {
   document.cookie = '';
-  fetch('http://localhost:8000/logout', {
+  fetch(buildApiUrl('logout'), {
     credentials: 'include',
   }).then((resp) => {
     document.cookie = 'isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT';

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setLoggedIn } from '../redux/slice';
+import { buildApiUrl } from '../utils/ApiConfig';
 
 /*
  * Create the user and then redirect to the homepage
@@ -21,7 +22,7 @@ const createNewUser = (details, navigate, publisherDetails, dispatch) => () => {
 
   const p = JSON.stringify(payload);
 
-  const url = isPublisher ? 'http://localhost:8000/publisher/new-publisher' : 'http://localhost:8000/reader/new-reader';
+  const url = buildApiUrl(isPublisher ? 'publisher/new-publisher' : 'reader/new-reader');
 
   // A post with no-cors has less options for content-type
   fetch(url, {
