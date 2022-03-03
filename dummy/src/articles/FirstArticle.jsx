@@ -9,19 +9,14 @@ const ArticleContents = () => (
   );
 
 function FirstArticle() {
-
   const [ state, setState ] = useState({ approved: false });
   
   const listenForRequest = (e) => {
-
     if(e.origin != "http://localhost:3000")
       return;
     if(!e.data.message || !e.data.message.includes("success")) {
-      console.log("error")
+      console.log("error from iframe")
       return;
-    }
-    if(e.data.message.includes("purchase")) {
-      window.confirm('Successfully purchased article')
     }
     setState({ approved: true });
   };

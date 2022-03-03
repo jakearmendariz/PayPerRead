@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { buildApiUrl } from "../utils/ApiConfig"
-import { Button } from 'react-bootstrap';
 import { setIsIframe, setLoggedIn, setPaymentRedirect } from '../redux/slice';
-
+import { Button } from 'react-bootstrap';
 import { formatBalance } from '../utils/methods';
 
 import styled from 'styled-components';
@@ -55,13 +54,16 @@ const postPurchaseStatus = (s) => {
   window.parent.postMessage({ message: s }, document.referrer);
 };
 
-const ownsArticle = (state) => {
+const ownsArticle = (state, setConfirmationPage) => {
   if (state.guid) {
     fetch(buildApiUrl(`articles/own/${state.guid}`), {
       credentials: 'include',
     })
       .then((resp) => {
-        if (resp.status === 200) postPurchaseStatus('success-owns');
+        if (resp.status === 200) {
+          postPurchaseStatus('success-owns');
+          setConfirmationPage(true);
+        }
       });
   }
 };
@@ -154,6 +156,7 @@ function PaymentButton(props) {
 function PurchaseArticle() {
   // Define parameters and state
   const { email, id } = useParams();
+  const [confirmationPage, setConfirmationPage] = useState(false);
   const [articleState, setArticleState] = useState({
     guid: undefined,
     articleTitle: undefined,
@@ -180,7 +183,8 @@ function PurchaseArticle() {
     })
       .then((resp) => {
         if (resp.status === 200) {
-          postPurchaseStatus('success-purchase');
+          // postPurchaseStatus('success-purchase');
+          setConfirmationPage(true);
         } else {
           setInsufficientBalance(true);
         }
@@ -197,7 +201,7 @@ function PurchaseArticle() {
     if (readerState.loggedin) {
       dispatch(setLoggedIn({ loggedIn: true }));
       fetchArticle(articleState, setArticleState, email, id);
-      ownsArticle(articleState);
+      ownsArticle(articleState, setConfirmationPage);
     } else {
       isLoggedin(readerState, setReaderState);
     }
@@ -208,6 +212,25 @@ function PurchaseArticle() {
     if (readerState.loggedin !== false) {
       return null;
     }
+  }
+  if (confirmationPage) {
+    return (
+      <div style={{ margin: '2rem', marginTop:'3rem'}} className="text-center">
+        <h2 style={{ fontSize: '3rem'}}>Confirmed</h2>
+        <p style={{ fontSize: '1.25rem' }}>You have succesfully purchased this article.</p>
+        <p style={{ fontSize: '1.25rem', marginTop: "1rem" }}>
+          <Button onClick={() => postPurchaseStatus('success')} className="btn btn-primary" style={buttonStyle} variant="primary">Start Reading</Button>
+        </p>
+        <p
+          style={{
+            marginTop: '1.5rem', position: 'absolute', bottom: '0', textAlign: 'center',
+          }}
+          className="text-center"
+        >
+          Powered by PayPerRead
+        </p>
+      </div>
+    )
   }
   if (readerState.loggedin) {
     return (
