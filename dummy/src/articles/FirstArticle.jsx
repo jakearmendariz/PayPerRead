@@ -16,9 +16,13 @@ function FirstArticle() {
 
     if(e.origin != "http://localhost:3000")
       return;
-    if(!e.data.message || e.data.message != "success")
+    if(!e.data.message || !e.data.message.includes("success")) {
+      console.log("error")
       return;
-
+    }
+    if(e.data.message.includes("purchase")) {
+      window.confirm('Successfully purchased article')
+    }
     setState({ approved: true });
   };
 

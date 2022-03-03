@@ -13,6 +13,27 @@ const ArticleContents = () => (
     </div>
   );
 
+// const Modal = () => (
+//   <div id="ConfirmationModal" className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+//     <div className="modal-dialog" role="document">
+//       <div className="modal-content">
+//         <div className="modal-header">
+//           <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
+//           <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+//             <span aria-hidden="true">&times;</span>
+//           </button>
+//         </div>
+//         <div className="modal-body">
+//           ...
+//         </div>
+//         <div className="modal-footer">
+//           <button type="button" className="btn btn-primary" data-dismiss="modal">Close</button>
+//         </div>
+//       </div>
+//     </div>
+//   </div>
+// );
+
 function SecondArticle() {
 
   const [ state, setState ] = useState({ approved: false });
@@ -21,9 +42,14 @@ function SecondArticle() {
 
     if(e.origin != "http://localhost:3000")
       return;
-    if(!e.data.message || e.data.message != "success")
+    if(!e.data.message || !e.data.message.includes("success")) {
+      console.log("error")
       return;
-
+    }
+    if(e.data.message.includes("purchase")) {
+      window.confirm('Successfully purchased article')
+      // $("#ConfirmationModal").modal();
+    }
     setState({ approved: true });
   };
 
@@ -43,6 +69,7 @@ function SecondArticle() {
   
   return (
     <div>
+      <Modal />
       <div style={textCenterStyle}>
       <h2>Premium PayPerRead Content</h2>
       { 

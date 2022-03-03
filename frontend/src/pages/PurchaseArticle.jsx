@@ -38,6 +38,17 @@ const ErrorText = styled.div`
   font-size: 1rem;
   font-weight: normal
 `
+const buttonStyle = {
+  width: '50%',
+  fontSize: '1.2rem',
+  backgroundColor: '#00CCF9',
+  borderColor: '#00CCF9',
+  outline: 'none',
+  outlineOffset: 'none',
+  padding: '0.5rem',
+  margin: '1.5rem',
+  boxShadow: 'none',
+};
 
 // send message to parent about article purchase status
 const postPurchaseStatus = (s) => {
@@ -50,7 +61,7 @@ const ownsArticle = (state) => {
       credentials: 'include',
     })
       .then((resp) => {
-        if (resp.status === 200) postPurchaseStatus('success');
+        if (resp.status === 200) postPurchaseStatus('success-owns');
       });
   }
 };
@@ -104,18 +115,6 @@ const isLoggedin = (state, setState) => {
 function PaymentButton(props) {
   const { purchaseArticle, insufficientBalance } = props;
   const [confirmingPayment, setConfirmation] = useState(false);
-
-  const buttonStyle = {
-    width: '50%',
-    fontSize: '1.2rem',
-    backgroundColor: '#00CCF9',
-    borderColor: '#00CCF9',
-    outline: 'none',
-    outlineOffset: 'none',
-    padding: '0.5rem',
-    margin: '1rem',
-  };
-
   const buttonText = confirmingPayment ? 'Confirm Purchase' : 'Buy Article';
   const handleClick = () => {
     if (confirmingPayment) {
@@ -181,7 +180,7 @@ function PurchaseArticle() {
     })
       .then((resp) => {
         if (resp.status === 200) {
-          postPurchaseStatus('success');
+          postPurchaseStatus('success-purchase');
         } else {
           setInsufficientBalance(true);
         }
@@ -204,16 +203,6 @@ function PurchaseArticle() {
     }
   }, [readerState.loggedin, articleState.guid]);
 
-  const buttonStyle = {
-    width: '50%',
-    fontSize: '1.2rem',
-    backgroundColor: '#00CCF9',
-    borderColor: '#00CCF9',
-    outline: 'none',
-    outlineOffset: 'none',
-    padding: '0.5rem',
-    margin: '1.5rem',
-  };
   // Render
   if (readerState.loggedin === undefined || articleState.guid === undefined) {
     if (readerState.loggedin !== false) {
