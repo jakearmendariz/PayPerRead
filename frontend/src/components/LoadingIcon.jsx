@@ -2,8 +2,8 @@ import React from 'react';
 
 import './css/LoadingIcon.css';
 
-const LoadingIcon = () => (
-  <div className="loader" />
+const LoadingIcon = ({ style }) => (
+  <div className="loader" style={style} />
 );
 
 export default LoadingIcon;

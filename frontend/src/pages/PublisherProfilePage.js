@@ -10,6 +10,7 @@ import {
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 import Card from '../components/Card';
 import { buildApiUrl } from '../utils/ApiConfig';
+import LoadingIcon from '../components/LoadingIcon';
 
 const Subtitle = styled.span`
   color: grey;
@@ -107,9 +108,16 @@ function ArticleEntry({ article }) {
   );
 }
 
-function RegisteredArticles({ articles }) {
+function RegisteredArticles({ articles, loading }) {
   articles = articles.map((article, index) => <ArticleEntry article={article} key={index} />);
-
+  function Bottom() {
+    return articles.length === 0 ? <Placeholder>None</Placeholder> : <></>;
+  }
+  if (loading) {
+    Bottom = function () {
+      return <LoadingIcon />;
+    };
+  }
   return (
     <Card style={{ width: '100%', minHeight: '100%' }} title="Registered Articles">
       <Table responsive>
@@ -120,19 +128,17 @@ function RegisteredArticles({ articles }) {
             <th>Revenue</th>
           </tr>
         </thead>
-        <tbody>
-          {articles}
-        </tbody>
+        {
+          loading
+            ? <></>
+            : (
+              <tbody>
+                {articles}
+              </tbody>
+            )
+        }
       </Table>
-      {
-        articles.length === 0
-          ? (
-            <Placeholder>
-              None
-            </Placeholder>
-          )
-          : <></>
-      }
+      <Bottom />
 
     </Card>
   );
@@ -150,6 +156,7 @@ function PublisherProfilePage() {
 
   const [registeredArticles, setRegisteredArticles] = useState([]);
   const [articleViews, setArticleViews] = useState(0);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -168,7 +175,7 @@ function PublisherProfilePage() {
             tempArticleViews += article.views;
           });
           setArticleViews(tempArticleViews);
-          console.log(result);
+          setLoading(false);
         });
       })
       .catch((err) => {
@@ -193,6 +200,7 @@ function PublisherProfilePage() {
             />
           </Row>
           <RegisteredArticles
+            loading={loading}
             articles={registeredArticles}
           />
         </Column>

@@ -153,7 +153,7 @@ function SignInPage() {
   const dispatch = useDispatch();
   const [ state, setState ] = useState({ loading: false });
 
-  if(state.loading) return (<LoadingIcon />);
+  if(state.loading) return (<LoadingIcon style={{marginTop: "10rem"}}/>);
 
 
   // check if the signup is valid

@@ -7,6 +7,7 @@ import { formatBalance, formatNumber, fetchArticles } from '../utils/methods';
 import { Row, Column, ResponsiveWidth } from '../utils/Adjustments';
 import { buildApiUrl } from '../utils/ApiConfig';
 import Card from '../components/Card';
+import LoadingIcon from '../components/LoadingIcon';
 
 const Subtitle = styled.span`
   color: grey;
@@ -56,7 +57,7 @@ function PaymentMethod() {
     <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Payment Method">
       <Subtitle>Visa</Subtitle>
       <Text>
-        ****-****-****-1234
+        ****-****-****-4242
       </Text>
     </Card>
   );
@@ -72,9 +73,16 @@ function PurchaseEntry({ purchase }) {
   );
 }
 
-function PurchaseHistory({ purchases }) {
+function PurchaseHistory({ purchases, loading }) {
   purchases = purchases.map((purchase, index) => <PurchaseEntry purchase={purchase} key={index} />);
-
+  function Bottom() {
+    return purchases.length === 0 ? <Placeholder>None</Placeholder> : <></>;
+  }
+  if (loading) {
+    Bottom = function () {
+      return <LoadingIcon />;
+    };
+  }
   return (
     <Card style={{ width: '100%', minHeight: '100%' }} title="Purchase History">
       <Table responsive>
@@ -86,10 +94,14 @@ function PurchaseHistory({ purchases }) {
           </tr>
         </thead>
         <tbody>
-          {purchases}
+          {
+            loading
+              ? <></>
+              : purchases
+          }
         </tbody>
       </Table>
-      {purchases.length === 0 ? <Placeholder>None</Placeholder> : <></>}
+      <Bottom />
     </Card>
   );
 }
@@ -105,6 +117,7 @@ function ReaderProfilePage() {
   });
 
   const [purchases, setPurchases] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(buildApiUrl('reader/account'), {
@@ -116,6 +129,7 @@ function ReaderProfilePage() {
         // Convert article guids into purchase data
         fetchArticles(data.articles, setPurchases).then((result) => {
           setPurchases(result);
+          setLoading(false);
         });
       })
       .catch((err) => {
@@ -137,6 +151,7 @@ function ReaderProfilePage() {
           </Row>
           <PurchaseHistory
             purchases={purchases}
+            loading={loading}
           />
         </Column>
       </ResponsiveWidth>

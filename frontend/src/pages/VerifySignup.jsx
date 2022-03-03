@@ -58,7 +58,7 @@ function VerifySignup() {
   };
 
   if(state.loading)
-    return (<LoadingIcon />);
+    return (<LoadingIcon style={{marginTop: "10rem"}}/>);
 
   return (
     <div className="center-content">

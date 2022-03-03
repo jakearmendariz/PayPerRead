@@ -8,7 +8,6 @@
   animation: spin 2s linear infinite;
 
   margin: auto;
-  margin-top: 10rem;
 }
 
 @keyframes spin {
