@@ -1,5 +1,5 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
@@ -45,13 +45,27 @@ export default function StripePayment() {
     cents: 0,
   };
 
+  const initialValues = { name: "", amount: "" };
+  const [formValues, setFormValues] = useState(initialValues);
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmit, setIsSubmit] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    setFormErrors(validate(formValues));
+    setIsSubmit(true);
+
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: 'card',
       card: elements.getElement(CardElement),
     });
-    payload.cents = event.target.amounts.value * 100;
+    payload.cents = event.target.amount.value * 100;
 
     if (!error) {
       try {
@@ -71,24 +85,56 @@ export default function StripePayment() {
     }
   };
 
+  useEffect(() => {
+    console.log(formErrors);
+    if (Object.keys(formErrors).length === 0 && isSubmit) {
+      console.log(formValues);
+    }
+  }, [formErrors]);
+  const validate = (values) => {
+    const errors = {};
+    const nameCheck = /^[a-z ,.'-]+$/i;
+    const amountCheck = /^\$?\-?([1-9]{1}[0-9]{0,2}(\,\d{3})*(\.\d{0,2})?|[1-9]{1}\d{0,}(\.\d{0,2})?|0(\.\d{0,2})?|(\.\d{1,2}))$|^\-?\$?([1-9]{1}\d{0,2}(\,\d{3})*(\.\d{0,2})?|[1-9]{1}\d{0,}(\.\d{0,2})?|0(\.\d{0,2})?|(\.\d{1,2}))$|^\(\$?([1-9]{1}\d{0,2}(\,\d{3})*(\.\d{0,2})?|[1-9]{1}\d{0,}(\.\d{0,2})?|0(\.\d{0,2})?|(\.\d{1,2}))\)$/i;
+    if (!nameCheck.test(values.name)){
+      errors.name = "Name must match name on the card.";
+    } else if (!values.name) {
+      errors.name = "Name must match name on the card.";
+    }
+    if (!values.amount) {
+      errors.amount = "Please enter a numeric amount.";
+    } else if (!amountCheck.test(values.amount)){
+      errors.amount = "Please enter a numeric amount.";
+    }
+    return errors;
+  };
+
   return (
     <>
       {!success
         ? (
           <Card
             title="Add to Balance"
-            style={{ width: '25rem', height: '20rem', margin: '1rem auto' }}
+            style={{ width: '25rem', height: '22rem', margin: '1rem auto' }}
           >
             <form onSubmit={handleSubmit}>
               <fieldset className="FormGroup">
                 <label>Name on Card</label>
                 <div className="FormRow">
-                  <input placeholder="John Doe" />
+                  <input placeholder="John Doe"
+                    name="name"
+                    value={formValues.name}
+                    onChange={handleChange}
+                  />
                 </div>
+                <p style={{color: "red"}}>{formErrors.name}</p>
                 <label>Amount</label>
                 <div className="FormRow">
-                  <input placeholder="5" id="amounts" />
+                  <input placeholder="5"
+                    name = "amount"
+                    value = {formValues.amount}
+                    onChange={handleChange} />
                 </div>
+                <p style={{color: "red"}}>{formErrors.amount}</p>
                 <div className="FormRow" style={{ marginTop: '0.5rem' }}>
                   <CardElement options={CARD_OPTIONS} />
                 </div>
