@@ -1,0 +1,36 @@
+import React, { useEffect } from 'react';
+
+/**
+ * PayPerRead component contains the iframe logic for communicating with PayPerRead.com
+ */
+export const PayPerRead = (props) => {
+    const { publisherEmail, articleId, showArticle, setShowArticle } = props;
+    const iframeUrl = `http://localhost:3000/purchase/${publisherEmail}/${articleId}`
+    const listenForRequest = (e) => {
+        if (e.origin != "http://localhost:3000")
+            return;
+        if (!e.data.message || !e.data.message.includes("success")) {
+            console.log("error from iframe")
+            return;
+        }
+        setShowArticle(true);
+    };
+
+    useEffect(() => {
+        window.addEventListener("message", listenForRequest);
+        return () => window.removeEventListener("message", listenForRequest);
+    }, []);
+
+    const iframeStyle = {
+        border: "2px solid #ddd"
+    };
+
+    return (
+        <div>
+            {
+                !showArticle &&
+                <iframe style={iframeStyle} width="500" height="400" src={iframeUrl} />
+            }
+        </div>
+    );
+}
