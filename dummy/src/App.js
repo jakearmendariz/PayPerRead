@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 import FirstArticle from './articles/FirstArticle';
 import SecondArticle from './articles/SecondArticle';
+import ThirdArticle from './articles/ThirdArticle';
 
-import logo from './logo.svg';
 import './App.css';
 
 function Home() {
@@ -39,9 +39,10 @@ function App() {
       <a style={{ float: 'right' }} href="http://localhost:3000">PayPerRead Home</a>
       <p style={linkStyle} onClick={() => setState({ page: (<FirstArticle />) })}>• How to use PayPerRead as a Reader</p>
       <p style={linkStyle} onClick={() => setState({ page: (<SecondArticle />) })}>• Premium PayPerRead Content</p>
+      <p style={linkStyle} onClick={() => setState({ page: (<ThirdArticle />) })}>• Very Interesting Article</p>
       <div style={dividerStyle} />
 
-      { state.page }
+      {state.page}
     </div>
 
   );
