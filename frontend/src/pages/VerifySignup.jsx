@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setLoggedIn } from '../redux/slice';
 import { buildApiUrl } from '../utils/ApiConfig';
-
+import { Button } from 'react-bootstrap';
 import LoadingIcon from '../components/LoadingIcon';
 
 /*
@@ -62,11 +62,12 @@ function VerifySignup() {
 
   return (
     <div className="center-content">
-      <div className="col-lg-2">
-        <h1 className="primary-font primary-color">Verify</h1>
+      <div className="col-lg-3">
+        <h1 className="mb-0 primary-font primary-color fw-bold">PayPerRead</h1>
+        <h2 className="primary-font primary-color">Create Account</h2>
         <p className="secondary-font primary-color">
           Hi
-          {location.state.name}
+          {' ' + location.state.name}
           ,
         </p>
         <p className="secondary-font primary-color my-1">Click verify to create your account with the following email,</p>
@@ -78,16 +79,17 @@ function VerifySignup() {
               <input className="w-100" onChange={handleChange} />
             </div>
           )}
-        <button
+        <Button
           type="submit"
-          className="styled-button primary-color secondary-font"
+          className="styled-button secondary-font primary-color justify-content-center"
+          style={{ color: '#f00', padding: '2rem' }}
           onClick={() => {
             setState({ ...state, loading: true });
             createNewUser(location, navigate, { domain: state.text }, dispatch)();
           }}
         >
           Verify Signup
-        </button>
+        </Button>
       </div>
     </div>
   );
