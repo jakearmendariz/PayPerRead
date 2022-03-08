@@ -215,8 +215,8 @@ function PurchaseArticle() {
   }
   if (confirmationPage) {
     return (
-      <div style={{ margin: '2rem', marginTop:'3rem'}} className="text-center">
-        <h2 style={{ fontSize: '2rem'}}>Confirmed</h2>
+      <div style={{ margin: '2rem', marginTop: '3rem' }} className="text-center">
+        <h2 style={{ fontSize: '2rem' }}>Confirmed</h2>
         <p style={{ fontSize: '1.25rem' }}>You have succesfully purchased this article.</p>
         <p style={{ fontSize: '1.25rem', marginTop: "1rem" }}>
           <Button onClick={() => postPurchaseStatus('success')} className="btn btn-primary" style={buttonStyle} variant="primary">Start Reading</Button>
@@ -281,6 +281,8 @@ function PurchaseArticle() {
         To continue you reading, you must make a <a style={{ color: "black" }} href="http://localhost:3000">PayPerRead</a> account.
         <br></br>
         <a className="btn btn-primary" target="blank" style={buttonStyle} href="/signin/reader" role="button">Sign Up</a>
+        <br></br>
+        Refresh this page after you are logged in.
       </p>
       <p
         style={{
