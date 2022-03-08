@@ -11,6 +11,7 @@ const Row = styled.div`
     align-items: center;
     margin: 0 -1rem;
     justify-content: space-between;
+    padding-top: calc(70px + 2rem);
   }
 `;
 
