@@ -136,6 +136,13 @@ impl Balance {
         // Should never panic...
         to_bson(&self).expect("Couldn't serialize balance")
     }
+
+    pub fn new(dollars: u32, cents: u32) -> Self {
+        Self {
+            dollars,
+            cents
+        }
+    }
 }
 
 impl Ord for Balance {

@@ -92,7 +92,9 @@ pub fn add_reader(
         return Err(ApiError::AuthorizationError);
     }
     let email = reader.email.clone();
-    match mongo_db.readers.insert_one(Reader::from(reader), None) {
+    let mut reader = Reader::from(reader);
+    reader.balance = Balance::new(5, 0);
+    match mongo_db.readers.insert_one(reader, None) {
         Ok(_) => {
             mongo_db.start_session(email, cookies)?;
             Ok(Status::Created)
