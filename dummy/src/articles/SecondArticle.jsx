@@ -22,17 +22,23 @@ function SecondArticle() {
   const textCenterStyle = {
     textAlign: "center",
   };
-
+  const centerItemsStyle = {
+    display: "flex",
+    justifyContent: "center"
+  }
   return (
     <div>
       <div style={textCenterStyle}>
         <h2>Premium PayPerRead Content</h2>
-        <PayPerRead
-          publisherEmail={"dwilby@ucsc.edu"}
-          articleId={"randomstring1"}
-          showArticle={showArticle}
-          setShowArticle={setShowArticle}
-        />
+        <div style={centerItemsStyle}>
+          <PayPerRead
+            publisherEmail={"dwilby@ucsc.edu"}
+            articleId={"randomstring1"}
+            showArticle={showArticle}
+            setShowArticle={setShowArticle}
+            show
+          />
+        </div>
       </div>
       {showArticle && <ArticleContents />}
     </div>

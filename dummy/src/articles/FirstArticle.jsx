@@ -15,16 +15,24 @@ function FirstArticle() {
     textAlign: "center",
   };
 
+  const centerItemsStyle = {
+    display: "flex",
+    justifyContent: "center"
+  }
+
   return (
     <div>
       <div style={textCenterStyle}>
         <h2>How to use PayPerRead as a Reader</h2>
-        <PayPerRead
-          publisherEmail={"dwilby@ucsc.edu"}
-          articleId={"randomstring"}
-          showArticle={showArticle}
-          setShowArticle={setShowArticle}
-        />
+        <div style={centerItemsStyle}>
+          <PayPerRead
+            publisherEmail={"dwilby@ucsc.edu"}
+            articleId={"randomstring"}
+            showArticle={showArticle}
+            setShowArticle={setShowArticle}
+            show
+          />
+        </div>
       </div>
       {showArticle && <ArticleContents />}
     </div>
