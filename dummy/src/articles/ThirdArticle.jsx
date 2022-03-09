@@ -117,7 +117,7 @@ function Paywall({ children }) {
     const [showIframe, setShowIframe] = useState(false);
 
     if (showArticle) return children;
-    
+
     return (
         <>
             <PaywallWrapper style={{ display: showArticle ? "none" : "inherit" }}>
@@ -138,16 +138,18 @@ function Paywall({ children }) {
                 <div>Alternatives</div>
                 <Spacer height="0.5rem" />
                 <Center>
-                    {
-                        showIframe ?
-                            <PayPerRead
-                                publisherEmail={"xyan87@ucsc.edu"}
-                                articleId={"weqEX323ujemE23"}
-                                showArticle={showArticle}
-                                setShowArticle={setShowArticle}
-                            /> :
-                            <PayPerReadIcon onClick={() => setShowIframe(true)} />
+                    <PayPerRead
+                        publisherEmail={"xyan87@ucsc.edu"}
+                        articleId={"weqEX323ujemE23"}
+                        showArticle={showArticle}
+                        setShowArticle={setShowArticle}
+                        show={showIframe}
+                    />
+                    {showIframe ?
+                        <></> :
+                        <PayPerReadIcon onClick={() => setShowIframe(true)} />
                     }
+
                 </Center>
             </PaywallWrapper>
             <PaywallBlur>

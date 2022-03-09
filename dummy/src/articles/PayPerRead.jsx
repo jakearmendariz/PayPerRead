@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
  * PayPerRead component contains the iframe logic for communicating with PayPerRead.com
  */
 export const PayPerRead = (props) => {
-    const { publisherEmail, articleId, showArticle, setShowArticle } = props;
+    const { publisherEmail, articleId, showArticle, setShowArticle, show } = props;
     const iframeUrl = `http://localhost:3000/purchase/${publisherEmail}/${articleId}`
     const listenForRequest = (e) => {
         if (e.origin != "http://localhost:3000")
@@ -22,7 +22,8 @@ export const PayPerRead = (props) => {
     }, []);
 
     const iframeStyle = {
-        border: "2px solid #ddd"
+        border: "2px solid #ddd",
+        display: show ? "inherit" : "none"
     };
 
     return (
