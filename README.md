@@ -1,6 +1,47 @@
 # PayPerRead
 
-PayPerRead is a website and service that provides an API/iframe that if added to a website will help block access to users until they pay a small fee to "own" access to that page. Enabling microtransactions for any website in exchange for its articles, artwork or hidden material.
+PayPerRead is a website and service that provides an API/iframe that if added to a website will help block access to users until they pay a small fee to "own" access to that page. Enabling microtransactions for any website in exchange for its articles, artwork or premium material.
+
+## How to run
+#### Backend
+First install rust (nightly addition) and **add a `.env` file** with proper configuration for mongodb and google api keys
+Then run
+```
+cd backend
+cargo run
+```
+
+#### Front end
+```
+npm i
+npm start
+```
+
+#### Dummy site
+```
+npm i
+npm start
+```
+
+## Adding PayPerRead to Your Site
+**Display iframe**
+For now, you can copy the boiler plate from our dummy website in the PayPerRead.jsx file. This will create
+a react.js component that handles the iframe logic. After this you only need to pass in props to identify the article
+and its publisher email.
+
+**Register Article:** Before using any of the articles, you must register the article with PayPerRead via our `/articles/register` endpoint. In the JSON body of the payload, it should have this payload.
+```
+{
+    article_uid: String,
+    publisher_email: String,
+    article_name: String,
+    price: {
+        dollars: u32,
+        cents: u32,
+    },
+}
+```
+
 
 ## Tech Stack
 - Rust & Rocket backend connected to mongodb
@@ -10,43 +51,10 @@ PayPerRead is a website and service that provides an API/iframe that if added to
 - Creates and logs in two different types of users.
     - Readers
     - Publishers
-- Allows publishers to dynamically register new articles
-- Checks reader access to articles
-- Allows reader to purchase articles
-
-## Articles API
-
-#### Registering Articles
-When asking PayPerRead for an iframe each website should provide a post request with the following information.
-```
-publisher_email: String,
-article_name: String, // For publisher to identify article
-article_guid: String, // For now this is provided by a client and enforced on backend
-article_price: { dollars: int, cents: int },
-// Maybe a publisher API key to verify this is a valid transatction. 
-// For now we can assume valid, but this needs to be verified.
-```
-
-If the publisher exists and requests comes from expected domain.
-- If article is Unique
-    - Create the article on our backend.
-- Return iframe with relevant information.
-
-#### Buying
-User wants to buy an article with payload
-```
-publisher_email: String,
-article_guid: String,
-// USER SESSION TOKEN IS MANDATORY FOR SECURITY
-```
-First check and handle the following cases.
-- Does the reader already own the article?
-- Does the publisher exist? 
-- Is this their domain? 
-- Does the article belong to the publisher?
-- Does the user have enough money?
-
-If all checks pass do the following.
-- Add article to reader
-- Subtract balance from reader
-- Add balance to publisher.
+- Both users can manage their account and check their balance.
+- Allows publishers to register new articles.
+- Checks reader access to articles.
+- Allows reader to purchase articles.
+- Reader's can add funds to their account via credit card (not yet authenticated with stripe).
+- Reader's can view payment history.
+- Publishers can view statistics on their articles. Including how many views and how much they made off the article.
