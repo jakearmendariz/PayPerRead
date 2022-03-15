@@ -122,14 +122,124 @@ pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Statu
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct StripePayment {
+    pub id: String,
+    pub dollars: u32,
+    pub cents: u32,
+}
+
+impl From<StripePayment> for Balance {
+    fn from(stripe: StripePayment) -> Self {
+        Balance::new(stripe.dollars, stripe.cents)
+    }
+}
+// curl https://api.stripe.com/v1/charges \
+// -u sk_test_4eC39HqLyjWDarjtT1zdp7dc: \
+// -d "amount"=999 \                   
+// -d "currency"="usd" \   
+// -d "description"="Example charge" \
+// -d "source"="tok_1KdeJ72eZvKYlo2CPdJnqNfQ" \
+// -d "statement_descriptor"="Custom descriptor"
+fn stripe_payment_body(amount: Balance, token: String) -> String {
+    // format!("{{\"amount\":{}, \"currency\":\"usd\", \"source\":\"tok_visa\"}}", amount.to_stripe())
+    format!("{{\"amount\":{}, \"currency\":\"usd\", \"source\":\"{}\"}}", amount.to_stripe(), token)
+}
+
+/*
+curl https://api.stripe.com/v1/charges \
+-u sk_test_4eC39HqLyjWDarjtT1zdp7dc: \
+--data {amount:999, currency}
+
+*/
+
 #[post("/reader/add-balance", data = "<add_balance>")]
 pub fn add_to_balance(
     mongo_db: State<MongoDB>,
     session: Session,
-    add_balance: Json<Balance>,
+    add_balance: Json<StripePayment>,
 ) -> Result<Status, ApiError> {
     let reader = mongo_db.find_reader(&session.email)?;
-    let additional_balance = add_balance.into_inner();
-    let updated_balance = reader.balance + additional_balance;
+    let stripe_payment = add_balance.into_inner();
+    println!("TOKEN {}", &stripe_payment.id);
+    let client = reqwest::blocking::Client::builder()
+        .user_agent("sk_test_4eC39HqLyjWDarjtT1zdp7dc")
+        .build()
+        .unwrap();
+    let token = stripe_payment.id.clone();
+    let payment_amount = Balance::from(stripe_payment);
+    /*curl https://api.stripe.com/v1/payment_intents \
+    -u sk_test_4eC39HqLyjWDarjtT1zdp7dc: \
+    -d "amount"=1099 \
+    -d "currency"="usd" \
+    -d "payment_method_types[]"="card"
+    */
+    let stripe_response =  client.post("https://api.stripe.com/v1/payment_intents")
+        .body("{amount: 10, currency: usd, payment_method_types[]: card}")
+        .send();
+    // let stripe_response = client
+    //     .post("https://api.stripe.com/v1/charges")
+    //     .header("Authorization", "Basic ".to_owned() + "sk_test_4eC39HqLyjWDarjtT1zdp7dc")
+    //     .body(stripe_payment_body(payment_amount, token))
+    //     .send();
+    match stripe_response {
+        Ok(response) => {
+            if !response.status().is_success() {
+                println!("Error not successful {:?}", response.text());
+                return Err(ApiError::AuthorizationError);
+            }
+        }
+        Err(_) => {
+            return Err(ApiError::AuthorizationError);
+        }
+    };
+    let updated_balance = reader.balance + payment_amount;
     update_balance(&mongo_db.readers, updated_balance, &session.email)
 }
+
+// ACCEPTING STRIPE PAYMENTS
+// Create a token for a given user
+// curl https://api.stripe.com/v1/tokens \
+//   -u sk_test_4eC39HqLyjWDarjtT1zdp7dc: \
+//   -d "card[number]"=4242424242424242 \
+//   -d "card[exp_month]"=3 \
+//   -d "card[exp_year]"=2023 \
+//   -d "card[cvc]"=314
+
+// curl https://api.stripe.com/v1/charges \
+// -u sk_test_4eC39HqLyjWDarjtT1zdp7dc: \
+// -d "amount"=999 \
+// -d "currency"="usd" \
+// -d "description"="Example charge" \
+// -d "source"="tok_visa" \
+// -d "statement_descriptor"="Custom descriptor"
+
+// use stripe;
+
+// fn stripe_shit(stripe_payment: StripePayment) {
+//     let token = "tok_ID_FROM_CHECKOUT".parse().unwrap();
+//     let mut params = stripe::CreateCharge::new();
+//     // NOTE: Stripe represents currency in the lowest denominations (e.g. cents)
+//     params.amount = Some(1095); // e.g. $10.95
+//     params.source = Some(stripe::ChargeSourceParams::Token(token));
+// }
+
+// #[post("/reader/stipe/add-balance", data = "<add_balance>")]
+// pub fn stripe_auth(
+//     mongo_db: State<MongoDB>,
+//     session: Session,
+//     add_balance: Json<Balance>,
+// ) -> Result<Status, ApiError> {
+//     let reader = mongo_db.find_reader(&session.email)?;
+//     let additional_balance = add_balance.into_inner();
+//     let updated_balance = reader.balance + additional_balance;
+//     update_balance(&mongo_db.readers, updated_balance, &session.email)
+// }
+
+// Hi,
+// I am the Product Owner for PayPerRead, and I was wondering if you were open to switching presentation times with me? My group is scheduled to present at 8:30 am on Wednesday, however, another teammate and I have a final at this time.
+
+// Please let me know if you can, we would really appreciate it.
+
+// Cheers,
+// Jake

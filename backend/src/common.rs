@@ -143,6 +143,10 @@ impl Balance {
             cents
         }
     }
+
+    pub fn to_stripe(self) -> u32 {
+        self.dollars + self.cents * 100
+    }
 }
 
 impl Ord for Balance {
