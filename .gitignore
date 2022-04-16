@@ -8,3 +8,5 @@ backend/.env
 backend/target/
 
 /dummy/.env
+https/
+backend/stripe_api.py

@@ -110,6 +110,8 @@ impl MongoDB {
             .or_else(mongo_error)?;
         Ok(Cookie::build(SESSION_COOKIE_STR, session.token)
             .http_only(true)
+            .secure(true)
+            .same_site(rocket::http::SameSite::Lax)
             .max_age(time::Duration::hours(COOKIE_LIFETIME_IN_HOURS))
             .path("/")
             .finish())

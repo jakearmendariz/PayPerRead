@@ -55,17 +55,29 @@ export default function StripePayment() {
     setFormValues({ ...formValues, [name]: value });
   };
 
+  const stripeTokenHandler = (token) => {
+    // Insert the token ID into the form so it gets submitted to the server
+    const form = document.getElementById('payment-form');
+    const hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'hidden');
+    hiddenInput.setAttribute('name', 'stripeToken');
+    hiddenInput.setAttribute('value', token.id);
+    form.appendChild(hiddenInput);
+  
+    // Submit the form
+    form.submit();
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     setFormErrors(validate(formValues));
     setIsSubmit(true);
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: elements.getElement(CardElement),
-    });
+    const {token, error} = await stripe.createToken(elements.getElement(CardElement));
     payload.cents = event.target.amount.value * 100;
+    payload.id = token.id;
+    console.log("TOKEN",token.id);
 
     if (!error) {
       try {

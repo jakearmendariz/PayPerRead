@@ -171,7 +171,7 @@ function SignInPage() {
     });
     doesUserExist(response, navigate, user, dispatch)(login, createNew);
   };
-  const failure = () => {};
+  const failure = (e) => {console.log(e);};
 
   return (
     <SignInComponent

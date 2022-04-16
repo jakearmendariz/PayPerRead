@@ -1,8 +1,7 @@
 use crate::articles::ArticleGuid;
 /// reader.rs
 /// create, read, scan and delete users.
-/// TODO: Update users account balance
-use crate::common::{email_filter, mongo_error, update_balance, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, update_balance, ApiError, ApiResult, Balance};
 use crate::mongo::MongoDB;
 use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
@@ -12,7 +11,7 @@ use rocket::{
 };
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
-
+use std::collections::HashMap;
 /// Reader represents a user on the site.
 /// Going to leave the credit card and other private information in another struct.
 #[derive(Debug, Serialize, Deserialize)]
@@ -122,14 +121,65 @@ pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Statu
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct StripePayment {
+    pub id: String,
+    pub dollars: u32,
+    pub cents: u32,
+}
+
+impl StripePayment {
+    fn amount_as_str(&self) -> String {
+        let amount = self.dollars * 100 + self.cents;
+        format!("{}", amount)
+    }
+
+    fn create_charge(&self) -> Result<reqwest::blocking::Response, reqwest::Error> {
+        let client = reqwest::blocking::Client::new();
+        // Build the parameter object
+        let mut map = HashMap::new();
+        map.insert("amount", self.amount_as_str());
+        map.insert("currency", "usd".to_owned());
+        map.insert("source", self.id.clone());
+        // Call stripe API
+        client
+            .post("https://api.stripe.com/v1/charges")
+            .form(&map)
+            .bearer_auth(dotenv!("STRIPE_SECRET"))
+            .send()
+    }
+
+    fn charge(&self) -> ApiResult<()> {
+        let stripe_response = self.create_charge();
+        // Match on the error
+        match stripe_response {
+            Ok(response) => {
+                if !response.status().is_success() {
+                    println!("Error not successful {:?}", response.text());
+                    return Err(ApiError::AuthorizationError);
+                }
+            }
+            Err(_) => {
+                return Err(ApiError::AuthorizationError);
+            }
+        };
+        Ok(())
+    }
+}
+
 #[post("/reader/add-balance", data = "<add_balance>")]
 pub fn add_to_balance(
     mongo_db: State<MongoDB>,
     session: Session,
-    add_balance: Json<Balance>,
+    add_balance: Json<StripePayment>,
 ) -> Result<Status, ApiError> {
     let reader = mongo_db.find_reader(&session.email)?;
-    let additional_balance = add_balance.into_inner();
-    let updated_balance = reader.balance + additional_balance;
+    let stripe_payment = add_balance.into_inner();
+    // Attempt to pay with stripe
+    stripe_payment.charge()?;
+    // Update the existing balance
+    let payment_amount = Balance::new(stripe_payment.dollars, stripe_payment.cents);
+    let updated_balance = reader.balance + payment_amount;
+    // Update the table
     update_balance(&mongo_db.readers, updated_balance, &session.email)
 }
