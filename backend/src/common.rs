@@ -138,10 +138,7 @@ impl Balance {
     }
 
     pub fn new(dollars: u32, cents: u32) -> Self {
-        Self {
-            dollars,
-            cents
-        }
+        Self { dollars, cents }
     }
 
     pub fn to_stripe(self) -> u32 {
