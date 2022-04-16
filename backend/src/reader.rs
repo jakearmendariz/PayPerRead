@@ -135,7 +135,7 @@ impl StripePayment {
     }
 
     fn create_charge(&self) -> Result<reqwest::blocking::Response, reqwest::Error> {
-        let client = reqwest::blocking::Client::builder().build().unwrap();
+        let client = reqwest::blocking::Client::new();
         // Build the parameter object
         let mut map = HashMap::new();
         map.insert("amount", self.amount_as_str());
@@ -145,10 +145,7 @@ impl StripePayment {
         client
             .post("https://api.stripe.com/v1/charges")
             .form(&map)
-            .header(
-                "Authorization",
-                "Basic ".to_owned() + dotenv!("STRIPE_SECRET_B64"),
-            )
+            .bearer_auth(dotenv!("STRIPE_SECRET"))
             .send()
     }
 
