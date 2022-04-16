@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import Card from './Card';
 import { Row, Column } from '../utils/Adjustments';
+import LoadingIcon from './LoadingIcon';
 
 import { selectPaymentRedirect } from '../redux/slice';
 
@@ -72,12 +73,13 @@ export default function StripePayment() {
     event.preventDefault();
 
     setFormErrors(validate(formValues));
-    setIsSubmit(true);
+
 
     const {token, error} = await stripe.createToken(elements.getElement(CardElement));
     payload.cents = event.target.amount.value * 100;
     payload.id = token.id;
     console.log("TOKEN",token.id);
+    setIsSubmit(true);
 
     if (!error) {
       try {
@@ -87,12 +89,15 @@ export default function StripePayment() {
           credentials: 'include',
           body: p,
         }).then((response) => {
+          setIsSubmit(false);
           setSuccess(true);
         });
       } catch (error) {
+        setIsSubmit(false);
         console.log('Error', error);
       }
     } else {
+      setIsSubmit(false);
       console.log(error.message);
     }
   };
@@ -119,6 +124,7 @@ export default function StripePayment() {
     }
     return errors;
   };
+  if(isSubmit) return (<LoadingIcon style={{marginTop: "10rem"}}/>);
 
   return (
     <>
