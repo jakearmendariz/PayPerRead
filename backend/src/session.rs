@@ -1,9 +1,8 @@
 /// session.rs
 /// Maintains sessions on the backend.
-use crate::common::{mongo_error, ApiError};
+use crate::common::{mongo_error, random_string, ApiError};
 use crate::mongo::MongoDB;
 use mongodb::bson::{doc, DateTime};
-use rand::{distributions::Alphanumeric, Rng};
 use rocket::{
     http::{Cookie, Cookies, Status},
     request::{self, FromRequest, Outcome, Request},
@@ -29,11 +28,7 @@ pub struct Session {
 impl Session {
     /// Builds a new session obj for a user.
     fn new(email: String) -> Self {
-        let token: String = rand::thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(12)
-            .map(char::from)
-            .collect();
+        let token = random_string(12);
         Session {
             email,
             created_at: DateTime::now(),

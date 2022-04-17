@@ -1,6 +1,8 @@
 /// articles.rs
 /// Manage article creation
-use crate::common::{email_filter, mongo_error, update_balance, ApiError, ApiResult, Balance};
+use crate::common::{
+    email_filter, mongo_error, random_string, update_balance, ApiError, ApiResult, Balance,
+};
 use crate::mongo::MongoDB;
 use crate::publisher::Publisher;
 use crate::reader::Reader;
@@ -18,6 +20,7 @@ pub type ArticleGuid = String;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Article {
     guid: ArticleGuid,
+    publisher: String,
     domain: String,
     article_name: String,
     created_at: DateTime,
@@ -26,9 +29,10 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn new(guid: String, domain: String, article_name: String, price: Balance) -> Self {
+    pub fn new(guid: String, publisher: String, domain: String, article_name: String, price: Balance) -> Self {
         Article {
             guid,
+            publisher,
             domain,
             article_name,
             created_at: DateTime::now(),
@@ -41,21 +45,18 @@ impl Article {
 /// Buy article if reader doesn't own it.
 /// Subtract balance from reader
 /// Pay publisher.
-/// TODO change to a article_guid (will need to parse to get publisher email)
-#[post("/articles/purchase/<publisher_email>/<article_uid>")]
+#[post("/articles/purchase/<article_uid>")]
 pub fn purchase_article(
     mongo_db: State<MongoDB>,
-    publisher_email: String,
     article_uid: String,
     session: Session,
 ) -> ApiResult<Status> {
     // Retrieve information
-    let publisher = mongo_db.find_publisher(&publisher_email)?;
-    let reader = mongo_db.find_reader(&session.email)?;
-    let guid = build_guid(&publisher_email, &article_uid);
     let article = mongo_db
-        .get_article(&guid)?
+        .get_article(&article_uid)?
         .ok_or(ApiError::ArticleNotRegistered)?;
+    let publisher = mongo_db.find_publisher(&article.publisher)?;
+    let reader = mongo_db.find_reader(&session.email)?;
     if reader.owns_article(&article.guid) {
         // Already purchased the article.
         return Ok(Status::Ok);
@@ -73,6 +74,7 @@ pub struct RegisterArticle {
     publisher_email: String,
     article_name: String,
     price: Balance,
+    api_key: String,
 }
 
 /// Register an article for a publisher.
@@ -82,12 +84,14 @@ pub fn register_article(
     mongo_db: State<MongoDB>,
     article: Json<RegisterArticle>,
     // Add an API key later on to verify this request
-) -> ApiResult<Status> {
+) -> Result<Json<Article>, ApiError> {
     let article = article.into_inner();
-    if mongo_db.article_exists(&article.publisher_email, &article.article_uid)? {
-        return Ok(Status::Ok);
+    let publisher = mongo_db.find_publisher(&article.publisher_email)?;
+    if publisher.api_key != Some(article.api_key.clone()) {
+        return Err(ApiError::AuthorizationError);
     }
-    mongo_db.insert_article(article)
+    let article = mongo_db.create_article(article)?;
+    Ok(Json(mongo_db.insert_article(article)?))
 }
 
 #[get("/articles/own/<article_guid>")]
@@ -106,25 +110,13 @@ pub fn owns_article(
     }
 }
 
-#[get("/articles/<article_id>?<email>")]
-pub fn get_article(
-    mongo_db: State<MongoDB>,
-    article_id: ArticleGuid,
-    email: Option<String>,
-) -> ApiResult<Json<Article>> {
-    let article_guid = match email {
-        Some(email) => build_guid(&email, &article_id),
-        None => article_id,
-    };
+#[get("/articles/<article_id>")]
+pub fn get_article(mongo_db: State<MongoDB>, article_id: ArticleGuid) -> ApiResult<Json<Article>> {
     // Retrieve article from guid
     let article = mongo_db
-        .get_article(&article_guid)?
+        .get_article(&article_id)?
         .ok_or(ApiError::ArticleNotRegistered)?;
     Ok(Json(article))
-}
-
-fn build_guid(email: &str, uid: &str) -> String {
-    email.to_string() + "@:" + uid
 }
 
 impl MongoDB {
@@ -135,30 +127,26 @@ impl MongoDB {
             .or_else(mongo_error)
     }
 
-    /// Check if the article exists in the collection
-    fn article_exists(&self, publisher_email: &str, article_uid: &str) -> ApiResult<bool> {
-        let guid = build_guid(publisher_email, article_uid);
-        Ok(self.get_article(&guid)?.is_some())
-    }
-
-    /// Inserts article for a publisher. Only call when article doesn't exist.
-    fn insert_article(&self, register_article: RegisterArticle) -> ApiResult<Status> {
-        let guid = build_guid(
-            &register_article.publisher_email,
-            &register_article.article_uid,
-        );
+    /// Build the article, using the publisher collection to get the domain.
+    fn create_article(&self, register_article: RegisterArticle) -> ApiResult<Article> {
+        let guid = random_string(18);
         let publisher = self.find_publisher(&register_article.publisher_email)?;
-        let article = Article::new(
+        Ok(Article::new(
             guid,
+            publisher.email,
             publisher.domain,
             register_article.article_name,
             register_article.price,
-        );
+        ))
+    }
+
+    /// Inserts article for a publisher. Only call when article doesn't exist.
+    fn insert_article(&self, article: Article) -> ApiResult<Article> {
         self.articles
             .insert_one(&article, None)
             .or_else(mongo_error)?;
-        self.add_article_to_publisher(&register_article.publisher_email, &article.guid)?;
-        Ok(Status::Created)
+        self.add_article_to_publisher(&article.publisher, &article.guid)?;
+        Ok(article)
     }
 
     /// Adds article guid for the publisher

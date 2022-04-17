@@ -23,7 +23,7 @@ function AppRouter() {
         <Route path="publisher" element={<PublisherProfilePage />} />
         <Route path="signin/:user" element={<SignInPage />} />
         <Route path="verify-signup" element={<VerifySignup />} />
-        <Route path="purchase/:email/:id" element={<PurchaseArticle />} />
+        <Route path="purchase/:id" element={<PurchaseArticle />} />
         <Route path="/reader/add-balance" element={<AddBalance />} />
       </Routes>
     </BrowserRouter>

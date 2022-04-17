@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useParams, useLocation } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { buildApiUrl } from "../utils/ApiConfig"
 import { setIsIframe, setLoggedIn, setPaymentRedirect } from '../redux/slice';
 import { Button } from 'react-bootstrap';
@@ -68,8 +68,8 @@ const ownsArticle = (state, setConfirmationPage) => {
   }
 };
 
-const fetchArticle = (state, setState, email, articleId) => {
-  fetch(buildApiUrl(`articles/${articleId}?email=${email}`))
+const fetchArticle = (state, setState, articleId) => {
+  fetch(buildApiUrl(`articles/${articleId}`))
     .then((resp) => {
       if (resp.status === 200) {
         resp.json().then((article) => {
@@ -155,7 +155,7 @@ function PaymentButton(props) {
 
 function PurchaseArticle() {
   // Define parameters and state
-  const { email, id } = useParams();
+  const { id } = useParams();
   const [confirmationPage, setConfirmationPage] = useState(false);
   const [articleState, setArticleState] = useState({
     guid: undefined,
@@ -177,7 +177,7 @@ function PurchaseArticle() {
 
   // Actions
   const purchaseArticle = () => {
-    fetch(buildApiUrl(`articles/purchase/${email}/${id}`), {
+    fetch(buildApiUrl(`articles/purchase/${id}`), {
       method: 'POST',
       credentials: 'include',
     })
@@ -200,7 +200,7 @@ function PurchaseArticle() {
   useEffect(() => {
     if (readerState.loggedin) {
       dispatch(setLoggedIn({ loggedIn: true }));
-      fetchArticle(articleState, setArticleState, email, id);
+      fetchArticle(articleState, setArticleState, id);
       ownsArticle(articleState, setConfirmationPage);
     } else {
       isLoggedin(readerState, setReaderState);

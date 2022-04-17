@@ -73,12 +73,9 @@ export default function StripePayment() {
     event.preventDefault();
 
     setFormErrors(validate(formValues));
-
-
     const {token, error} = await stripe.createToken(elements.getElement(CardElement));
     payload.cents = event.target.amount.value * 100;
     payload.id = token.id;
-    console.log("TOKEN",token.id);
     setIsSubmit(true);
 
     if (!error) {

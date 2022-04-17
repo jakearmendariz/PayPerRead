@@ -1,6 +1,7 @@
 /// common.rs
 /// Contains commonly used structs and features
 use mongodb::bson::{doc, to_bson, Bson, Document};
+use rand::{distributions::Alphanumeric, Rng};
 use rocket::http::Status;
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response};
@@ -120,6 +121,14 @@ pub fn update_balance<T>(
         Ok(_) => Ok(Status::Created),
         Err(_) => Err(ApiError::MongoDBError),
     }
+}
+
+pub fn random_string(size: usize) -> String {
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(size)
+        .map(char::from)
+        .collect()
 }
 
 /// Better to keep balance as two separate unsigned values

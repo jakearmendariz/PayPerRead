@@ -17,7 +17,7 @@ const Subtitle = styled.span`
 `;
 
 const Text = styled.span`
-  font-size: 1.2rem;
+  font-size: 1rem;
   margin-bottom: 0.5rem;
 `;
 
@@ -45,7 +45,7 @@ function Deposit() {
 }
 
 function AccountOverview({
-  domain, balance, articlesRegistered, articleViews,
+  domain, balance, articlesRegistered, articleViews, apiKey,
 }) {
   return (
     <Card
@@ -73,26 +73,16 @@ function AccountOverview({
   );
 }
 
-function DirectDeposit({ name }) {
+function DirectDeposit({ name, apiKey }) {
   return (
     <Card
       title="Direct Deposit"
       style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }}
     >
-      <Text> Visa ending **** 1234</Text>
-      <Subtitle>
-        {name}
-        {' '}
-        01/2022
-      </Subtitle>
-      <Row>
-        <Column style={{ marginRight: '1rem' }} />
+      <Text>Api Key: { apiKey }</Text>
 
-        <Column>
-          <Subtitle> Payout Using Stripe</Subtitle>
-          <Deposit>swer</Deposit>
-        </Column>
-      </Row>
+      <Subtitle> Payout Using Stripe</Subtitle>
+      <Deposit></Deposit>
     </Card>
   );
 }
@@ -147,6 +137,7 @@ function RegisteredArticles({ articles, loading }) {
 function PublisherProfilePage() {
   const [publisher, setPublisher] = useState({
     domain: '',
+    apiKey: '',
     balance: {
       dollars: 0,
       cents: 0,
@@ -194,9 +185,11 @@ function PublisherProfilePage() {
               balance={publisher.balance}
               articlesRegistered={publisher.articles.length}
               articleViews={articleViews}
+              apiKey={publisher.apiKey}
             />
             <DirectDeposit
               name={publisher.name}
+              apiKey={publisher.apiKey}
             />
           </Row>
           <RegisteredArticles

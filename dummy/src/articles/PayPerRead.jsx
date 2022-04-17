@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
  */
 export const PayPerRead = (props) => {
     const { publisherEmail, articleId, showArticle, setShowArticle, show } = props;
-    const iframeUrl = `http://localhost:3000/purchase/${publisherEmail}/${articleId}`
+    const iframeUrl = `http://localhost:3000/purchase/${articleId}`
     const listenForRequest = (e) => {
         if (e.origin != "http://localhost:3000")
             return;

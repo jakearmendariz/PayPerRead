@@ -1,5 +1,5 @@
 use crate::articles::ArticleGuid;
-use crate::common::{email_filter, mongo_error, update_balance, ApiError, Balance};
+use crate::common::{email_filter, mongo_error, random_string, update_balance, ApiError, Balance};
 use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
@@ -17,6 +17,8 @@ pub struct Publisher {
     pub domain: String,
     pub balance: Balance,
     pub articles: Vec<ArticleGuid>,
+    #[serde(rename(serialize = "apiKey"))]
+    pub api_key: Option<String>,
 }
 
 impl MongoDB {
@@ -30,12 +32,14 @@ impl MongoDB {
 
 impl From<NewPublisher> for Publisher {
     fn from(publisher: NewPublisher) -> Self {
+        let api_key = random_string(18);
         Publisher {
             email: publisher.email,
             name: publisher.name,
             domain: publisher.domain,
             balance: Balance::default(),
             articles: Vec::new(),
+            api_key: Some(api_key),
         }
     }
 }
