@@ -14,7 +14,7 @@ const Subtitle = styled.span`
 `;
 
 const Text = styled.span`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 0.5rem;
 `;
 
@@ -52,13 +52,11 @@ function AccountDetails({ balance, articles }) {
   );
 }
 
-function PaymentMethod() {
+function PaymentMethod({name, email}) {
   return (
-    <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Payment Method">
-      <Subtitle>Visa</Subtitle>
-      <Text>
-        ****-****-****-4242
-      </Text>
+    <Card style={{ width: '25rem', height: '13rem', marginBottom: '1rem' }} title="Profile Info">
+      <Text>Name: {name}</Text>
+      <Text>Email: {email}</Text>
     </Card>
   );
 }
@@ -109,6 +107,8 @@ function PurchaseHistory({ purchases, loading }) {
 function ReaderProfilePage() {
   const navigate = useNavigate();
   const [reader, setReader] = useState({
+    name: '',
+    email: '',
     balance: {
       dollars: 0,
       cents: 0,
@@ -147,7 +147,10 @@ function ReaderProfilePage() {
               balance={reader.balance}
               articles={reader.articles}
             />
-            <PaymentMethod />
+            <PaymentMethod 
+              name={reader.name}
+              email={reader.email}
+            />
           </Row>
           <PurchaseHistory
             purchases={purchases}

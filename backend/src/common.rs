@@ -9,8 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::error::Error as StdError;
 use std::fmt;
-use std::ops::Add;
-use std::ops::Sub;
+use std::ops::{Add, Sub};
 
 pub type ApiResult<T> = Result<T, ApiError>;
 
@@ -123,6 +122,7 @@ pub fn update_balance<T>(
     }
 }
 
+/// Generates a random alphanumeric string using rand library
 pub fn random_string(size: usize) -> String {
     rand::thread_rng()
         .sample_iter(&Alphanumeric)
