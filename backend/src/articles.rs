@@ -191,7 +191,7 @@ impl MongoDB {
         let reader_balance = reader.balance.try_subtracting(article.price)?;
         update_balance(&self.readers, reader_balance, &reader.email)?;
         // Add balance to writer.
-        let publisher_balance = publisher.balance + article.price;
+        let publisher_balance = publisher.balance + article.price.apply_service_fee();
         update_balance(&self.publishers, publisher_balance, &publisher.email)?;
         // Add article to reader.
         self.add_article_to_reader(&reader.email, &article.guid)
