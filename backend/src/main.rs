@@ -6,6 +6,7 @@ extern crate dotenv_codegen;
 extern crate time;
 mod articles;
 mod common;
+mod email;
 mod mongo;
 mod publisher;
 mod reader;
@@ -80,6 +81,7 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             publisher::get_account,
             reader::scan_readers,
             reader::get_account,
+            email::email,
         ],
     )
 }

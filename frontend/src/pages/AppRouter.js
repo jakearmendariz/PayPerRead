@@ -9,6 +9,7 @@ import VerifySignup from './VerifySignup';
 import PurchaseArticle from './PurchaseArticle';
 import Navbar from '../components/Navbar';
 import AddBalance from './AddBalance';
+import ContactUs from './ContactUs';
 
 function AppRouter() {
   const welcomeRef = useRef(null);
@@ -25,6 +26,7 @@ function AppRouter() {
         <Route path="verify-signup" element={<VerifySignup />} />
         <Route path="purchase/:id" element={<PurchaseArticle />} />
         <Route path="/reader/add-balance" element={<AddBalance />} />
+        <Route path="/contact-us" element={<ContactUs />} />
       </Routes>
     </BrowserRouter>
   );

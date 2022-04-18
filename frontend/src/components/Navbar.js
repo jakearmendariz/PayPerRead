@@ -143,6 +143,20 @@ function Navbar(props) {
                 About Us
               </NavLink>
             </li>
+            <li
+              className="nav-item"
+            >
+              <NavLink to="/contact-us" className="nav-links">
+                Contact Us
+              </NavLink>
+            </li>
+            <li
+              className="nav-item"
+            >
+              <NavLink to="/" className="nav-links">
+                Docs
+              </NavLink>
+            </li>
             <ManageProfile loggedIn={loggedIn} onClick={() => setClick(false)} />
             <SigninOrLogout loggedIn={loggedIn} onClick={() => setClick(false)} />
           </ul>

@@ -153,6 +153,14 @@ impl Balance {
     pub fn to_stripe(self) -> u32 {
         self.dollars + self.cents * 100
     }
+
+    pub fn apply_service_fee(&mut self) {
+        let service_fee = 0.90;
+        let total =
+            ((self.dollars as f32) * service_fee) + (((self.cents as f32) / 100.0) * service_fee);
+        self.dollars = total as u32;
+        self.cents = ((total - (self.dollars as f32)) * 100.0) as u32;
+    }
 }
 
 impl Ord for Balance {
@@ -233,5 +241,18 @@ mod tests {
         let b = new_balance(4, 9);
         assert!(a > b);
         assert!(b < a);
+    }
+
+    #[test]
+    fn service_fee() {
+        let mut _10 = new_balance(10, 0);
+        _10.apply_service_fee();
+        let _9 = new_balance(9, 0);
+        assert_eq!(_10, _9);
+
+        let mut _1499 = new_balance(14, 99);
+        _1499.apply_service_fee();
+        let _1349 = new_balance(13, 49);
+        assert_eq!(_1499, _1349);
     }
 }

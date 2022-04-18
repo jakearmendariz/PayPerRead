@@ -28,7 +28,13 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn new(guid: String, publisher: String, domain: String, article_name: String, price: Balance) -> Self {
+    pub fn new(
+        guid: String,
+        publisher: String,
+        domain: String,
+        article_name: String,
+        price: Balance,
+    ) -> Self {
         Article {
             guid,
             publisher,
