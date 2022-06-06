@@ -11,7 +11,7 @@ function Welcome(props) {
   return (
     <div className="welcome-container" ref={innerRef}>
       <h1>Pay Only For What You Read</h1>
-      <p>Trusted by Medium, Vox, NyTimes and the WallStreet Journal</p>
+      <p>No more annoying advertisments or subscription walls.</p>
       <a className="btn btn-primary" href="/signin/reader" role="button">Get Started</a>
 
     </div>

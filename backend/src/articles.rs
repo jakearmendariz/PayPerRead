@@ -88,8 +88,7 @@ pub struct RegisterArticle {
 pub fn register_article(
     mongo_db: State<MongoDB>,
     article: Json<RegisterArticle>,
-    // Add an API key later on to verify this request
-) -> Result<Json<Article>, ApiError> {
+) -> ApiResult<Json<Article>> {
     let article = article.into_inner();
     let publisher = mongo_db.find_publisher(&article.publisher_email)?;
     if publisher.api_key != Some(article.api_key.clone()) {

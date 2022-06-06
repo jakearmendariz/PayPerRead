@@ -99,7 +99,7 @@ pub fn email_filter(email: &str) -> Document {
 }
 
 /// Converts mongo's error struct to ours, printing information.
-/// Why not return the mongo error?
+/// Why not return the mongo error with the error specific information?
 /// If mongo errors out, its not the clients fault, its a mongo problem,
 /// and we neeed to investigate database via the mongo console.
 pub fn mongo_error<T>(e: mongodb::error::Error) -> Result<T, ApiError> {
