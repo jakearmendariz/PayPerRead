@@ -1,12 +1,12 @@
 [package]
 name = "pay_per_read"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.4.10"
+rocket = { version = "0.5.0-rc.2", features = ["json"] }
 mongodb = {version = "2.1.0", default-features = false, features = ["sync"] }
 serde = { version = "1.0", features = ["derive"] }
 rocket_contrib = { version = "0.4.6" }

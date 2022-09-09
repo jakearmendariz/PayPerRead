@@ -2,7 +2,7 @@ use crate::common::ApiError;
 use lettre::smtp::authentication::Credentials;
 use lettre::{SmtpClient, Transport};
 use lettre_email::EmailBuilder;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]

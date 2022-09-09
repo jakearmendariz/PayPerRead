@@ -8,8 +8,8 @@ use crate::publisher::Publisher;
 use crate::reader::Reader;
 use crate::session::Session;
 use mongodb::bson::{doc, DateTime};
+use rocket::serde::json::Json;
 use rocket::{http::Status, State};
-use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
 /// Seperate type so we can abstract this later on.
@@ -52,7 +52,7 @@ impl Article {
 /// Pay publisher.
 #[post("/articles/purchase/<article_uid>")]
 pub fn purchase_article(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     article_uid: String,
     session: Session,
 ) -> ApiResult<Status> {
@@ -86,7 +86,7 @@ pub struct RegisterArticle {
 /// If it already exists 200, else 201
 #[post("/articles/register", data = "<article>")]
 pub fn register_article(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     article: Json<RegisterArticle>,
 ) -> ApiResult<Json<Article>> {
     let article = article.into_inner();
@@ -100,7 +100,7 @@ pub fn register_article(
 
 #[get("/articles/own/<article_guid>")]
 pub fn owns_article(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     article_guid: ArticleGuid,
     session: Session,
 ) -> ApiResult<Status> {
@@ -115,7 +115,7 @@ pub fn owns_article(
 }
 
 #[get("/articles/<article_id>")]
-pub fn get_article(mongo_db: State<MongoDB>, article_id: ArticleGuid) -> ApiResult<Json<Article>> {
+pub fn get_article(mongo_db: &State<MongoDB>, article_id: ArticleGuid) -> ApiResult<Json<Article>> {
     // Retrieve article from guid
     let article = mongo_db
         .get_article(&article_id)?

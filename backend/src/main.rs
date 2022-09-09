@@ -26,6 +26,7 @@ use std::io::Cursor;
 
 pub struct CORS;
 
+#[rocket::async_trait]
 impl Fairing for CORS {
     fn info(&self) -> Info {
         Info {
@@ -34,7 +35,7 @@ impl Fairing for CORS {
         }
     }
 
-    fn on_response(&self, request: &Request, response: &mut Response) {
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
         response.set_header(Header::new(
             "Access-Control-Allow-Origin",
             "http://localhost:3000",
@@ -49,14 +50,17 @@ impl Fairing for CORS {
         ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
         if request.method() == Method::Options {
-            response.set_sized_body(Cursor::new(""));
+            response.set_sized_body(0, Cursor::new(""));
             response.set_status(Status::Ok);
         }
     }
 }
 
-fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
-    rocket::ignite().manage(mongo_db).attach(CORS).mount(
+#[launch]
+fn rocket() -> _ {
+    let mongo_db = mongo::connect_to_mongo()
+        .expect("Could not connect to mongoDB, try adding your IP address to allowlist.");
+    rocket::build().manage(mongo_db).attach(CORS).mount(
         "/",
         routes![
             index,
@@ -84,10 +88,4 @@ fn rocket(mongo_db: mongo::MongoDB) -> rocket::Rocket {
             email::email,
         ],
     )
-}
-
-fn main() {
-    let mongo_db = mongo::connect_to_mongo()
-        .expect("Could not connect to mongoDB, try adding your IP address to allowlist.");
-    rocket(mongo_db).launch();
 }

@@ -26,7 +26,8 @@ pub fn connect_to_mongo() -> Result<MongoDB, mongodb::error::Error> {
     // Ping the server to see if you can connect to the cluster
     client
         .database("admin")
-        .run_command(doc! {"ping": 1}, None)?;
+        .run_command(doc! {"ping": 1}, None)
+        .expect("Ping failed");
 
     // Preload the user database
     let user_db = client.database("Users");

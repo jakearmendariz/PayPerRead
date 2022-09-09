@@ -5,11 +5,11 @@ use crate::common::{email_filter, mongo_error, update_balance, ApiError, ApiResu
 use crate::mongo::MongoDB;
 use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
+use rocket::serde::json::Json;
 use rocket::{
-    http::{Cookies, Status},
+    http::{CookieJar, Status},
     State,
 };
-use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 /// Reader represents a user on the site.
@@ -59,7 +59,7 @@ impl MongoDB {
 /// Scan of entire readers table.
 /// Only for debugging/testing purposes
 #[get("/readers")]
-pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
+pub fn scan_readers(mongo_db: &State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiError> {
     // find with no parameters is just a scan.
     let cursor = mongo_db.readers.find(None, None).or_else(mongo_error)?;
     let readers_vec = cursor.map(|item| item.unwrap()).collect::<Vec<Reader>>();
@@ -67,23 +67,23 @@ pub fn scan_readers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Reader>>, ApiEr
 }
 
 #[get("/reader/<email>")]
-pub fn reader_exists(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+pub fn reader_exists(mongo_db: &State<MongoDB>, email: String) -> Result<Status, ApiError> {
     // Verify that a reader exists, do not return reader
     mongo_db.find_reader(&email)?;
     Ok(Status::Ok)
 }
 
 #[get("/reader/account")]
-pub fn get_account(mongo_db: State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
+pub fn get_account(mongo_db: &State<MongoDB>, session: Session) -> Result<Json<Reader>, ApiError> {
     Ok(Json(mongo_db.find_reader(&session.email)?))
 }
 
 #[post("/reader/new-reader", data = "<new_reader>")]
 pub fn add_reader(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     new_reader: Json<NewReader>,
     reader_auth: JwtAuth,
-    cookies: Cookies,
+    cookies: &CookieJar<'_>,
 ) -> Result<Status, ApiError> {
     let reader = new_reader.into_inner();
     if reader_auth.email != reader.email {
@@ -111,7 +111,7 @@ pub fn add_reader(
 }
 
 #[delete("/reader")]
-pub fn delete_reader(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
+pub fn delete_reader(mongo_db: &State<MongoDB>, session: Session) -> Result<Status, ApiError> {
     let result = mongo_db
         .readers
         .find_one_and_delete(email_filter(&session.email), None);
@@ -134,8 +134,8 @@ impl StripePayment {
         format!("{}", amount)
     }
 
-    fn create_charge(&self) -> Result<reqwest::blocking::Response, reqwest::Error> {
-        let client = reqwest::blocking::Client::new();
+    async fn create_charge(&self) -> Result<reqwest::Response, reqwest::Error> {
+        let client = reqwest::Client::new();
         // Build the parameter object
         let mut map = HashMap::new();
         map.insert("amount", self.amount_as_str());
@@ -147,15 +147,16 @@ impl StripePayment {
             .form(&map)
             .bearer_auth(dotenv!("STRIPE_SECRET"))
             .send()
+            .await
     }
 
-    fn charge(&self) -> ApiResult<()> {
+    async fn charge(&self) -> ApiResult<()> {
         let stripe_response = self.create_charge();
         // Match on the error
-        match stripe_response {
+        match stripe_response.await {
             Ok(response) => {
                 if !response.status().is_success() {
-                    println!("Error not successful {:?}", response.text());
+                    println!("Error not successful {:?}", response);
                     return Err(ApiError::AuthorizationError);
                 }
             }
@@ -168,15 +169,15 @@ impl StripePayment {
 }
 
 #[post("/reader/add-balance", data = "<add_balance>")]
-pub fn add_to_balance(
-    mongo_db: State<MongoDB>,
+pub async fn add_to_balance(
+    mongo_db: &State<MongoDB>,
     session: Session,
     add_balance: Json<StripePayment>,
 ) -> Result<Status, ApiError> {
     let reader = mongo_db.find_reader(&session.email)?;
     let stripe_payment = add_balance.into_inner();
     // Attempt to pay with stripe
-    stripe_payment.charge()?;
+    stripe_payment.charge().await?;
     // Update the existing balance
     let payment_amount = Balance::new(stripe_payment.dollars, stripe_payment.cents);
     let updated_balance = reader.balance + payment_amount;

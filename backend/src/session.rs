@@ -4,7 +4,7 @@ use crate::common::{mongo_error, random_string, ApiError};
 use crate::mongo::MongoDB;
 use mongodb::bson::{doc, DateTime};
 use rocket::{
-    http::{Cookie, Cookies, Status},
+    http::{Cookie, CookieJar, Status},
     request::{self, FromRequest, Outcome, Request},
     State,
 };
@@ -40,10 +40,11 @@ impl Session {
 /// Logs you in and creates a session for the user
 #[get("/login/reader")]
 pub fn login_reader(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     reader: JwtAuth,
-    cookies: Cookies,
+    cookies: &CookieJar<'_>,
 ) -> Result<Status, ApiError> {
+    println!("In Function");
     // Verify that the user we are looking up exists.
     mongo_db.find_reader(&reader.email)?;
     // Create cookie, save and return.
@@ -52,9 +53,9 @@ pub fn login_reader(
 
 #[get("/login/publisher")]
 pub fn login_publisher(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     publisher_auth: JwtAuth,
-    cookies: Cookies,
+    cookies: &CookieJar<'_>,
 ) -> Result<Status, ApiError> {
     // Verify that the user we are looking up exists.
     mongo_db.find_publisher(&publisher_auth.email)?;
@@ -69,7 +70,7 @@ pub fn check_cookies(_session: Session) -> Status {
 }
 
 #[get("/logout")]
-pub fn logout(_session: Session, mut cookies: Cookies) -> Status {
+pub fn logout(_session: Session, cookies: &CookieJar<'_>) -> Status {
     // Just remove cookie from browser.
     // No need to delete it from mongo, it will expire on its own.
     cookies.remove(Cookie::named("Session"));
@@ -89,7 +90,11 @@ impl MongoDB {
     }
 
     /// Starts session by adding cookies
-    pub fn start_session(&self, email: String, mut cookies: Cookies) -> Result<Status, ApiError> {
+    pub fn start_session(
+        &self,
+        email: String,
+        cookies: &CookieJar<'_>,
+    ) -> Result<Status, ApiError> {
         let cookie = self.create_session(email)?;
         cookies.add(cookie);
         Ok(Status::Ok)
@@ -107,18 +112,20 @@ impl MongoDB {
             .http_only(true)
             .secure(true)
             .same_site(rocket::http::SameSite::Lax)
-            .max_age(time::Duration::hours(COOKIE_LIFETIME_IN_HOURS))
+            .max_age(rocket::time::Duration::hours(COOKIE_LIFETIME_IN_HOURS))
             .path("/")
             .finish())
     }
 }
 
-impl<'r, 'a> FromRequest<'r, 'a> for Session {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for Session {
     type Error = ApiError;
     /// Request guard for sessions, returning a 404 if session isn't there or expired.
-    fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let cookies = request.cookies();
-        let mongo_db = match request.guard::<State<MongoDB>>() {
+        let outcome = request.guard::<&State<MongoDB>>().await;
+        let mongo_db = match outcome {
             Outcome::Success(mongo_db) => mongo_db.inner(),
             _ => return Outcome::Failure((Status::NotFound, ApiError::NotFound)),
         };
@@ -136,20 +143,34 @@ pub struct JwtAuth {
     pub email: String,
 }
 
-impl<'r, 'a> FromRequest<'r, 'a> for JwtAuth {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for JwtAuth {
     type Error = ApiError;
     /// Request guard for JWT authorization, verifies JWT with google.
-    fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let headers = request.headers();
         let jwt = match headers.get("Authorization").next() {
             Some(jwt) => jwt,
             None => return Outcome::Failure((Status::BadRequest, ApiError::AuthorizationError)),
         };
-        let google_response = reqwest::blocking::get(format!("{}{}", GOOGLE_TOKEN_AUTH, jwt))
-            .map_err(|_| (Status::Unauthorized, ApiError::AuthorizationError))?;
-        let reader: JwtAuth = google_response
-            .json()
-            .map_err(|_| (Status::InternalServerError, ApiError::InternalServerError))?;
+        let google_response = match reqwest::get(format!("{}{}", GOOGLE_TOKEN_AUTH, jwt)).await {
+            Ok(g_resp) => g_resp,
+            Err(_) => {
+                return request::Outcome::Failure((
+                    Status::Unauthorized,
+                    ApiError::AuthorizationError,
+                ))
+            }
+        };
+        let reader: JwtAuth = match google_response.json().await {
+            Ok(reader) => reader,
+            Err(_) => {
+                return request::Outcome::Failure((
+                    Status::InternalServerError,
+                    ApiError::InternalServerError,
+                ))
+            }
+        };
         Outcome::Success(reader)
     }
 }

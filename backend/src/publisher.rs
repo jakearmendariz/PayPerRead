@@ -4,9 +4,9 @@ use crate::mongo::MongoDB;
 use crate::session;
 use crate::session::{JwtAuth, Session};
 use mongodb::bson::doc;
-use rocket::http::{Cookies, Status};
+use rocket::http::{CookieJar, Status};
+use rocket::serde::json::Json;
 use rocket::State;
-use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
 /// Publisher provides the contents viewed by readers
@@ -54,7 +54,7 @@ pub struct NewPublisher {
 
 /// Scan of entire publishers table.
 #[get("/publishers")]
-pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>, ApiError> {
+pub fn scan_publishers(mongo_db: &State<MongoDB>) -> Result<Json<Vec<Publisher>>, ApiError> {
     // find with no parameters is just a scan.
     let cursor = mongo_db.publishers.find(None, None).or_else(mongo_error)?;
     let publishers_vec = cursor.map(|item| item.unwrap()).collect::<Vec<Publisher>>();
@@ -63,24 +63,24 @@ pub fn scan_publishers(mongo_db: State<MongoDB>) -> Result<Json<Vec<Publisher>>,
 
 #[get("/publisher")]
 pub fn get_account(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     session: session::Session,
 ) -> Result<Json<Publisher>, ApiError> {
     Ok(Json(mongo_db.find_publisher(&session.email)?))
 }
 
 #[get("/publisher/<email>")]
-pub fn publisher_exists(mongo_db: State<MongoDB>, email: String) -> Result<Status, ApiError> {
+pub fn publisher_exists(mongo_db: &State<MongoDB>, email: String) -> Result<Status, ApiError> {
     mongo_db.find_publisher(&email)?;
     Ok(Status::Ok)
 }
 
 #[post("/publisher/new-publisher", data = "<new_publisher>")]
 pub fn add_publisher(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     new_publisher: Json<NewPublisher>,
     publisher_auth: JwtAuth,
-    cookies: Cookies,
+    cookies: &CookieJar<'_>,
 ) -> Result<Status, ApiError> {
     let publisher = new_publisher.into_inner();
     if publisher_auth.email != publisher.email {
@@ -108,7 +108,7 @@ pub fn add_publisher(
 
 #[post("/publisher/deposit")]
 pub fn deposit_publisher_balance(
-    mongo_db: State<MongoDB>,
+    mongo_db: &State<MongoDB>,
     session: Session,
 ) -> Result<Status, ApiError> {
     // Deposit zero's a publisher balance, no payment logic yet.
@@ -118,7 +118,7 @@ pub fn deposit_publisher_balance(
 }
 
 #[delete("/publisher")]
-pub fn delete_publisher(mongo_db: State<MongoDB>, session: Session) -> Result<Status, ApiError> {
+pub fn delete_publisher(mongo_db: &State<MongoDB>, session: Session) -> Result<Status, ApiError> {
     let result = mongo_db
         .publishers
         .find_one_and_delete(email_filter(&session.email), None);

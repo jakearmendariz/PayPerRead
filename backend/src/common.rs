@@ -66,29 +66,26 @@ impl StdError for ApiError {
     }
 }
 
-impl<'r> Responder<'r> for ApiError {
+impl<'r> Responder<'r, 'r> for ApiError {
     fn respond_to(self, _: &Request) -> response::Result<'r> {
         // TODO use loggin library.
         println!("Responding with error: \"{}\"", self);
+
         match self {
             ApiError::NotFound => Err(Status::NotFound),
             ApiError::InternalServerError => Err(Status::InternalServerError),
             ApiError::MongoDBError => Ok(Response::build()
-                .raw_status(424, MONGO_DB_ERROR_MSG)
+                .status(Status::FailedDependency)
                 .finalize()),
-            ApiError::UserAlreadyExists => Ok(Response::build()
-                .raw_status(403, USER_ALREADY_EXISTS_MSG)
-                .finalize()),
-            ApiError::NotEnoughFunds => Ok(Response::build()
-                .raw_status(400, NOT_ENOUGH_FUNDS_MSG)
-                .finalize()),
-            ApiError::UserNotFound => {
-                Ok(Response::build().raw_status(404, USER_NOT_FOUND).finalize())
+            ApiError::UserAlreadyExists => {
+                Ok(Response::build().status(Status::Forbidden).finalize())
             }
+            ApiError::NotEnoughFunds => Ok(Response::build().status(Status::BadRequest).finalize()),
+            ApiError::UserNotFound => Ok(Response::build().status(Status::NotFound).finalize()),
             ApiError::AuthorizationError => Err(Status::Unauthorized),
-            ApiError::ArticleNotRegistered => Ok(Response::build()
-                .raw_status(400, ARTICLE_NOT_REGISTERED)
-                .finalize()),
+            ApiError::ArticleNotRegistered => {
+                Ok(Response::build().status(Status::BadRequest).finalize())
+            }
         }
     }
 }
@@ -150,7 +147,7 @@ impl Balance {
         Self { dollars, cents }
     }
 
-    pub fn to_stripe(self) -> u32 {
+    pub fn _to_stripe(self) -> u32 {
         self.dollars + self.cents * 100
     }
 
@@ -246,13 +243,7 @@ mod tests {
 
     #[test]
     fn test_service_fee() {
-        assert_eq!(
-            new_balance(10, 0).apply_service_fee(),
-            new_balance(9, 0)
-        );
-        assert_eq!(
-            new_balance(14, 99).apply_service_fee(),
-            new_balance(13, 49)
-        );
+        assert_eq!(new_balance(10, 0).apply_service_fee(), new_balance(9, 0));
+        assert_eq!(new_balance(14, 99).apply_service_fee(), new_balance(13, 49));
     }
 }
