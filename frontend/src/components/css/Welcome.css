@@ -1,77 +1,76 @@
-  
-  .welcome-container {
-    /* background: url("../images/bookbg.jfif") center center/cover no-repeat; */
-    object-fit: cover;
-    background-color: rgb(6,30, 45);
-    height: 100vh;
-    width: 100%;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0);
-    object-fit: contain;
-  }
-  
+.welcome-container {
+  /* background: url("../images/bookbg.jfif") center center/cover no-repeat; */
+  object-fit: cover;
+  background-color: var(--main-color);
+  height: 100vh;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0);
+  object-fit: contain;
+}
+
+.welcome-container > h1 {
+  color: rgb(255, 255, 255);
+  font-size: 6.5rem;
+  margin-top: -100px;
+  text-align: center;
+}
+
+.welcome-container > p {
+  margin-top: 8px;
+  color: rgb(255, 255, 255);
+  font-size: 32px;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  width: 70%;
+  text-align: center;
+}
+
+.welcome-links {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  height: 100%;
+}
+
+.welcome-links:hover {
+  border-bottom: 4px solid #fff;
+  transition: all 0.2s ease-out;
+}
+
+.fa-play-circle {
+  margin-left: 4px;
+}
+
+@media screen and (max-width: 960px) {
   .welcome-container > h1 {
-    color: rgb(255, 255, 255);
-    font-size: 6.5rem;
+    font-size: 70px;
+    margin-top: -150px;
+  }
+}
+
+@media screen and (max-width: 876px) {
+  .welcome-container > h1 {
+    font-size: 30px;
     margin-top: -100px;
-    text-align: center;
-  }
-  
-  .welcome-container > p {
-    margin-top: 8px;
-    color: rgb(255, 255, 255);
-    font-size: 32px;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
-      'Lucida Sans', Arial, sans-serif;
-    width: 70%;
-    text-align: center;
-  }
-  
-  .welcome-links {
-    color: #fff;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    height: 100%;
-  }
-  
-  .welcome-links:hover {
-    border-bottom: 4px solid #fff;
-    transition: all 0.2s ease-out;
-  }
-  
-  .fa-play-circle {
-    margin-left: 4px;
   }
 
-  @media screen and (max-width: 960px) {
-    .welcome-container > h1 {
-      font-size: 70px;
-      margin-top: -150px;
-    }
+  .welcome-container > p {
+    font-size: 18px;
   }
-  
-  @media screen and (max-width: 876px) {
-    .welcome-container > h1 {
-      font-size: 30px;
-      margin-top: -100px;
-    }
-  
-    .welcome-container > p {
-      font-size: 18px;
-    }
-  
-    .btn-mobile {
-      display: block;
-      text-decoration: none;
-    }
-  
-    .btn {
-      width: 100%;
-    }
+
+  .btn-mobile {
+    display: block;
+    text-decoration: none;
   }
+
+  .btn {
+    width: 100%;
+  }
+}

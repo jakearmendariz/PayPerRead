@@ -32,7 +32,6 @@ function SecondArticle() {
         <h2>Premium PayPerRead Content</h2>
         <div style={centerItemsStyle}>
           <PayPerRead
-            publisherEmail={"dwilby@ucsc.edu"}
             articleId={"randomstring1"}
             showArticle={showArticle}
             setShowArticle={setShowArticle}

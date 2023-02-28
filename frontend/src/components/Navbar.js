@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
-import './css/Navbar.css';
-import { selectLoggedIn, setLoggedIn, selectIsIframe } from '../redux/slice';
-import { remValue } from '../utils/methods';
-import { buildApiUrl } from '../utils/ApiConfig';
+import React, { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import "./css/Navbar.css";
+import { selectLoggedIn, setLoggedIn, selectIsIframe } from "../redux/slice";
+import { remValue } from "../utils/methods";
+import { buildApiUrl } from "../utils/ApiConfig";
+import Dropdown from "react-bootstrap/Dropdown";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import DropdownButton from "react-bootstrap/DropdownButton";
+
 /** Check if the user is loggedin */
 const isLoggedIn = (dispatch) => {
-  fetch(buildApiUrl('cookies'), {
-    credentials: 'include',
+  fetch(buildApiUrl("cookies"), {
+    credentials: "include",
   }).then((resp) => {
     if (resp.status === 200) {
       dispatch(setLoggedIn({ loggedIn: true }));
@@ -21,11 +25,11 @@ const isLoggedIn = (dispatch) => {
 
 /** Logouts the user */
 const logout = () => {
-  document.cookie = '';
-  fetch(buildApiUrl('logout'), {
-    credentials: 'include',
+  document.cookie = "";
+  fetch(buildApiUrl("logout"), {
+    credentials: "include",
   }).then((resp) => {
-    document.cookie = 'isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = "isPublisher= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
     window.location.reload(false);
   });
 };
@@ -63,15 +67,15 @@ function ManageProfile(props) {
   const { loggedIn, onClick } = props;
   let isPublisher = false;
   // TODO: Cleanup
-  const docCookies = document.cookie.split('; ');
+  const docCookies = document.cookie.split("; ");
   docCookies.forEach((docCookie) => {
-    docCookie = docCookie.split('=');
-    if (docCookie[0] == 'isPublisher') {
-      isPublisher = docCookie[1] == 'true';
+    docCookie = docCookie.split("=");
+    if (docCookie[0] == "isPublisher") {
+      isPublisher = docCookie[1] == "true";
     }
   });
 
-  const profileLink = isPublisher ? '/publisher' : '/reader';
+  const profileLink = isPublisher ? "/publisher" : "/reader";
 
   if (loggedIn) {
     return (
@@ -89,7 +93,7 @@ ManageProfile.propTypes = {
   loggedIn: PropTypes.bool,
 };
 
-const navbarHeight = (70 - remValue(2));
+const navbarHeight = 70 - remValue(2);
 
 function Navbar(props) {
   const [click, setClick] = useState(false);
@@ -108,61 +112,44 @@ function Navbar(props) {
 
   isLoggedIn(dispatch);
 
-  return isIframe
-    ? <></>
-    : (
-      <nav className="navbar">
-        <div className="navbar-container">
-          <h1 to="/" className="navbar-logo">
-            PayPerRead
-            <i className="fab fa-pushed" />
-          </h1>
-          <div className="menu-icon" onClick={handleClick}>
+  return isIframe ? (
+    <></>
+  ) : (
+    <nav className="navbar">
+      <div className="navbar-container">
+        <u1 className="navbar-logo">
+          <li>
+            <img src="logo-blue-center.png" alt="logo" />
+          </li>
+          <li>
+            <DropdownButton
+              id="dropdown-basic-button"
+              title="Resources"
+              className="drop-down"
+              style={{ backgroundColor: "#0d3c5a" }}
+            >
+              <Dropdown.Item href="/contact-us">Contact Us</Dropdown.Item>
+              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+            </DropdownButton>
+          </li>
+          <li>
+            <NavLink to="/" className="nav-links">
+              Developers
+            </NavLink>
+          </li>
+        </u1>
+        {/* <div className="menu-icon" onClick={handleClick}>
             <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
-          </div>
-          <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-            <li
-              className="nav-item"
-              onClick={() => {
-                scrollToView(welcomeRef);
-                setClick(false);
-              }}
-            >
-              <NavLink to="/" className="nav-links">
-                Home
-              </NavLink>
-            </li>
-            <li
-              className="nav-item"
-              onClick={() => {
-                scrollToView(aboutRef);
-                setClick(false);
-              }}
-            >
-              <NavLink to="/" className="nav-links">
-                About Us
-              </NavLink>
-            </li>
-            <li
-              className="nav-item"
-            >
-              <NavLink to="/contact-us" className="nav-links">
-                Contact Us
-              </NavLink>
-            </li>
-            <li
-              className="nav-item"
-            >
-              <NavLink to="/docs" className="nav-links">
-                Docs
-              </NavLink>
-            </li>
-            <ManageProfile loggedIn={loggedIn} onClick={() => setClick(false)} />
-            <SigninOrLogout loggedIn={loggedIn} onClick={() => setClick(false)} />
-          </ul>
-        </div>
-      </nav>
-    );
+          </div> */}
+        <ul className={click ? "nav-menu active" : "nav-menu"}>
+          <li className="nav-item"></li>
+          <ManageProfile loggedIn={loggedIn} onClick={() => setClick(false)} />
+          <SigninOrLogout loggedIn={loggedIn} onClick={() => setClick(false)} />
+        </ul>
+      </div>
+    </nav>
+  );
 }
 
 Navbar.propTypes = {

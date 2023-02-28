@@ -139,7 +139,6 @@ function Paywall({ children }) {
                 <Spacer height="0.5rem" />
                 <Center>
                     <PayPerRead
-                        publisherEmail={"xyan87@ucsc.edu"}
                         articleId={"weqEX323ujemE23"}
                         showArticle={showArticle}
                         setShowArticle={setShowArticle}

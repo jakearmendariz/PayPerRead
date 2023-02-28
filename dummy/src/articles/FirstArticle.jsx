@@ -26,7 +26,6 @@ function FirstArticle() {
         <h2>How to use PayPerRead as a Reader</h2>
         <div style={centerItemsStyle}>
           <PayPerRead
-            publisherEmail={"dwilby@ucsc.edu"}
             articleId={"randomstring"}
             showArticle={showArticle}
             setShowArticle={setShowArticle}

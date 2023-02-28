@@ -107,6 +107,7 @@ pub fn owns_article(
     // Does the current user own the article?
     // If so return 200, otherwise 404
     let reader = mongo_db.find_reader(&session.email)?;
+    /// TODO return repeatable hash to prove that this unique user has bought the article
     if reader.owns_article(&article_guid) {
         Ok(Status::Ok)
     } else {
