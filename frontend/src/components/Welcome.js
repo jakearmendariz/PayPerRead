@@ -13,6 +13,7 @@ function Welcome(props) {
       <h1>Pay Only For What You Read</h1>
       <p>No more annoying advertisments or subscription walls.</p>
       <a className="btn btn-primary" href="/signin/reader" role="button">Get Started</a>
+      <img src="phone-model.png" width = "22%"></img>
 
     </div>
   );

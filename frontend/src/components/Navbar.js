@@ -34,37 +34,9 @@ const logout = () => {
   });
 };
 
-/**
- * Different components should show up for a loggedin user.
- * @returns Returns a list item for signing in or logging out
- */
-function SigninOrLogout(props) {
-  const { loggedIn, onClick } = props;
-  if (loggedIn) {
-    return (
-      <li onClick={logout} className="nav-item">
-        <Link to="/" className="nav-links">
-          Logout
-        </Link>
-      </li>
-    );
-  }
-  return (
-    <li className="nav-item" onClick={onClick}>
-      <Link to="/signin/reader" className="nav-links">
-        Sign Up
-      </Link>
-    </li>
-  );
-}
-
-SigninOrLogout.propTypes = {
-  loggedIn: PropTypes.bool,
-};
-
 /** ManageProfile */
 function ManageProfile(props) {
-  const { loggedIn, onClick } = props;
+  const { onClick } = props;
   let isPublisher = false;
   // TODO: Cleanup
   const docCookies = document.cookie.split("; ");
@@ -77,20 +49,62 @@ function ManageProfile(props) {
 
   const profileLink = isPublisher ? "/publisher" : "/reader";
 
-  if (loggedIn) {
-    return (
-      <li className="nav-item" onClick={onClick}>
-        <Link to={profileLink} className="nav-links">
-          Manage Profile
-        </Link>
-      </li>
-    );
-  }
-  return null;
+  return (
+    <Dropdown.Item to={profileLink} className="nav-links">
+      Manage Profile
+    </Dropdown.Item>
+  );
 }
 
 ManageProfile.propTypes = {
   loggedIn: PropTypes.bool,
+};
+
+
+const ResourceDropDown = (props) => {
+  const [open, setOpen] = React.useState(false);
+  const { title } = props;
+  const handleOpen = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <div
+      className="dropdown"
+      style={{ backgroundColor: "#0d3c5a", borderRadius: "10px" }}
+    >
+      <button className="drop-down" onClick={handleOpen}>
+        <span style={{display:"inline"}}>{title} <svg
+    role="img"
+    width="12"
+    height="10"
+    viewBox="0 0 18 10"
+    fill="none"
+    stroke-width="1.8"
+    stroke="#555"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g>
+      <title></title>
+      <path d="M1 1L9 9L17 1" stroke="#999" stroke-width="1"></path>
+    </g>
+  </svg></span>
+      </button>
+      {open ? (
+        <ul
+          className="menu"
+          style={{ padding: "10px", backgroundColor: "white" }}
+        >
+          <li className="menu-item">
+            <a className="drop-down-options">Menu 1</a>
+          </li>
+          <li className="menu-item">
+            <a className="drop-down-options">Menu 2</a>
+          </li>
+        </ul>
+      ) : null}
+    </div>
+  );
 };
 
 const navbarHeight = 70 - remValue(2);
@@ -118,22 +132,13 @@ function Navbar(props) {
     <nav className="navbar">
       <div className="navbar-container">
         <u1 className="navbar-logo">
-          <li>
+          <li className="nav-item">
             <img src="logo-blue-center.png" alt="logo" />
           </li>
-          <li>
-            <DropdownButton
-              id="dropdown-basic-button"
-              title="Resources"
-              className="drop-down"
-              style={{ backgroundColor: "#0d3c5a" }}
-            >
-              <Dropdown.Item href="/contact-us">Contact Us</Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-            </DropdownButton>
+          <li className="nav-item">
+            <ResourceDropDown title="Resources" />
           </li>
-          <li>
+          <li className="nav-item">
             <NavLink to="/" className="nav-links">
               Developers
             </NavLink>
@@ -144,8 +149,26 @@ function Navbar(props) {
           </div> */}
         <ul className={click ? "nav-menu active" : "nav-menu"}>
           <li className="nav-item"></li>
-          <ManageProfile loggedIn={loggedIn} onClick={() => setClick(false)} />
-          <SigninOrLogout loggedIn={loggedIn} onClick={() => setClick(false)} />
+          {isLoggedIn ? (
+            <DropdownButton
+              id="dropdown-basic-button"
+              title="Profile"
+              className="drop-down"
+              variant="custom"
+              style={{ backgroundColor: "#0d3c5a" }}
+            >
+              <ManageProfile onClick={() => setClick(false)} />
+              <Dropdown.Item href="/" onClick={logout}>
+                Logout
+              </Dropdown.Item>
+            </DropdownButton>
+          ) : (
+            <li className="nav-item" onClick={onClick}>
+              <Link to="/signin/reader" className="nav-links">
+                Sign Up
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
     </nav>
